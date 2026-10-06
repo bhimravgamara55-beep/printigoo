@@ -224,17 +224,26 @@ if (fs.existsSync(path.join(__dirname, 'web'))) {
 }
 app.use(express.static(WEB_DIR));
 
-// Serve Customer Upload Portal for / and /q/:shop_slug
+// Serve Landing & Sign-in Page on Root /
 app.get('/', (req, res) => {
+  const homePath = path.join(WEB_DIR, 'home.html');
+  if (fs.existsSync(homePath)) {
+    return res.sendFile(homePath);
+  }
   res.sendFile(path.join(WEB_DIR, 'index.html'));
 });
 
+// Serve Customer QR Scan Upload Portal for /q/:shop_slug
 app.get('/q/:shop_slug', (req, res) => {
+  const customerPath = path.join(WEB_DIR, 'customer.html');
+  if (fs.existsSync(customerPath)) {
+    return res.sendFile(customerPath);
+  }
   const indexPath = path.join(WEB_DIR, 'index.html');
   if (fs.existsSync(indexPath)) {
     return res.sendFile(indexPath);
   }
-  res.send('PrintGoo Customer Web Portal: web/index.html not found.');
+  res.send('PrintGoo Customer Portal not found.');
 });
 
 // Serve Shopkeeper Live Dashboard
@@ -243,7 +252,7 @@ app.get('/dashboard/:shop_slug?', (req, res) => {
   if (fs.existsSync(dashPath)) {
     return res.sendFile(dashPath);
   }
-  res.send('PrintGoo Shopkeeper Dashboard: web/dashboard.html not found.');
+  res.send('PrintGoo Shopkeeper Dashboard: dashboard.html not found.');
 });
 
 // ---------------------------------------------------------------------
@@ -292,6 +301,57 @@ app.get('/api/shops/:shop_slug', (req, res) => {
   }
 
   res.json({ success: true, shop });
+});
+
+// Update Shop details (name, city, upiId, phone, whatsapp, pricing)
+app.post('/api/shops/:shop_slug', (req, res) => {
+  const slug = req.params.shop_slug.toLowerCase();
+  if (!shops[slug]) {
+    shops[slug] = {
+      slug,
+      name: slug.replace(/-/g, ' ').toUpperCase(),
+      status: 'online',
+      pricing: { bwSingle: 2, bwDouble: 3, colorSingle: 10, colorDouble: 15, legalMarkup: 1.5 }
+    };
+  }
+
+  const { name, address, upiId, phone, whatsapp, pricing } = req.body;
+  if (name) shops[slug].name = name;
+  if (address) shops[slug].address = address;
+  if (upiId) shops[slug].upiId = upiId;
+  if (phone) shops[slug].phone = phone;
+  if (whatsapp) shops[slug].whatsapp = whatsapp;
+  if (pricing) shops[slug].pricing = { ...shops[slug].pricing, ...pricing };
+
+  console.log(`[Shop Config] Updated shop ${slug}: Name="${shops[slug].name}", UPI="${shops[slug].upiId}"`);
+  res.json({ success: true, shop: shops[slug] });
+});
+
+// Submit & Record Subscription Payment (Shopkeeper pays Admin)
+app.post('/api/subscriptions/:shop_slug', (req, res) => {
+  const slug = req.params.shop_slug.toLowerCase();
+  const { planName, amount, utrNumber, phone } = req.body;
+
+  if (!shops[slug]) {
+    shops[slug] = { slug };
+  }
+
+  const days = (amount >= 1500 || (planName && planName.toLowerCase().includes('yearly'))) ? 365 : 30;
+  const now = new Date();
+  const validUntil = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+
+  shops[slug].subscription = {
+    plan: planName || (days === 365 ? 'Yearly Pro' : 'Monthly Pro'),
+    amount: amount || (days === 365 ? 1999 : 299),
+    utrNumber: utrNumber || '',
+    phone: phone || '',
+    status: 'active',
+    paidAt: now.toISOString(),
+    validUntil: validUntil.toISOString()
+  };
+
+  console.log(`[Subscription Activated] Shop ${slug} activated plan "${shops[slug].subscription.plan}" until ${validUntil.toDateString()}`);
+  res.json({ success: true, subscription: shops[slug].subscription });
 });
 
 // Toggle Station Online / Offline Status
