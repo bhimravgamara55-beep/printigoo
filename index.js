@@ -222,15 +222,17 @@ if (fs.existsSync(path.join(__dirname, 'web'))) {
 } else if (fs.existsSync(path.join(__dirname, '..', 'web'))) {
   WEB_DIR = path.join(__dirname, '..', 'web');
 }
-app.use(express.static(WEB_DIR));
-
-// Serve Landing & Sign-in Page on Root /
+// Serve Landing & Sign-in Page on Root / (Guaranteed home.html)
 app.get('/', (req, res) => {
   const homePath = path.join(WEB_DIR, 'home.html');
   if (fs.existsSync(homePath)) {
     return res.sendFile(homePath);
   }
-  res.sendFile(path.join(WEB_DIR, 'index.html'));
+  const indexPath = path.join(WEB_DIR, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  res.send('PrintGoo Landing Page not found.');
 });
 
 // Serve Customer QR Scan Upload Portal for /q/:shop_slug
@@ -238,10 +240,6 @@ app.get('/q/:shop_slug', (req, res) => {
   const customerPath = path.join(WEB_DIR, 'customer.html');
   if (fs.existsSync(customerPath)) {
     return res.sendFile(customerPath);
-  }
-  const indexPath = path.join(WEB_DIR, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    return res.sendFile(indexPath);
   }
   res.send('PrintGoo Customer Portal not found.');
 });
@@ -254,6 +252,9 @@ app.get('/dashboard/:shop_slug?', (req, res) => {
   }
   res.send('PrintGoo Shopkeeper Dashboard: dashboard.html not found.');
 });
+
+// Static files (disable index.html default to prevent override)
+app.use(express.static(WEB_DIR, { index: false }));
 
 // ---------------------------------------------------------------------
 // REST API ROUTES
