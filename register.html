@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PrintGoo — Business Registration · Create Shop Login</title>
+  <meta name="description" content="Register your Xerox or print shop on PrintGoo. Instant 7-day free trial, no credit card required." />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pgBg: '#FAF7F2',
+            pgCream: '#FDFBF7',
+            pgYellow: '#FFE68C',
+            pgYellowDark: '#E5C042',
+            pgMaroon: '#78251B',
+            pgMaroonHover: '#5E1B13',
+            pgRed: '#BD3A2B',
+            pgRedHover: '#9E2D20',
+            pgGreen: '#2E7D32',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #FAF7F2;
+      color: #1A1A1A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-pgBg min-h-screen flex flex-col antialiased selection:bg-pgYellow selection:text-pgMaroon">
+
+  <!-- TOP HEADER (Matches user screenshot) -->
+  <header class="py-4 px-4 sm:px-8 max-w-6xl mx-auto w-full flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <!-- Back Arrow -->
+      <a href="/" class="w-9 h-9 rounded-full bg-white border border-stone-200 shadow-xs flex items-center justify-center text-stone-700 hover:bg-stone-50 transition text-sm font-bold" title="Back to Home">
+        ←
+      </a>
+
+      <!-- Brand Badge & Title -->
+      <div>
+        <div class="inline-flex items-center bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 border-2 border-pgMaroon px-3 py-0.5 rounded-full shadow-xs">
+          <span class="font-black text-sm text-pgMaroon tracking-tight">Print<span class="text-sky-600">Goo</span></span>
+        </div>
+        <p class="text-[9px] font-extrabold tracking-wider text-stone-500 uppercase mt-0.5 ml-1">BUSINESS REGISTRATION</p>
+      </div>
+    </div>
+
+    <!-- Right Header Tag: Secure setup · Verified billing -->
+    <div class="flex items-center space-x-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-full shadow-2xs">
+      <span class="text-emerald-600">🛡️</span>
+      <span class="hidden sm:inline">Secure setup · Verified billing</span>
+      <span class="sm:hidden">Secure Setup</span>
+    </div>
+  </header>
+
+  <!-- MAIN REGISTRATION FLOW -->
+  <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 pt-2 pb-12 flex-1">
+    
+    <!-- STEP PROGRESS BAR (Step 1, 2, 3 exactly like screenshot) -->
+    <div class="bg-white rounded-2xl border border-stone-200 p-3 sm:p-4 mb-6 shadow-xs">
+      <div class="grid grid-cols-3 gap-2 text-left items-center">
+        
+        <!-- Step 1: Choose plan (Completed Checkmark) -->
+        <div class="flex items-center space-x-2.5">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-black shadow-xs shrink-0">
+            ✓
+          </div>
+          <div class="min-w-0">
+            <p class="text-[11px] sm:text-xs font-black text-stone-900 leading-tight">Choose plan</p>
+            <p class="text-[10px] text-stone-500 truncate hidden sm:block">Pick your membership</p>
+          </div>
+        </div>
+
+        <!-- Step 2: Shop details (Active Red #2) -->
+        <div class="flex items-center space-x-2.5 border-l border-stone-200 pl-3">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-pgRed text-white flex items-center justify-center text-xs font-black shadow-xs shrink-0">
+            2
+          </div>
+          <div class="min-w-0">
+            <p class="text-[11px] sm:text-xs font-black text-pgRed leading-tight">Shop details</p>
+            <p class="text-[10px] text-stone-500 truncate hidden sm:block">Create your login</p>
+          </div>
+        </div>
+
+        <!-- Step 3: Billing (Step 3 Pending) -->
+        <div class="flex items-center space-x-2.5 border-l border-stone-200 pl-3 opacity-60">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-stone-100 border border-stone-300 text-stone-500 flex items-center justify-center text-xs font-bold shrink-0">
+            3
+          </div>
+          <div class="min-w-0">
+            <p class="text-[11px] sm:text-xs font-bold text-stone-700 leading-tight">Billing</p>
+            <p class="text-[10px] text-stone-400 truncate hidden sm:block">Activate trial</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- REGISTRATION FORM CARD (Exact match to user screenshot) -->
+    <div class="bg-white rounded-3xl border border-stone-200/90 shadow-lg p-6 sm:p-8 relative">
+      
+      <!-- Top Card Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-stone-100">
+        <div>
+          <span class="text-[11px] font-black tracking-wider uppercase text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-md border border-sky-200">
+            STEP 2 · SHOP DETAILS
+          </span>
+          <h1 class="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight mt-2">
+            Create your shop login
+          </h1>
+          <p class="text-xs text-stone-500 font-medium mt-1">
+            All fields stay visible on desktop. Nothing is hidden behind another panel.
+          </p>
+        </div>
+
+        <!-- Plan Badge (e.g. Free Trial · Change) -->
+        <div class="self-start sm:self-auto">
+          <span id="planBadgeDisplay" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-100 border border-stone-300 text-stone-800 text-xs font-bold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span id="planBadgeText">7-Day Free Trial</span>
+            <a href="/#pricing" class="text-pgRed hover:underline font-semibold ml-1">Change</a>
+          </span>
+        </div>
+      </div>
+
+      <!-- Registration Form -->
+      <form id="regShopForm" onsubmit="handleRegistration(event)" class="mt-6 space-y-5">
+        
+        <!-- 1. Shop name (Full width) -->
+        <div>
+          <label class="block text-xs font-bold text-stone-800 mb-1.5">
+            Shop name <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="reg_shopName" 
+            required 
+            placeholder="Om Xerox & Prints" 
+            oninput="autoSuggestUsername()"
+            class="w-full px-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-pgMaroon text-xs sm:text-sm text-stone-900 font-semibold bg-stone-50/40"
+          />
+        </div>
+
+        <!-- 2. Owner name & City (2 columns) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-stone-800 mb-1.5">
+              Owner name <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="reg_ownerName" 
+              required 
+              placeholder="Your full name" 
+              class="w-full px-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-pgMaroon text-xs sm:text-sm text-stone-900 font-semibold bg-stone-50/40"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-stone-800 mb-1.5">
+              City <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="reg_city" 
+              required 
+              placeholder="City (e.g. Radhanpur, Ahmedabad)" 
+              class="w-full px-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-pgMaroon text-xs sm:text-sm text-stone-900 font-semibold bg-stone-50/40"
+            />
+          </div>
+        </div>
+
+        <!-- 3. Mobile number & WhatsApp (2 columns) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-stone-800 mb-1.5">
+              Mobile number <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="tel" 
+              id="reg_mobile" 
+              required 
+              maxlength="10" 
+              placeholder="10 digit mobile" 
+              oninput="syncWhatsapp(this.value)"
+              class="w-full px-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-pgMaroon text-xs sm:text-sm font-mono text-stone-900 font-semibold bg-stone-50/40"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-stone-800 mb-1.5">
+              WhatsApp
+            </label>
+            <input 
+              type="tel" 
+              id="reg_whatsapp" 
+              maxlength="10" 
+              placeholder="Optional - defaults to mobile" 
+              class="w-full px-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-pgMaroon text-xs sm:text-sm font-mono text-stone-900 font-semibold bg-stone-50/40"
+            />
+          </div>
+        </div>
+
+        <!-- 4. Choose username & Choose password (2 columns) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-stone-800 mb-1.5">
+              Choose username <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="reg_username" 
+              required 
+              placeholder="omxerox" 
+              class="w-full px-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-pgMaroon text-xs sm:text-sm font-mono text-stone-900 font-semibold bg-stone-50/40"
+            />
+            <p class="text-[10px] text-stone-400 mt-1">Must be unique across all PrintGoo shops</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-stone-800 mb-1.5">
+              Choose password <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input 
+                type="password" 
+                id="reg_password" 
+                required 
+                minlength="6" 
+                placeholder="Simple password - minimum 6 characters" 
+                class="w-full px-4 pr-11 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-pgMaroon text-xs sm:text-sm text-stone-900 font-semibold bg-stone-50/40"
+              />
+              <button type="button" onclick="togglePass()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 text-sm">
+                👁️
+              </button>
+            </div>
+            <p class="text-[10px] text-stone-400 mt-1">Any 6+ character password is allowed. No uppercase, number or symbol rule.</p>
+          </div>
+        </div>
+
+        <!-- 5. Card Footer: Trial Text + Submit Button -->
+        <div class="pt-6 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-xs text-stone-600 font-medium text-center sm:text-left">
+            Your <strong class="text-stone-900 font-bold">7-day free trial</strong> starts immediately. No billing required.
+          </p>
+
+          <button 
+            type="submit" 
+            id="btnStartTrial" 
+            class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover active:scale-[0.99] text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition cursor-pointer"
+          >
+            <span>Start free trial</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- Already Have An Account Link -->
+    <div class="text-center mt-6">
+      <p class="text-xs text-stone-600 font-medium">
+        Already have a shop registered? 
+        <a href="/" class="text-pgRed hover:underline font-bold ml-1">Login here</a>
+      </p>
+    </div>
+
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // URL Params parsing
+    const urlParams = new URLSearchParams(window.location.search);
+    const planParam = urlParams.get('plan') || 'free';
+    
+    // Update badge text based on param
+    if (planParam === 'monthly') {
+      document.getElementById('planBadgeText').textContent = 'Monthly Plan (₹299)';
+    } else if (planParam === 'yearly') {
+      document.getElementById('planBadgeText').textContent = 'Yearly Pro (₹1999)';
+    } else {
+      document.getElementById('planBadgeText').textContent = '7-Day Free Trial';
+    }
+
+    function togglePass() {
+      const p = document.getElementById('reg_password');
+      p.type = p.type === 'password' ? 'text' : 'password';
+    }
+
+    function syncWhatsapp(val) {
+      const w = document.getElementById('reg_whatsapp');
+      if (!w.dataset.userEdited) {
+        w.value = val;
+      }
+    }
+
+    document.getElementById('reg_whatsapp').addEventListener('input', function() {
+      this.dataset.userEdited = 'true';
+    });
+
+    function autoSuggestUsername() {
+      const shopName = document.getElementById('reg_shopName').value.trim();
+      const uField = document.getElementById('reg_username');
+      if (!uField.dataset.userEdited && shopName) {
+        const slug = shopName.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 15);
+        uField.value = slug;
+      }
+    }
+
+    document.getElementById('reg_username').addEventListener('input', function() {
+      this.dataset.userEdited = 'true';
+    });
+
+    async function handleRegistration(e) {
+      e.preventDefault();
+
+      const shopName = document.getElementById('reg_shopName').value.trim();
+      const ownerName = document.getElementById('reg_ownerName').value.trim();
+      const city = document.getElementById('reg_city').value.trim();
+      const mobile = document.getElementById('reg_mobile').value.trim();
+      const whatsapp = document.getElementById('reg_whatsapp').value.trim() || mobile;
+      const username = document.getElementById('reg_username').value.trim();
+      const password = document.getElementById('reg_password').value;
+
+      if (!shopName || !ownerName || !city || !mobile || !username || !password) {
+        alert('Please fill all required fields.');
+        return;
+      }
+
+      if (mobile.length < 10) {
+        alert('Please enter a valid 10-digit mobile number.');
+        return;
+      }
+
+      if (password.length < 6) {
+        alert('Password must be at least 6 characters.');
+        return;
+      }
+
+      // Generate slug
+      const slug = username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-shop';
+
+      const btn = document.getElementById('btnStartTrial');
+      btn.disabled = true;
+      btn.innerHTML = '<span>Activating Shop...</span>';
+
+      try {
+        // Send registration to server API
+        const res = await fetch(`/api/shops/${slug}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: shopName,
+            ownerName: ownerName,
+            address: city,
+            phone: mobile,
+            whatsapp: whatsapp,
+            username: username,
+            password: password,
+            plan: '7-Day Free Trial'
+          })
+        });
+
+        // Calculate 7-Day trial expiration
+        const now = new Date();
+        const trialExpiry = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+        // Store user session in localStorage
+        localStorage.setItem('printgoo_current_user', shopName);
+        localStorage.setItem('printgoo_current_slug', slug);
+        localStorage.setItem('printgoo_owner_name', ownerName);
+        localStorage.setItem('printgoo_city', city);
+        localStorage.setItem('printgoo_mobile', mobile);
+        localStorage.setItem('printgoo_trial_until', trialExpiry.toISOString());
+
+        // Also save shop configuration cache
+        const localShop = {
+          name: shopName,
+          ownerName: ownerName,
+          address: city,
+          slug: slug,
+          phone: mobile,
+          whatsapp: whatsapp,
+          status: 'online',
+          pricing: { bwSingle: 2, bwDouble: 3, colorSingle: 10, colorDouble: 15, legalMarkup: 1.5 },
+          subscription: {
+            plan: '7-Day Free Trial',
+            amount: 0,
+            status: 'active',
+            validUntil: trialExpiry.toISOString()
+          }
+        };
+        localStorage.setItem(`printgoo_shop_${slug}`, JSON.stringify(localShop));
+
+        // Direct redirect to the live Shop Dashboard
+        window.location.href = `/dashboard/${slug}`;
+
+      } catch (err) {
+        console.error('Registration error:', err);
+        // Fallback offline-first redirect
+        localStorage.setItem('printgoo_current_user', shopName);
+        localStorage.setItem('printgoo_current_slug', slug);
+        window.location.href = `/dashboard/${slug}`;
+      }
+    }
+  </script>
+
+</body>
+</html>

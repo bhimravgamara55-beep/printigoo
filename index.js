@@ -228,6 +228,15 @@ app.get('/q/:shop_slug', (req, res) => {
   res.send('PrintGoo Customer Portal not found.');
 });
 
+// Serve Business Registration / Onboarding Page
+app.get('/register', (req, res) => {
+  const regPath = path.join(WEB_DIR, 'register.html');
+  if (fs.existsSync(regPath)) {
+    return res.sendFile(regPath);
+  }
+  res.sendFile(path.join(WEB_DIR, 'home.html'));
+});
+
 // Serve Shopkeeper Live Dashboard
 app.get('/dashboard/:shop_slug?', (req, res) => {
   const dashPath = path.join(WEB_DIR, 'dashboard.html');

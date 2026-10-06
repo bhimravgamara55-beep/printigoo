@@ -1,1 +1,669 @@
--NoNewline
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PrintGoo - Instant QR Scan-to-Print</title>
+  <meta name="description" content="Instant Xerox & Document Printing straight from your smartphone. No app download required." />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pgBg: '#FAF7F2',
+            pgCream: '#FDFBF7',
+            pgYellow: '#FFE68C',
+            pgYellowDark: '#E5C042',
+            pgMaroon: '#78251B',
+            pgMaroonDark: '#561912',
+            pgRed: '#C92A2A',
+            pgRedHover: '#B02525',
+            pgBorder: '#EFE8DA'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- PDF.js for instant client-side page counting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Socket.io client -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    body {
+      background-color: #FAF7F2;
+      color: #1A1A1A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.5; }
+    }
+    .live-dot {
+      animation: pulse-dot 1.8s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-pgBg min-h-screen flex flex-col antialiased selection:bg-pgYellow selection:text-pgMaroon pb-12">
+
+  <!-- TOP HEADER -->
+  <header class="bg-[#FAF7F2] border-b border-pgBorder py-3 px-4 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      
+      <!-- Logo & Brand Badge -->
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-full bg-pgYellow flex items-center justify-center shadow-sm text-lg">
+          🤖
+        </div>
+        <div>
+          <div class="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 border border-pgMaroon px-2.5 py-0.5 rounded-full shadow-sm flex items-center">
+            <span class="font-black text-sm text-pgMaroon tracking-tighter">Print<span class="text-sky-600">Goo</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Station Online / Offline Live Indicator -->
+      <div id="customerStationBadge" class="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
+        <span id="customerStationText">Station Online</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-md mx-auto w-full px-4 pt-3 flex-1 space-y-4">
+
+    <!-- SHOP BANNER (SMART PRINT DESK / PRINTGOO INSTANT XEROX) -->
+    <div class="bg-white rounded-3xl border border-stone-200/80 p-4 shadow-sm">
+      <p id="cShopCity" class="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">SMART PRINT DESK</p>
+      <h1 id="cShopTitle" class="text-xl font-black text-stone-900 mt-0.5">PRINTGOO INSTANT XEROX</h1>
+      <p class="text-xs text-stone-500 mt-0.5 flex items-center gap-1">
+        <span>📍 Main Counter Xerox & Print Desk</span>
+      </p>
+    </div>
+
+    <!-- DOCUMENT UPLOAD BOX -->
+    <div class="bg-white rounded-3xl border border-stone-200/80 p-5 shadow-sm space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-black uppercase tracking-wider text-pgMaroon flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-full bg-pgYellow text-pgMaroon flex items-center justify-center text-xs font-black">1</span>
+          Upload Document
+        </h2>
+        <span class="text-[11px] text-stone-400 font-medium">PDF, JPG, PNG</span>
+      </div>
+
+      <!-- Dropzone -->
+      <div id="dropzoneBox" class="relative group cursor-pointer border-2 border-dashed border-stone-300 hover:border-pgMaroon rounded-2xl p-6 text-center bg-pgBg hover:bg-stone-50 transition">
+        <input type="file" id="portalFileInput" accept=".pdf,image/png,image/jpeg,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+
+        <!-- Placeholder state -->
+        <div id="portalDropEmpty" class="space-y-2">
+          <div class="w-12 h-12 rounded-2xl bg-white border border-stone-200 shadow-sm mx-auto flex items-center justify-center text-2xl">
+            📄
+          </div>
+          <div>
+            <p class="text-xs font-bold text-stone-800">Tap to select PDF or Photos</p>
+            <p class="text-[11px] text-stone-400">or drag & drop your document here</p>
+          </div>
+          <span class="inline-block px-3 py-1 rounded-xl bg-pgYellow text-pgMaroon text-xs font-bold border border-amber-300">
+            Browse File
+          </span>
+        </div>
+
+        <!-- Preview state -->
+        <div id="portalDropPreview" class="hidden flex items-center justify-between p-2 rounded-xl bg-white border border-stone-200">
+          <div class="flex items-center space-x-2.5 text-left truncate">
+            <div id="previewIcon" class="w-10 h-10 rounded-xl bg-red-100 text-red-700 font-black text-xs flex items-center justify-center shrink-0 uppercase">
+              PDF
+            </div>
+            <div class="truncate">
+              <p id="previewName" class="text-xs font-bold text-stone-900 truncate">document.pdf</p>
+              <div class="flex items-center space-x-1.5 text-[10px] text-stone-500 mt-0.5">
+                <span id="previewSize">1.2 MB</span>
+                <span>•</span>
+                <span id="previewPagesBadge" class="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">
+                  Calculating...
+                </span>
+              </div>
+            </div>
+          </div>
+          <button type="button" id="btnRemoveUploadedFile" class="p-1 text-stone-400 hover:text-pgRed rounded-lg">
+            ✕
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRINT CONTROLS CONFIGURATION -->
+    <div class="bg-white rounded-3xl border border-stone-200/80 p-5 shadow-sm space-y-4">
+      <h2 class="text-xs font-black uppercase tracking-wider text-pgMaroon flex items-center gap-1.5">
+        <span class="w-5 h-5 rounded-full bg-pgYellow text-pgMaroon flex items-center justify-center text-xs font-black">2</span>
+        Print Options
+      </h2>
+
+      <!-- Color Mode -->
+      <div>
+        <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Color Mode</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" data-val="bw" class="btn-ctrl-color active p-3 rounded-2xl border-2 border-pgMaroon bg-pgYellow text-left transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-black text-pgMaroon">Black & White</p>
+              <p class="text-[10px] text-stone-600">₹2.00 / sheet</p>
+            </div>
+            <span class="text-xs font-bold text-pgMaroon indicator">✓</span>
+          </button>
+
+          <button type="button" data-val="color" class="btn-ctrl-color p-3 rounded-2xl border border-stone-200 bg-pgBg text-left transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-stone-800">Color</p>
+              <p class="text-[10px] text-stone-500">₹10.00 / sheet</p>
+            </div>
+            <span class="text-xs font-bold text-pgMaroon indicator hidden">✓</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sides: Single vs Double-Sided -->
+      <div>
+        <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Sides (Duplex)</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" data-val="single" class="btn-ctrl-sides active p-3 rounded-2xl border-2 border-pgMaroon bg-pgYellow text-left transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-black text-pgMaroon">Single-Sided</p>
+              <p class="text-[10px] text-stone-600">Front only</p>
+            </div>
+            <span class="text-xs font-bold text-pgMaroon indicator">✓</span>
+          </button>
+
+          <button type="button" data-val="double" class="btn-ctrl-sides p-3 rounded-2xl border border-stone-200 bg-pgBg text-left transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-stone-800">Double-Sided</p>
+              <p class="text-[10px] text-stone-500">Back-to-Back</p>
+            </div>
+            <span class="text-xs font-bold text-pgMaroon indicator hidden">✓</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Paper Size & Copies Stepper -->
+      <div class="grid grid-cols-2 gap-3 pt-1">
+        <!-- Paper Size -->
+        <div>
+          <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Paper Size</label>
+          <div class="flex rounded-2xl bg-pgBg p-1 border border-stone-200">
+            <button type="button" data-val="A4" class="btn-ctrl-paper active flex-1 py-1.5 text-xs font-black rounded-xl bg-white text-stone-900 shadow-sm">A4</button>
+            <button type="button" data-val="Legal" class="btn-ctrl-paper flex-1 py-1.5 text-xs font-semibold rounded-xl text-stone-500">Legal</button>
+          </div>
+        </div>
+
+        <!-- Copies Stepper -->
+        <div>
+          <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Copies</label>
+          <div class="flex items-center justify-between bg-pgBg border border-stone-200 rounded-2xl p-1">
+            <button type="button" id="btnMinus" class="w-8 h-7 rounded-xl bg-white text-stone-900 font-black shadow-sm flex items-center justify-center">
+              −
+            </button>
+            <span id="copiesValDisplay" class="font-bold text-xs text-stone-900 px-2 font-mono">1</span>
+            <button type="button" id="btnPlus" class="w-8 h-7 rounded-xl bg-pgYellow text-pgMaroon font-black shadow-sm flex items-center justify-center border border-amber-300">
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING BREAKDOWN CARD -->
+    <div class="bg-[#FFF5D6] rounded-3xl border border-amber-300 p-4 shadow-sm">
+      <div class="flex items-center justify-between text-xs pb-2 border-b border-amber-200/80">
+        <span class="text-stone-600 font-medium">Estimated Bill</span>
+        <span id="priceFormulaDisplay" class="font-bold text-stone-800">1 Page × 1 Copy</span>
+      </div>
+      <div class="flex items-end justify-between pt-2">
+        <div>
+          <p class="text-[10px] text-stone-500 uppercase font-bold tracking-wider">Total Amount</p>
+          <p class="text-3xl font-black text-pgMaroon font-sans">₹<span id="totalBillDisplay">2.00</span></p>
+        </div>
+        <span id="physicalSheetsDisplay" class="text-xs font-semibold text-stone-600">1 Physical Sheet</span>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="space-y-2 pt-1">
+      <!-- Pay via UPI -->
+      <button type="button" id="btnActionUpi" class="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] font-bold text-white text-xs shadow-md flex items-center justify-center space-x-2 transition">
+        <span>⚡ Pay via UPI (GPay / PhonePe / Paytm)</span>
+      </button>
+
+      <!-- Pay at Counter (Cash) -->
+      <button type="button" id="btnActionCash" class="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-stone-50 active:scale-[0.99] font-bold text-stone-800 text-xs border border-stone-300 shadow-sm flex items-center justify-center space-x-2 transition">
+        <span>💵 Pay at Counter (Cash)</span>
+      </button>
+    </div>
+
+    <!-- ZERO-RETENTION FOOTER -->
+    <div class="text-center pt-2">
+      <p class="text-[11px] text-stone-500">
+        🔒 Zero-Retention Privacy: Documents auto-shredded after 30 mins
+      </p>
+    </div>
+
+  </main>
+
+  <!-- RECEIPT / STATUS MODAL -->
+  <div id="receiptModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-stone-200">
+      <div class="w-12 h-12 rounded-full bg-pgYellow mx-auto flex items-center justify-center text-2xl mb-2">
+        🤖
+      </div>
+      <span class="inline-block text-[10px] font-black uppercase tracking-wider text-pgMaroon bg-[#FFF5D6] px-3 py-1 rounded-full border border-amber-300 mb-1">
+        Order Received
+      </span>
+      <h3 class="text-xs text-stone-500 uppercase font-bold mt-1">Your Print Token Number</h3>
+      <div id="receiptTokenVal" class="text-5xl font-black font-mono text-pgMaroon my-2">#---</div>
+      <p class="text-xs text-stone-500">Please quote this token at the Xerox counter</p>
+
+      <div class="my-4 p-3.5 rounded-2xl bg-pgBg border border-stone-200 text-left space-y-2 text-xs">
+        <div class="flex justify-between">
+          <span class="text-stone-500">Document:</span>
+          <span id="receiptDocName" class="font-bold text-stone-900 truncate max-w-[150px]">doc.pdf</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Total Bill:</span>
+          <span id="receiptDocBill" class="font-bold text-stone-900">₹0.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Payment:</span>
+          <span id="receiptDocPayment" class="font-bold text-amber-700">Cash Pending at Counter</span>
+        </div>
+        <div class="pt-2 border-t border-stone-200 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
+          <span id="receiptStatusLiveText" class="text-[11px] font-bold text-stone-700">Waiting for counter print release...</span>
+        </div>
+      </div>
+
+      <button type="button" onclick="resetCustomerForm()" class="w-full py-3 rounded-2xl bg-pgMaroon hover:bg-pgMaroonDark text-white font-bold text-xs shadow-md transition">
+        Print Another Document
+      </button>
+    </div>
+  </div>
+
+  <!-- UPI PAYMENT PROMPT MODAL -->
+  <div id="customerUpiModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-xs w-full p-6 text-center shadow-2xl border border-stone-200">
+      <h3 class="text-base font-black text-stone-900">Scan & Pay with UPI</h3>
+      <p class="text-xs text-stone-500 mt-1">UPI ID: <span id="portalUpiIdText" class="font-bold text-pgMaroon"></span></p>
+
+      <div class="my-4 p-2 bg-white rounded-2xl border-2 border-stone-200 inline-block shadow-inner">
+        <img id="portalUpiQrImage" class="w-44 h-44 mx-auto" alt="UPI QR" />
+      </div>
+
+      <p class="text-2xl font-black text-stone-900 font-sans mb-3">₹<span id="portalUpiBillText">0.00</span></p>
+
+      <div class="space-y-2">
+        <a id="portalUpiIntentAnchor" href="#" class="block w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">
+          Open UPI App (GPay / PhonePe)
+        </a>
+        <button type="button" id="btnConfirmUpiCustomerPaid" class="w-full py-2.5 rounded-xl bg-pgYellow border border-amber-300 text-pgMaroon font-bold text-xs">
+          I Have Paid • Send to Print
+        </button>
+        <button type="button" onclick="document.getElementById('customerUpiModal').classList.add('hidden')" class="w-full py-1 text-xs text-stone-400">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    function getShopSlug() {
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      if (parts.length >= 2 && parts[0] === 'q') return parts[1].toLowerCase();
+      const p = new URLSearchParams(window.location.search);
+      return (p.get('shop') || 'gamara-enterprises').toLowerCase();
+    }
+
+    const currentShopSlug = getShopSlug();
+
+    // State
+    let shopData = {
+      name: 'PRINTGOO INSTANT XEROX',
+      address: 'Radhanpur',
+      upiId: 'bmgamara@ybl',
+      status: 'online',
+      pricing: { bwSingle: 2.0, bwDouble: 3.0, colorSingle: 10.0, colorDouble: 15.0, legalMarkup: 1.5 }
+    };
+
+    let selectedFile = null;
+    let detectedPages = 1;
+    let copies = 1;
+    let colorMode = 'bw';
+    let duplex = 'single';
+    let paperSize = 'A4';
+    let activeJob = null;
+
+    // Load Shop Data
+    async function initShop() {
+      try {
+        const res = await fetch(`/api/shops/${currentShopSlug}`);
+        const data = await res.json();
+        if (data.success && data.shop) {
+          shopData = data.shop;
+          document.getElementById('cShopTitle').textContent = shopData.name;
+          if (shopData.address) document.getElementById('cShopCity').textContent = shopData.address.toUpperCase();
+          updateStationUI(shopData.status);
+          calcTotal();
+        }
+      } catch (e) {}
+    }
+
+    function updateStationUI(status) {
+      const isOnline = status === 'online';
+      const text = document.getElementById('customerStationText');
+      const badge = document.getElementById('customerStationBadge');
+      if (isOnline) {
+        text.textContent = 'Station Online';
+        badge.className = 'flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold';
+      } else {
+        text.textContent = 'Station Offline';
+        badge.className = 'flex items-center space-x-1 px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-bold';
+      }
+    }
+
+    // Price Calculation
+    function calcTotal() {
+      const pricing = shopData.pricing || { bwSingle: 2, bwDouble: 3, colorSingle: 10, colorDouble: 15, legalMarkup: 1.5 };
+      const isDuplex = duplex === 'double';
+      const isColor = colorMode === 'color';
+      const isLegal = paperSize === 'Legal';
+
+      const sheets = isDuplex ? Math.ceil(detectedPages / 2) : detectedPages;
+      let rate = 0;
+      if (isColor) rate = isDuplex ? pricing.colorDouble : pricing.colorSingle;
+      else rate = isDuplex ? pricing.bwDouble : pricing.bwSingle;
+
+      if (isLegal) rate += pricing.legalMarkup;
+
+      const total = sheets * rate * copies;
+      const formatted = total.toFixed(2);
+
+      document.getElementById('totalBillDisplay').textContent = formatted;
+      document.getElementById('priceFormulaDisplay').textContent = `${detectedPages} Page${detectedPages > 1 ? 's' : ''} × ${copies} Cop${copies > 1 ? 'ies' : 'y'}`;
+      document.getElementById('physicalSheetsDisplay').textContent = `${sheets * copies} Physical Sheet${(sheets * copies) > 1 ? 's' : ''} (${isDuplex ? '2-Sided' : '1-Sided'})`;
+
+      return formatted;
+    }
+
+    // File Inspector (Client PDF.js & Image)
+    async function processFile(file) {
+      selectedFile = file;
+      document.getElementById('previewName').textContent = file.name;
+      document.getElementById('previewSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+      document.getElementById('portalDropEmpty').classList.add('hidden');
+      document.getElementById('portalDropPreview').classList.remove('hidden');
+
+      const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+      const icon = document.getElementById('previewIcon');
+      const badge = document.getElementById('previewPagesBadge');
+
+      if (isPdf) {
+        icon.textContent = 'PDF';
+        icon.className = 'w-10 h-10 rounded-xl bg-red-100 text-red-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
+        badge.textContent = 'Inspecting PDF...';
+
+        try {
+          if (window.pdfjsLib) {
+            const buf = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+            detectedPages = pdf.numPages || 1;
+            badge.textContent = `${detectedPages} Page${detectedPages > 1 ? 's' : ''}`;
+          } else {
+            detectedPages = 1;
+            badge.textContent = '1 Page';
+          }
+        } catch (e) {
+          detectedPages = 1;
+          badge.textContent = '1 Page';
+        }
+      } else {
+        icon.textContent = 'IMG';
+        icon.className = 'w-10 h-10 rounded-xl bg-sky-100 text-sky-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
+        detectedPages = 1;
+        badge.textContent = '1 Photo / Page';
+      }
+
+      calcTotal();
+    }
+
+    document.getElementById('portalFileInput').addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) processFile(e.target.files[0]);
+    });
+
+    document.getElementById('btnRemoveUploadedFile').addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectedFile = null;
+      document.getElementById('portalFileInput').value = '';
+      detectedPages = 1;
+      document.getElementById('portalDropPreview').classList.add('hidden');
+      document.getElementById('portalDropEmpty').classList.remove('hidden');
+      calcTotal();
+    });
+
+    // Control selections
+    document.querySelectorAll('.btn-ctrl-color').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.btn-ctrl-color').forEach(btn => {
+          btn.classList.remove('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
+          btn.classList.add('border', 'border-stone-200', 'bg-pgBg');
+          btn.querySelector('.indicator').classList.add('hidden');
+        });
+        b.classList.add('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
+        b.classList.remove('border', 'border-stone-200', 'bg-pgBg');
+        b.querySelector('.indicator').classList.remove('hidden');
+        colorMode = b.dataset.val;
+        calcTotal();
+      });
+    });
+
+    document.querySelectorAll('.btn-ctrl-sides').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.btn-ctrl-sides').forEach(btn => {
+          btn.classList.remove('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
+          btn.classList.add('border', 'border-stone-200', 'bg-pgBg');
+          btn.querySelector('.indicator').classList.add('hidden');
+        });
+        b.classList.add('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
+        b.classList.remove('border', 'border-stone-200', 'bg-pgBg');
+        b.querySelector('.indicator').classList.remove('hidden');
+        duplex = b.dataset.val;
+        calcTotal();
+      });
+    });
+
+    document.querySelectorAll('.btn-ctrl-paper').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.btn-ctrl-paper').forEach(btn => {
+          btn.classList.remove('active', 'bg-white', 'text-stone-900', 'shadow-sm', 'font-black');
+          btn.classList.add('text-stone-500');
+        });
+        b.classList.add('active', 'bg-white', 'text-stone-900', 'shadow-sm', 'font-black');
+        b.classList.remove('text-stone-500');
+        paperSize = b.dataset.val;
+        calcTotal();
+      });
+    });
+
+    // Copies Stepper
+    document.getElementById('btnMinus').addEventListener('click', () => {
+      if (copies > 1) {
+        copies -= 1;
+        document.getElementById('copiesValDisplay').textContent = copies;
+        calcTotal();
+      }
+    });
+    document.getElementById('btnPlus').addEventListener('click', () => {
+      if (copies < 99) {
+        copies += 1;
+        document.getElementById('copiesValDisplay').textContent = copies;
+        calcTotal();
+      }
+    });
+
+    // Submit Job
+    async function uploadJob(paymentMode) {
+      if (!selectedFile) {
+        alert('Please select a PDF document or image file first.');
+        return null;
+      }
+
+      const fd = new FormData();
+      fd.append('file', selectedFile);
+      fd.append('clientPages', detectedPages);
+      fd.append('copies', copies);
+      fd.append('colorMode', colorMode);
+      fd.append('duplex', duplex);
+      fd.append('paperSize', paperSize);
+      fd.append('paymentMode', paymentMode);
+
+      try {
+        const res = await fetch(`/api/upload/${currentShopSlug}`, {
+          method: 'POST',
+          body: fd
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Upload error');
+
+        activeJob = data.job;
+        if (socket) socket.emit('job:watch', { jobId: activeJob.id });
+        return activeJob;
+      } catch (err) {
+        alert('Error: ' + err.message);
+        return null;
+      }
+    }
+
+    // Cash Action
+    document.getElementById('btnActionCash').addEventListener('click', async () => {
+      const btn = document.getElementById('btnActionCash');
+      btn.disabled = true;
+      btn.textContent = 'Queueing Print...';
+
+      const job = await uploadJob('cash');
+      btn.disabled = false;
+      btn.textContent = '💵 Pay at Counter (Cash)';
+
+      if (job) showReceipt(job);
+    });
+
+    // UPI Action
+    document.getElementById('btnActionUpi').addEventListener('click', () => {
+      if (!selectedFile) {
+        alert('Please select a file first.');
+        return;
+      }
+
+      const total = calcTotal();
+      const upiId = shopData.upiId || 'bmgamara@ybl';
+      const name = encodeURIComponent(shopData.name || 'Gamara Enterprises');
+      const uri = `upi://pay?pa=${upiId}&pn=${name}&am=${total}&cu=INR&tn=PrintGoo Xerox`;
+
+      document.getElementById('portalUpiIdText').textContent = upiId;
+      document.getElementById('portalUpiBillText').textContent = total;
+      document.getElementById('portalUpiIntentAnchor').href = uri;
+
+      const qr = `https://quickchart.io/qr?text=${encodeURIComponent(uri)}&size=220&margin=1`;
+      document.getElementById('portalUpiQrImage').src = qr;
+
+      document.getElementById('customerUpiModal').classList.remove('hidden');
+    });
+
+    document.getElementById('btnConfirmUpiCustomerPaid').addEventListener('click', async () => {
+      document.getElementById('customerUpiModal').classList.add('hidden');
+      const btn = document.getElementById('btnActionUpi');
+      btn.disabled = true;
+      btn.textContent = 'Submitting Paid Order...';
+
+      const job = await uploadJob('upi');
+      btn.disabled = false;
+      btn.textContent = '⚡ Pay via UPI (GPay / PhonePe / Paytm)';
+
+      if (job) showReceipt(job);
+    });
+
+    function showReceipt(job) {
+      document.getElementById('receiptTokenVal').textContent = job.token;
+      document.getElementById('receiptDocName').textContent = job.fileName;
+      document.getElementById('receiptDocBill').textContent = `₹${job.totalAmount.toFixed(2)}`;
+
+      if (job.paymentStatus === 'paid') {
+        document.getElementById('receiptDocPayment').textContent = '✓ Paid via UPI';
+        document.getElementById('receiptDocPayment').className = 'font-bold text-emerald-700';
+      } else {
+        document.getElementById('receiptDocPayment').textContent = 'Cash Pending at Counter';
+        document.getElementById('receiptDocPayment').className = 'font-bold text-amber-700';
+      }
+
+      document.getElementById('receiptModal').classList.remove('hidden');
+    }
+
+    function resetCustomerForm() {
+      document.getElementById('receiptModal').classList.add('hidden');
+      selectedFile = null;
+      document.getElementById('portalFileInput').value = '';
+      detectedPages = 1;
+      copies = 1;
+      document.getElementById('copiesValDisplay').textContent = '1';
+      document.getElementById('portalDropPreview').classList.add('hidden');
+      document.getElementById('portalDropEmpty').classList.remove('hidden');
+      calcTotal();
+    }
+
+    // Socket.io Real-Time Tracker
+    let socket = null;
+    try {
+      socket = io();
+      socket.on('connect', () => {
+        socket.emit('shop:join', { shopSlug: currentShopSlug });
+      });
+
+      socket.on('station:status', (d) => {
+        if (d.shopSlug === currentShopSlug) updateStationUI(d.status);
+      });
+
+      socket.on('job:updated', (updated) => {
+        if (activeJob && activeJob.id === updated.id) {
+          activeJob = updated;
+          const liveText = document.getElementById('receiptStatusLiveText');
+          if (updated.jobStatus === 'printing') {
+            liveText.textContent = '🖨️ Printing right now on Xerox machine!';
+            liveText.className = 'text-[11px] font-bold text-indigo-700';
+          } else if (updated.jobStatus === 'completed') {
+            liveText.textContent = '✅ Finished! Please collect your prints from counter.';
+            liveText.className = 'text-[11px] font-bold text-emerald-700';
+          }
+        }
+      });
+    } catch (e) {}
+
+    initShop();
+  </script>
+</body>
+</html>
