@@ -2,10 +2,9 @@
   "name": "printgoo",
   "version": "1.0.0",
   "description": "PrintGoo - Xerox Shop QR Scan-to-Print SaaS",
-  "main": "server/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server/index.js",
-    "postinstall": "cd server && npm install"
+    "start": "node index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
