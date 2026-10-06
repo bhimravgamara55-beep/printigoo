@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>PrintGoo - Instant QR Scan-to-Print</title>
-  <meta name="description" content="Instant Xerox & Document Printing straight from your smartphone. No app download required." />
+  <title>PrintGoo — QR Print Shop Software for Xerox & Copy Shops in India</title>
+  <meta name="description" content="Turn your Xerox or copy shop into a fast QR-based print station with customer uploads, payments, order management and automated printing." />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,11 +21,12 @@
             pgMaroonDark: '#561912',
             pgRed: '#C92A2A',
             pgRedHover: '#B02525',
-            pgBorder: '#EFE8DA'
+            pgBorder: '#EFE8DA',
+            pgGreen: '#00875A'
           },
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace']
+            serif: ['Georgia', 'Cambria', 'serif']
           }
         }
       }
@@ -35,635 +36,435 @@
   <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-
-  <!-- PDF.js for instant client-side page counting -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <!-- Socket.io client -->
-  <script src="/socket.io/socket.io.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
 
   <style>
     body {
       background-color: #FAF7F2;
       color: #1A1A1A;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      -webkit-tap-highlight-color: transparent;
     }
-    @keyframes pulse-dot {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.3); opacity: 0.5; }
-    }
-    .live-dot {
-      animation: pulse-dot 1.8s infinite ease-in-out;
+    .font-serif-italic {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
     }
   </style>
 </head>
-<body class="bg-pgBg min-h-screen flex flex-col antialiased selection:bg-pgYellow selection:text-pgMaroon pb-12">
+<body class="bg-pgBg min-h-screen flex flex-col antialiased selection:bg-pgYellow selection:text-pgMaroon">
 
   <!-- TOP HEADER -->
-  <header class="bg-[#FAF7F2] border-b border-pgBorder py-3 px-4 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-md mx-auto flex items-center justify-between">
-      
-      <!-- Logo & Brand Badge -->
+  <header class="py-4 px-6 md:px-12 max-w-7xl mx-auto w-full flex items-center justify-between">
+    <!-- Brand Logo -->
+    <div class="flex flex-col">
       <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 rounded-full bg-pgYellow flex items-center justify-center shadow-sm text-lg">
-          🤖
-        </div>
-        <div>
-          <div class="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 border border-pgMaroon px-2.5 py-0.5 rounded-full shadow-sm flex items-center">
-            <span class="font-black text-sm text-pgMaroon tracking-tighter">Print<span class="text-sky-600">Goo</span></span>
-          </div>
+        <div class="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 border-2 border-pgMaroon px-4 py-1 rounded-full shadow-sm flex items-center">
+          <span class="font-black text-xl text-pgMaroon tracking-tight">Print<span class="text-sky-600">Goo</span></span>
         </div>
       </div>
+      <span class="text-[10px] text-stone-500 font-bold tracking-wider mt-0.5 ml-1">Print | Pay | Get it Done</span>
+    </div>
 
-      <!-- Station Online / Offline Live Indicator -->
-      <div id="customerStationBadge" class="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
-        <span id="customerStationText">Station Online</span>
+    <!-- Right Header: Call for Setup Button + Tagline -->
+    <div class="flex items-center gap-3">
+      <a href="tel:+919909577877" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition shadow-xs">
+        <span>📞</span>
+        <span>Call for setup: <span class="font-black text-emerald-900 font-mono">9909577877</span></span>
+      </a>
+      <div class="text-right hidden sm:block">
+        <p class="text-xs font-bold text-stone-700">Simple Prints</p>
+        <p class="text-xs font-bold text-amber-600">Happier People</p>
+        <div class="h-0.5 w-16 bg-amber-400 ml-auto mt-0.5 rounded-full"></div>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-md mx-auto w-full px-4 pt-3 flex-1 space-y-4">
+  <!-- HERO SECTION WITH SIGN-IN CARD -->
+  <section class="max-w-7xl mx-auto w-full px-6 md:px-12 pt-4 pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      
+      <!-- Left Column: Value Prop & Printer Illustration -->
+      <div class="lg:col-span-7 space-y-5">
+        
+        <!-- #1 Print Solution Badge -->
+        <div class="inline-block px-3 py-1 rounded-full bg-stone-200/80 text-stone-700 text-xs font-bold tracking-wide">
+          #1 Print Solution
+        </div>
 
-    <!-- SHOP BANNER (RADHANPUR / GAMARA ENTERPRISES) -->
-    <div class="bg-white rounded-3xl border border-stone-200/80 p-4 shadow-sm">
-      <p id="cShopCity" class="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">RADHANPUR</p>
-      <h1 id="cShopTitle" class="text-xl font-black text-stone-900 mt-0.5">GAMARA ENTERPRISES</h1>
-      <p class="text-xs text-stone-500 mt-0.5 flex items-center gap-1">
-        <span>📍 Main Counter Xerox & Print Desk</span>
-      </p>
-    </div>
+        <!-- Main Headline -->
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-stone-900 tracking-tight leading-[1.1]">
+          Print Shop Software for <br />
+          <span class="relative">
+            <span class="text-stone-900">Modern Xerox</span>
+            <span class="block text-pgMaroon">Shops</span>
+            <!-- Yellow underline -->
+            <svg class="absolute -bottom-2 left-0 w-48 h-3 text-amber-400" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10, 100 5" stroke="currentColor" stroke-width="4" fill="transparent"/></svg>
+          </span>
+        </h1>
 
-    <!-- DOCUMENT UPLOAD BOX -->
-    <div class="bg-white rounded-3xl border border-stone-200/80 p-5 shadow-sm space-y-3">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xs font-black uppercase tracking-wider text-pgMaroon flex items-center gap-1.5">
-          <span class="w-5 h-5 rounded-full bg-pgYellow text-pgMaroon flex items-center justify-center text-xs font-black">1</span>
-          Upload Document
-        </h2>
-        <span class="text-[11px] text-stone-400 font-medium">PDF, JPG, PNG</span>
-      </div>
+        <p class="text-sm md:text-base text-stone-600 font-semibold pt-2">
+          Upload. Pay. Print. It's that simple.
+        </p>
 
-      <!-- Dropzone -->
-      <div id="dropzoneBox" class="relative group cursor-pointer border-2 border-dashed border-stone-300 hover:border-pgMaroon rounded-2xl p-6 text-center bg-pgBg hover:bg-stone-50 transition">
-        <input type="file" id="portalFileInput" accept=".pdf,image/png,image/jpeg,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-
-        <!-- Placeholder state -->
-        <div id="portalDropEmpty" class="space-y-2">
-          <div class="w-12 h-12 rounded-2xl bg-white border border-stone-200 shadow-sm mx-auto flex items-center justify-center text-2xl">
-            📄
-          </div>
-          <div>
-            <p class="text-xs font-bold text-stone-800">Tap to select PDF or Photos</p>
-            <p class="text-[11px] text-stone-400">or drag & drop your document here</p>
-          </div>
-          <span class="inline-block px-3 py-1 rounded-xl bg-pgYellow text-pgMaroon text-xs font-bold border border-amber-300">
-            Browse File
+        <!-- Feature Checkmarks -->
+        <div class="flex items-center space-x-5 text-xs font-bold text-stone-800 pt-1">
+          <span class="flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span> Fast
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span> Secure
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span> Reliable
           </span>
         </div>
 
-        <!-- Preview state -->
-        <div id="portalDropPreview" class="hidden flex items-center justify-between p-2 rounded-xl bg-white border border-stone-200">
-          <div class="flex items-center space-x-2.5 text-left truncate">
-            <div id="previewIcon" class="w-10 h-10 rounded-xl bg-red-100 text-red-700 font-black text-xs flex items-center justify-center shrink-0 uppercase">
-              PDF
+        <!-- Left Illustration Graphic Mockup -->
+        <div class="pt-4 max-w-sm">
+          <div class="bg-[#FFF5D6] rounded-3xl p-6 border-2 border-amber-300 shadow-sm relative overflow-hidden flex items-center justify-center">
+            <!-- Printer Vector -->
+            <div class="w-36 h-28 bg-white rounded-2xl border-2 border-stone-800 p-3 shadow relative flex flex-col justify-between">
+              <div class="w-20 h-10 bg-stone-100 rounded border border-stone-300 mx-auto -mt-6"></div>
+              <div class="flex items-center justify-between px-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="w-12 h-2 rounded-full bg-stone-300"></span>
+              </div>
+              <div class="w-24 h-4 bg-amber-400 rounded-sm mx-auto shadow-sm"></div>
             </div>
-            <div class="truncate">
-              <p id="previewName" class="text-xs font-bold text-stone-900 truncate">document.pdf</p>
-              <div class="flex items-center space-x-1.5 text-[10px] text-stone-500 mt-0.5">
-                <span id="previewSize">1.2 MB</span>
-                <span>•</span>
-                <span id="previewPagesBadge" class="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">
-                  Calculating...
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Sign-in Card + India's No.1 Badge -->
+      <div class="lg:col-span-5 space-y-4">
+        
+        <!-- India's No.1 Banner -->
+        <div class="bg-gradient-to-r from-amber-100 via-amber-50 to-orange-100 rounded-2xl p-3 border border-amber-200 flex items-center justify-between shadow-sm">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-pgYellow flex items-center justify-center text-xl shadow-sm">
+              🤖
+            </div>
+            <div>
+              <p class="text-xs font-black text-stone-900">Make Your Xerox Store Smart ⭐</p>
+              <p class="text-[10px] font-bold text-stone-500">India's No.1 QR Print SaaS</p>
+            </div>
+          </div>
+          <span class="text-xs font-black text-pgMaroon bg-white px-2.5 py-1 rounded-full border border-amber-300 shadow-sm">PrintGoo</span>
+        </div>
+
+        <!-- SIGN-IN CARD -->
+        <div class="bg-white rounded-3xl border border-stone-200/90 p-6 md:p-8 shadow-xl relative">
+          <h2 class="text-2xl md:text-3xl font-black text-stone-900 tracking-tight text-center mb-6">
+            Sign-in
+          </h2>
+
+          <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+            <!-- Username Input -->
+            <div>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </span>
+                <input type="text" id="loginUsername" placeholder="Enter Shop Name / Username (e.g. Patel Xerox)" value="" required class="w-full pl-10 pr-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
               </div>
             </div>
-          </div>
-          <button type="button" id="btnRemoveUploadedFile" class="p-1 text-stone-400 hover:text-pgRed rounded-lg">
-            ✕
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <!-- PRINT CONTROLS CONFIGURATION -->
-    <div class="bg-white rounded-3xl border border-stone-200/80 p-5 shadow-sm space-y-4">
-      <h2 class="text-xs font-black uppercase tracking-wider text-pgMaroon flex items-center gap-1.5">
-        <span class="w-5 h-5 rounded-full bg-pgYellow text-pgMaroon flex items-center justify-center text-xs font-black">2</span>
-        Print Options
+            <!-- Password Input -->
+            <div>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </span>
+                <input type="password" id="loginPassword" placeholder="Enter Password" value="" required class="w-full pl-10 pr-10 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
+                <button type="button" onclick="togglePassVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit" class="w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover active:scale-[0.99] text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 transition">
+              <span>Login</span>
+              <span>&rarr;</span>
+            </button>
+          </form>
+
+          <!-- Free Trial Link -->
+          <div class="text-center mt-5">
+            <p class="text-xs text-stone-500 font-medium">New to PrintGoo?</p>
+            <a href="#pricing" class="text-xs font-bold text-sky-600 hover:underline inline-block mt-0.5">
+              Click here to start free trial
+            </a>
+          </div>
+
+          <!-- Call for Setup Button -->
+          <div class="mt-4">
+            <a href="tel:+919909577877" class="w-full py-3 rounded-2xl bg-pgGreen hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-2 transition shadow-sm">
+              <span>📞</span>
+              <span>Call for setup (+91 9909577877)</span>
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION: "MORE THAN JUST PRINTING" -->
+  <section class="py-12 px-6 md:px-12 max-w-7xl mx-auto w-full">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <span class="inline-block px-3 py-1 rounded-full bg-stone-200/80 text-stone-600 text-[10px] font-extrabold uppercase tracking-widest">
+        WHY PRINTGOO?
+      </span>
+      <h2 class="text-3xl md:text-4xl font-black text-stone-900 tracking-tight mt-2">
+        More Than Just Printing
       </h2>
-
-      <!-- Color Mode -->
-      <div>
-        <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Color Mode</label>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" data-val="bw" class="btn-ctrl-color active p-3 rounded-2xl border-2 border-pgMaroon bg-pgYellow text-left transition flex items-center justify-between">
-            <div>
-              <p class="text-xs font-black text-pgMaroon">Black & White</p>
-              <p class="text-[10px] text-stone-600">₹2.00 / sheet</p>
-            </div>
-            <span class="text-xs font-bold text-pgMaroon indicator">✓</span>
-          </button>
-
-          <button type="button" data-val="color" class="btn-ctrl-color p-3 rounded-2xl border border-stone-200 bg-pgBg text-left transition flex items-center justify-between">
-            <div>
-              <p class="text-xs font-bold text-stone-800">Color</p>
-              <p class="text-[10px] text-stone-500">₹10.00 / sheet</p>
-            </div>
-            <span class="text-xs font-bold text-pgMaroon indicator hidden">✓</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Sides: Single vs Double-Sided -->
-      <div>
-        <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Sides (Duplex)</label>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" data-val="single" class="btn-ctrl-sides active p-3 rounded-2xl border-2 border-pgMaroon bg-pgYellow text-left transition flex items-center justify-between">
-            <div>
-              <p class="text-xs font-black text-pgMaroon">Single-Sided</p>
-              <p class="text-[10px] text-stone-600">Front only</p>
-            </div>
-            <span class="text-xs font-bold text-pgMaroon indicator">✓</span>
-          </button>
-
-          <button type="button" data-val="double" class="btn-ctrl-sides p-3 rounded-2xl border border-stone-200 bg-pgBg text-left transition flex items-center justify-between">
-            <div>
-              <p class="text-xs font-bold text-stone-800">Double-Sided</p>
-              <p class="text-[10px] text-stone-500">Back-to-Back</p>
-            </div>
-            <span class="text-xs font-bold text-pgMaroon indicator hidden">✓</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Paper Size & Copies Stepper -->
-      <div class="grid grid-cols-2 gap-3 pt-1">
-        <!-- Paper Size -->
-        <div>
-          <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Paper Size</label>
-          <div class="flex rounded-2xl bg-pgBg p-1 border border-stone-200">
-            <button type="button" data-val="A4" class="btn-ctrl-paper active flex-1 py-1.5 text-xs font-black rounded-xl bg-white text-stone-900 shadow-sm">A4</button>
-            <button type="button" data-val="Legal" class="btn-ctrl-paper flex-1 py-1.5 text-xs font-semibold rounded-xl text-stone-500">Legal</button>
-          </div>
-        </div>
-
-        <!-- Copies Stepper -->
-        <div>
-          <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Copies</label>
-          <div class="flex items-center justify-between bg-pgBg border border-stone-200 rounded-2xl p-1">
-            <button type="button" id="btnMinus" class="w-8 h-7 rounded-xl bg-white text-stone-900 font-black shadow-sm flex items-center justify-center">
-              −
-            </button>
-            <span id="copiesValDisplay" class="font-bold text-xs text-stone-900 px-2 font-mono">1</span>
-            <button type="button" id="btnPlus" class="w-8 h-7 rounded-xl bg-pgYellow text-pgMaroon font-black shadow-sm flex items-center justify-center border border-amber-300">
-              +
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PRICING BREAKDOWN CARD -->
-    <div class="bg-[#FFF5D6] rounded-3xl border border-amber-300 p-4 shadow-sm">
-      <div class="flex items-center justify-between text-xs pb-2 border-b border-amber-200/80">
-        <span class="text-stone-600 font-medium">Estimated Bill</span>
-        <span id="priceFormulaDisplay" class="font-bold text-stone-800">1 Page × 1 Copy</span>
-      </div>
-      <div class="flex items-end justify-between pt-2">
-        <div>
-          <p class="text-[10px] text-stone-500 uppercase font-bold tracking-wider">Total Amount</p>
-          <p class="text-3xl font-black text-pgMaroon font-sans">₹<span id="totalBillDisplay">2.00</span></p>
-        </div>
-        <span id="physicalSheetsDisplay" class="text-xs font-semibold text-stone-600">1 Physical Sheet</span>
-      </div>
-    </div>
-
-    <!-- ACTION BUTTONS -->
-    <div class="space-y-2 pt-1">
-      <!-- Pay via UPI -->
-      <button type="button" id="btnActionUpi" class="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] font-bold text-white text-xs shadow-md flex items-center justify-center space-x-2 transition">
-        <span>⚡ Pay via UPI (GPay / PhonePe / Paytm)</span>
-      </button>
-
-      <!-- Pay at Counter (Cash) -->
-      <button type="button" id="btnActionCash" class="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-stone-50 active:scale-[0.99] font-bold text-stone-800 text-xs border border-stone-300 shadow-sm flex items-center justify-center space-x-2 transition">
-        <span>💵 Pay at Counter (Cash)</span>
-      </button>
-    </div>
-
-    <!-- ZERO-RETENTION FOOTER -->
-    <div class="text-center pt-2">
-      <p class="text-[11px] text-stone-500">
-        🔒 Zero-Retention Privacy: Documents auto-shredded after 30 mins
+      <p class="text-xs md:text-sm text-stone-500 mt-1">
+        Everything you need for a smooth, modern Xerox store.
       </p>
     </div>
 
-  </main>
+    <!-- 3 Feature Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Card 1: Use PrintGoo -->
+      <div class="bg-white rounded-3xl p-6 border border-stone-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+        <div>
+          <!-- Icon Box -->
+          <div class="w-full h-36 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center mb-4">
+            <div class="w-16 h-14 bg-white rounded-xl border-2 border-sky-500 flex flex-col items-center justify-center relative shadow-sm">
+              <span class="w-8 h-2 bg-sky-400 rounded-sm"></span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 absolute top-2 right-2"></span>
+              <span class="w-10 h-3 bg-sky-100 rounded-sm mt-2 border border-sky-300"></span>
+            </div>
+          </div>
 
-  <!-- RECEIPT / STATUS MODAL -->
-  <div id="receiptModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-stone-200">
-      <div class="w-12 h-12 rounded-full bg-pgYellow mx-auto flex items-center justify-center text-2xl mb-2">
-        🤖
-      </div>
-      <span class="inline-block text-[10px] font-black uppercase tracking-wider text-pgMaroon bg-[#FFF5D6] px-3 py-1 rounded-full border border-amber-300 mb-1">
-        Order Received
-      </span>
-      <h3 class="text-xs text-stone-500 uppercase font-bold mt-1">Your Print Token Number</h3>
-      <div id="receiptTokenVal" class="text-5xl font-black font-mono text-pgMaroon my-2">#---</div>
-      <p class="text-xs text-stone-500">Please quote this token at the Xerox counter</p>
-
-      <div class="my-4 p-3.5 rounded-2xl bg-pgBg border border-stone-200 text-left space-y-2 text-xs">
-        <div class="flex justify-between">
-          <span class="text-stone-500">Document:</span>
-          <span id="receiptDocName" class="font-bold text-stone-900 truncate max-w-[150px]">doc.pdf</span>
+          <span class="text-[10px] font-extrabold tracking-widest uppercase text-sky-600">PREMIUM FEATURE</span>
+          <h3 class="text-lg font-black text-stone-900 mt-1">Use PrintGoo</h3>
+          <p class="text-xs text-stone-500 mt-1 leading-relaxed">
+            Easy file upload, multiple formats, print the way you want.
+          </p>
         </div>
-        <div class="flex justify-between">
-          <span class="text-stone-500">Total Bill:</span>
-          <span id="receiptDocBill" class="font-bold text-stone-900">₹0.00</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-stone-500">Payment:</span>
-          <span id="receiptDocPayment" class="font-bold text-amber-700">Cash Pending at Counter</span>
-        </div>
-        <div class="pt-2 border-t border-stone-200 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
-          <span id="receiptStatusLiveText" class="text-[11px] font-bold text-stone-700">Waiting for counter print release...</span>
-        </div>
+        <p class="text-xs font-black text-sky-700 mt-4">Upload. Print. Done!</p>
       </div>
 
-      <button type="button" onclick="resetCustomerForm()" class="w-full py-3 rounded-2xl bg-pgMaroon hover:bg-pgMaroonDark text-white font-bold text-xs shadow-md transition">
-        Print Another Document
-      </button>
+      <!-- Card 2: Automate your Xerox Store -->
+      <div class="bg-white rounded-3xl p-6 border border-stone-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+        <div>
+          <!-- Icon Box -->
+          <div class="w-full h-36 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-4">
+            <div class="w-16 h-14 bg-white rounded-xl border-2 border-amber-500 flex flex-col items-center justify-between p-1.5 shadow-sm">
+              <div class="w-full h-3 bg-amber-400 rounded-sm"></div>
+              <div class="flex gap-1 w-full justify-center">
+                <span class="w-4 h-5 bg-amber-100 border border-amber-300 rounded-xs"></span>
+                <span class="w-4 h-5 bg-amber-200 border border-amber-300 rounded-xs"></span>
+              </div>
+            </div>
+          </div>
+
+          <span class="text-[10px] font-extrabold tracking-widest uppercase text-amber-700">PREMIUM FEATURE</span>
+          <h3 class="text-lg font-black text-stone-900 mt-1">Automate your Xerox Store</h3>
+          <p class="text-xs text-stone-500 mt-1 leading-relaxed">
+            Receive orders instantly, auto print, save time.
+          </p>
+        </div>
+        <p class="text-xs font-black text-amber-800 mt-4">Work Smarter!</p>
+      </div>
+
+      <!-- Card 3: Secure Payment Gateways -->
+      <div class="bg-white rounded-3xl p-6 border border-stone-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+        <div>
+          <!-- Icon Box -->
+          <div class="w-full h-36 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
+            <div class="w-18 h-12 bg-white rounded-xl border-2 border-emerald-500 p-2 shadow-sm flex flex-col justify-between">
+              <span class="w-3 h-3 rounded-full bg-emerald-500 flex items-center justify-center text-[8px] text-white font-bold">✓</span>
+              <span class="w-10 h-2 bg-emerald-200 rounded-full"></span>
+            </div>
+          </div>
+
+          <span class="text-[10px] font-extrabold tracking-widest uppercase text-emerald-700">PREMIUM FEATURE</span>
+          <h3 class="text-lg font-black text-stone-900 mt-1">Secure Payment Gateways</h3>
+          <p class="text-xs text-stone-500 mt-1 leading-relaxed">
+            UPI, cards and wallets with secure payment flow.
+          </p>
+        </div>
+        <p class="text-xs font-black text-emerald-800 mt-4">Safe. Simple. Secure!</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PLANS AND PRICING SECTION -->
+  <section id="pricing" class="py-12 px-6 md:px-12 max-w-7xl mx-auto w-full">
+    <div class="bg-white rounded-3xl border border-stone-200/90 p-6 md:p-10 shadow-sm">
+      
+      <div class="text-center max-w-xl mx-auto mb-8">
+        <h2 class="text-3xl md:text-4xl font-black text-stone-900 tracking-tight">
+          Plans and Pricing
+        </h2>
+        <p class="text-xs text-stone-500 mt-1">
+          Simple, honest pricing for Xerox center operators.
+        </p>
+      </div>
+
+      <!-- 3 Pricing Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        
+        <!-- Card 1: Free Trial -->
+        <div class="rounded-3xl bg-pgBg border border-stone-200 p-6 flex flex-col justify-between">
+          <div>
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-stone-200 text-stone-700 text-[10px] font-extrabold uppercase">2 DAYS</span>
+            <h3 class="text-lg font-black text-stone-900 mt-2">Free trial</h3>
+            
+            <div class="my-3">
+              <span class="text-3xl font-black text-stone-900">₹0</span>
+              <span class="text-xs text-stone-500 font-medium">for 2 days</span>
+            </div>
+
+            <ul class="space-y-2 text-xs text-stone-600 mt-4">
+              <li class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">✓</span> Shop login & dashboard
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">✓</span> QR print workflow
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">✓</span> Payment & subscription support
+              </li>
+            </ul>
+          </div>
+
+          <button type="button" onclick="window.location.href='/dashboard/gamara-enterprises'" class="mt-6 w-full py-3 rounded-2xl bg-white border border-stone-300 hover:border-pgMaroon text-stone-800 font-bold text-xs flex items-center justify-center gap-1 transition shadow-sm">
+            <span>Start registration</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+        <!-- Card 2: Monthly Plan (₹299) -->
+        <div class="rounded-3xl bg-pgBg border-2 border-stone-300 p-6 flex flex-col justify-between relative">
+          <div>
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-200 text-pgMaroon text-[10px] font-extrabold uppercase">FLEXIBLE</span>
+            <h3 class="text-lg font-black text-stone-900 mt-2">Monthly</h3>
+            
+            <div class="my-3 flex items-baseline space-x-1">
+              <span class="text-3xl font-black text-stone-900">₹299</span>
+              <span class="text-xs text-stone-500 font-medium">/ month</span>
+              <span class="text-xs line-through text-stone-400">₹649</span>
+            </div>
+
+            <ul class="space-y-2 text-xs text-stone-600 mt-4">
+              <li class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">✓</span> Shop login & dashboard
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">✓</span> QR print workflow
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">✓</span> Payment & subscription support
+              </li>
+            </ul>
+          </div>
+
+          <button type="button" onclick="document.getElementById('loginUsername').scrollIntoView({behavior: 'smooth'}); document.getElementById('loginUsername').focus();" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs flex items-center justify-center gap-1 transition shadow-md">
+            <span>Get Started</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+        <!-- Card 3: Yearly Plan (₹1999) -->
+        <div class="rounded-3xl bg-gradient-to-b from-[#FFFDF2] to-[#FFF5D4] border-2 border-amber-400 p-6 flex flex-col justify-between shadow-md relative">
+          <div>
+            <div class="flex items-center space-x-1.5 mb-1">
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-200 text-pgMaroon text-[10px] font-extrabold uppercase">BEST VALUE</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-pgRed text-white text-[10px] font-extrabold uppercase">MOST PREMIUM</span>
+            </div>
+
+            <h3 class="text-lg font-black text-stone-900 mt-2">Yearly</h3>
+            
+            <div class="my-3 flex items-baseline space-x-1">
+              <span class="text-3xl font-black text-pgMaroon">₹1999</span>
+              <span class="text-xs text-stone-600 font-medium">/ year</span>
+              <span class="text-xs line-through text-stone-400">₹3588</span>
+            </div>
+
+            <ul class="space-y-2 text-xs text-stone-700 mt-4">
+              <li class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span> Shop login & dashboard
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span> QR print workflow
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span> Payment & subscription support
+              </li>
+              <li class="flex items-center gap-2 font-bold text-emerald-800">
+                <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span> Free Acrylic QR Standee Delivered
+              </li>
+            </ul>
+          </div>
+
+          <button type="button" onclick="document.getElementById('loginUsername').scrollIntoView({behavior: 'smooth'}); document.getElementById('loginUsername').focus();" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-black text-xs flex items-center justify-center gap-1 transition shadow-md">
+            <span>View yearly offer</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- MOTTO BANNER -->
+  <div class="text-center py-6">
+    <p class="text-xl md:text-2xl font-serif-italic text-stone-800">
+      Let's Print a Better Tomorrow
+    </p>
+    <div class="h-0.5 w-20 bg-amber-400 mx-auto mt-2 rounded-full"></div>
+    
+    <div class="flex flex-wrap items-center justify-center gap-6 mt-6 text-xs font-bold text-stone-600">
+      <span class="flex items-center gap-1.5"><span class="text-sky-500">⚡</span> Fast Service</span>
+      <span class="flex items-center gap-1.5"><span class="text-blue-500">🛡️</span> Trusted & Secure</span>
+      <span class="flex items-center gap-1.5"><span class="text-purple-500">👥</span> Growing Together</span>
     </div>
   </div>
 
-  <!-- UPI PAYMENT PROMPT MODAL -->
-  <div id="customerUpiModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-xs w-full p-6 text-center shadow-2xl border border-stone-200">
-      <h3 class="text-base font-black text-stone-900">Scan & Pay with UPI</h3>
-      <p class="text-xs text-stone-500 mt-1">UPI ID: <span id="portalUpiIdText" class="font-bold text-pgMaroon"></span></p>
-
-      <div class="my-4 p-2 bg-white rounded-2xl border-2 border-stone-200 inline-block shadow-inner">
-        <img id="portalUpiQrImage" class="w-44 h-44 mx-auto" alt="UPI QR" />
+  <!-- FOOTER -->
+  <footer class="mt-auto border-t border-stone-200 py-6 px-6 md:px-12 text-xs text-stone-500">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <p class="font-bold text-stone-800">PrintGoo</p>
+        <p class="text-[11px]">&copy; 2026 PrintGoo. All rights reserved.</p>
       </div>
-
-      <p class="text-2xl font-black text-stone-900 font-sans mb-3">₹<span id="portalUpiBillText">0.00</span></p>
-
-      <div class="space-y-2">
-        <a id="portalUpiIntentAnchor" href="#" class="block w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">
-          Open UPI App (GPay / PhonePe)
-        </a>
-        <button type="button" id="btnConfirmUpiCustomerPaid" class="w-full py-2.5 rounded-xl bg-pgYellow border border-amber-300 text-pgMaroon font-bold text-xs">
-          I Have Paid • Send to Print
-        </button>
-        <button type="button" onclick="document.getElementById('customerUpiModal').classList.add('hidden')" class="w-full py-1 text-xs text-stone-400">
-          Cancel
-        </button>
+      <div class="flex items-center space-x-6 text-[11px] font-medium text-stone-600">
+        <a href="#features" class="hover:text-stone-900">Print shop software</a>
+        <span>•</span>
+        <a href="#pricing" class="hover:text-stone-900">QR workflow</a>
+        <span>•</span>
+        <a href="#pricing" class="hover:text-stone-900">Payments & subscriptions</a>
       </div>
     </div>
-  </div>
+  </footer>
 
-  <!-- APPLICATION LOGIC -->
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    if (window.pdfjsLib) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    function togglePassVisibility() {
+      const p = document.getElementById('loginPassword');
+      p.type = p.type === 'password' ? 'text' : 'password';
     }
 
-    function getShopSlug() {
-      const parts = window.location.pathname.split('/').filter(Boolean);
-      if (parts.length >= 2 && parts[0] === 'q') return parts[1].toLowerCase();
-      const p = new URLSearchParams(window.location.search);
-      return (p.get('shop') || 'gamara-enterprises').toLowerCase();
+    function handleLogin(e) {
+      e.preventDefault();
+      const raw = document.getElementById('loginUsername').value.trim();
+      const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-xerox';
+      
+      // Save session in localStorage
+      localStorage.setItem('printgoo_current_user', raw);
+      localStorage.setItem('printgoo_current_slug', slug);
+      
+      window.location.href = `/dashboard/${slug}`;
     }
-
-    const currentShopSlug = getShopSlug();
-
-    // State
-    let shopData = {
-      name: 'GAMARA ENTERPRISES',
-      address: 'Radhanpur',
-      upiId: 'gamaraenterprises@okaxis',
-      status: 'online',
-      pricing: { bwSingle: 2.0, bwDouble: 3.0, colorSingle: 10.0, colorDouble: 15.0, legalMarkup: 1.5 }
-    };
-
-    let selectedFile = null;
-    let detectedPages = 1;
-    let copies = 1;
-    let colorMode = 'bw';
-    let duplex = 'single';
-    let paperSize = 'A4';
-    let activeJob = null;
-
-    // Load Shop Data
-    async function initShop() {
-      try {
-        const res = await fetch(`/api/shops/${currentShopSlug}`);
-        const data = await res.json();
-        if (data.success && data.shop) {
-          shopData = data.shop;
-          document.getElementById('cShopTitle').textContent = shopData.name;
-          if (shopData.address) document.getElementById('cShopCity').textContent = shopData.address.toUpperCase();
-          updateStationUI(shopData.status);
-          calcTotal();
-        }
-      } catch (e) {}
-    }
-
-    function updateStationUI(status) {
-      const isOnline = status === 'online';
-      const text = document.getElementById('customerStationText');
-      const badge = document.getElementById('customerStationBadge');
-      if (isOnline) {
-        text.textContent = 'Station Online';
-        badge.className = 'flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold';
-      } else {
-        text.textContent = 'Station Offline';
-        badge.className = 'flex items-center space-x-1 px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-bold';
-      }
-    }
-
-    // Price Calculation
-    function calcTotal() {
-      const pricing = shopData.pricing || { bwSingle: 2, bwDouble: 3, colorSingle: 10, colorDouble: 15, legalMarkup: 1.5 };
-      const isDuplex = duplex === 'double';
-      const isColor = colorMode === 'color';
-      const isLegal = paperSize === 'Legal';
-
-      const sheets = isDuplex ? Math.ceil(detectedPages / 2) : detectedPages;
-      let rate = 0;
-      if (isColor) rate = isDuplex ? pricing.colorDouble : pricing.colorSingle;
-      else rate = isDuplex ? pricing.bwDouble : pricing.bwSingle;
-
-      if (isLegal) rate += pricing.legalMarkup;
-
-      const total = sheets * rate * copies;
-      const formatted = total.toFixed(2);
-
-      document.getElementById('totalBillDisplay').textContent = formatted;
-      document.getElementById('priceFormulaDisplay').textContent = `${detectedPages} Page${detectedPages > 1 ? 's' : ''} × ${copies} Cop${copies > 1 ? 'ies' : 'y'}`;
-      document.getElementById('physicalSheetsDisplay').textContent = `${sheets * copies} Physical Sheet${(sheets * copies) > 1 ? 's' : ''} (${isDuplex ? '2-Sided' : '1-Sided'})`;
-
-      return formatted;
-    }
-
-    // File Inspector (Client PDF.js & Image)
-    async function processFile(file) {
-      selectedFile = file;
-      document.getElementById('previewName').textContent = file.name;
-      document.getElementById('previewSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-
-      document.getElementById('portalDropEmpty').classList.add('hidden');
-      document.getElementById('portalDropPreview').classList.remove('hidden');
-
-      const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
-      const icon = document.getElementById('previewIcon');
-      const badge = document.getElementById('previewPagesBadge');
-
-      if (isPdf) {
-        icon.textContent = 'PDF';
-        icon.className = 'w-10 h-10 rounded-xl bg-red-100 text-red-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
-        badge.textContent = 'Inspecting PDF...';
-
-        try {
-          if (window.pdfjsLib) {
-            const buf = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-            detectedPages = pdf.numPages || 1;
-            badge.textContent = `${detectedPages} Page${detectedPages > 1 ? 's' : ''}`;
-          } else {
-            detectedPages = 1;
-            badge.textContent = '1 Page';
-          }
-        } catch (e) {
-          detectedPages = 1;
-          badge.textContent = '1 Page';
-        }
-      } else {
-        icon.textContent = 'IMG';
-        icon.className = 'w-10 h-10 rounded-xl bg-sky-100 text-sky-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
-        detectedPages = 1;
-        badge.textContent = '1 Photo / Page';
-      }
-
-      calcTotal();
-    }
-
-    document.getElementById('portalFileInput').addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) processFile(e.target.files[0]);
-    });
-
-    document.getElementById('btnRemoveUploadedFile').addEventListener('click', (e) => {
-      e.stopPropagation();
-      selectedFile = null;
-      document.getElementById('portalFileInput').value = '';
-      detectedPages = 1;
-      document.getElementById('portalDropPreview').classList.add('hidden');
-      document.getElementById('portalDropEmpty').classList.remove('hidden');
-      calcTotal();
-    });
-
-    // Control selections
-    document.querySelectorAll('.btn-ctrl-color').forEach(b => {
-      b.addEventListener('click', () => {
-        document.querySelectorAll('.btn-ctrl-color').forEach(btn => {
-          btn.classList.remove('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
-          btn.classList.add('border', 'border-stone-200', 'bg-pgBg');
-          btn.querySelector('.indicator').classList.add('hidden');
-        });
-        b.classList.add('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
-        b.classList.remove('border', 'border-stone-200', 'bg-pgBg');
-        b.querySelector('.indicator').classList.remove('hidden');
-        colorMode = b.dataset.val;
-        calcTotal();
-      });
-    });
-
-    document.querySelectorAll('.btn-ctrl-sides').forEach(b => {
-      b.addEventListener('click', () => {
-        document.querySelectorAll('.btn-ctrl-sides').forEach(btn => {
-          btn.classList.remove('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
-          btn.classList.add('border', 'border-stone-200', 'bg-pgBg');
-          btn.querySelector('.indicator').classList.add('hidden');
-        });
-        b.classList.add('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
-        b.classList.remove('border', 'border-stone-200', 'bg-pgBg');
-        b.querySelector('.indicator').classList.remove('hidden');
-        duplex = b.dataset.val;
-        calcTotal();
-      });
-    });
-
-    document.querySelectorAll('.btn-ctrl-paper').forEach(b => {
-      b.addEventListener('click', () => {
-        document.querySelectorAll('.btn-ctrl-paper').forEach(btn => {
-          btn.classList.remove('active', 'bg-white', 'text-stone-900', 'shadow-sm', 'font-black');
-          btn.classList.add('text-stone-500');
-        });
-        b.classList.add('active', 'bg-white', 'text-stone-900', 'shadow-sm', 'font-black');
-        b.classList.remove('text-stone-500');
-        paperSize = b.dataset.val;
-        calcTotal();
-      });
-    });
-
-    // Copies Stepper
-    document.getElementById('btnMinus').addEventListener('click', () => {
-      if (copies > 1) {
-        copies -= 1;
-        document.getElementById('copiesValDisplay').textContent = copies;
-        calcTotal();
-      }
-    });
-    document.getElementById('btnPlus').addEventListener('click', () => {
-      if (copies < 99) {
-        copies += 1;
-        document.getElementById('copiesValDisplay').textContent = copies;
-        calcTotal();
-      }
-    });
-
-    // Submit Job
-    async function uploadJob(paymentMode) {
-      if (!selectedFile) {
-        alert('Please select a PDF document or image file first.');
-        return null;
-      }
-
-      const fd = new FormData();
-      fd.append('file', selectedFile);
-      fd.append('clientPages', detectedPages);
-      fd.append('copies', copies);
-      fd.append('colorMode', colorMode);
-      fd.append('duplex', duplex);
-      fd.append('paperSize', paperSize);
-      fd.append('paymentMode', paymentMode);
-
-      try {
-        const res = await fetch(`/api/upload/${currentShopSlug}`, {
-          method: 'POST',
-          body: fd
-        });
-        const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.error || 'Upload error');
-
-        activeJob = data.job;
-        if (socket) socket.emit('job:watch', { jobId: activeJob.id });
-        return activeJob;
-      } catch (err) {
-        alert('Error: ' + err.message);
-        return null;
-      }
-    }
-
-    // Cash Action
-    document.getElementById('btnActionCash').addEventListener('click', async () => {
-      const btn = document.getElementById('btnActionCash');
-      btn.disabled = true;
-      btn.textContent = 'Queueing Print...';
-
-      const job = await uploadJob('cash');
-      btn.disabled = false;
-      btn.textContent = '💵 Pay at Counter (Cash)';
-
-      if (job) showReceipt(job);
-    });
-
-    // UPI Action
-    document.getElementById('btnActionUpi').addEventListener('click', () => {
-      if (!selectedFile) {
-        alert('Please select a file first.');
-        return;
-      }
-
-      const total = calcTotal();
-      const upiId = shopData.upiId || 'gamaraenterprises@okaxis';
-      const name = encodeURIComponent(shopData.name || 'Gamara Enterprises');
-      const uri = `upi://pay?pa=${upiId}&pn=${name}&am=${total}&cu=INR&tn=PrintGoo Xerox`;
-
-      document.getElementById('portalUpiIdText').textContent = upiId;
-      document.getElementById('portalUpiBillText').textContent = total;
-      document.getElementById('portalUpiIntentAnchor').href = uri;
-
-      const qr = `https://quickchart.io/qr?text=${encodeURIComponent(uri)}&size=220&margin=1`;
-      document.getElementById('portalUpiQrImage').src = qr;
-
-      document.getElementById('customerUpiModal').classList.remove('hidden');
-    });
-
-    document.getElementById('btnConfirmUpiCustomerPaid').addEventListener('click', async () => {
-      document.getElementById('customerUpiModal').classList.add('hidden');
-      const btn = document.getElementById('btnActionUpi');
-      btn.disabled = true;
-      btn.textContent = 'Submitting Paid Order...';
-
-      const job = await uploadJob('upi');
-      btn.disabled = false;
-      btn.textContent = '⚡ Pay via UPI (GPay / PhonePe / Paytm)';
-
-      if (job) showReceipt(job);
-    });
-
-    function showReceipt(job) {
-      document.getElementById('receiptTokenVal').textContent = job.token;
-      document.getElementById('receiptDocName').textContent = job.fileName;
-      document.getElementById('receiptDocBill').textContent = `₹${job.totalAmount.toFixed(2)}`;
-
-      if (job.paymentStatus === 'paid') {
-        document.getElementById('receiptDocPayment').textContent = '✓ Paid via UPI';
-        document.getElementById('receiptDocPayment').className = 'font-bold text-emerald-700';
-      } else {
-        document.getElementById('receiptDocPayment').textContent = 'Cash Pending at Counter';
-        document.getElementById('receiptDocPayment').className = 'font-bold text-amber-700';
-      }
-
-      document.getElementById('receiptModal').classList.remove('hidden');
-    }
-
-    function resetCustomerForm() {
-      document.getElementById('receiptModal').classList.add('hidden');
-      selectedFile = null;
-      document.getElementById('portalFileInput').value = '';
-      detectedPages = 1;
-      copies = 1;
-      document.getElementById('copiesValDisplay').textContent = '1';
-      document.getElementById('portalDropPreview').classList.add('hidden');
-      document.getElementById('portalDropEmpty').classList.remove('hidden');
-      calcTotal();
-    }
-
-    // Socket.io Real-Time Tracker
-    let socket = null;
-    try {
-      socket = io();
-      socket.on('connect', () => {
-        socket.emit('shop:join', { shopSlug: currentShopSlug });
-      });
-
-      socket.on('station:status', (d) => {
-        if (d.shopSlug === currentShopSlug) updateStationUI(d.status);
-      });
-
-      socket.on('job:updated', (updated) => {
-        if (activeJob && activeJob.id === updated.id) {
-          activeJob = updated;
-          const liveText = document.getElementById('receiptStatusLiveText');
-          if (updated.jobStatus === 'printing') {
-            liveText.textContent = '🖨️ Printing right now on Xerox machine!';
-            liveText.className = 'text-[11px] font-bold text-indigo-700';
-          } else if (updated.jobStatus === 'completed') {
-            liveText.textContent = '✅ Finished! Please collect your prints from counter.';
-            liveText.className = 'text-[11px] font-bold text-emerald-700';
-          }
-        }
-      });
-    } catch (e) {}
-
-    initShop();
   </script>
 </body>
 </html>

@@ -64,13 +64,13 @@ const upload = multer({
 
 // In-Memory Multi-Tenant Store with default seed shops
 const shops = {
-  'patel-xerox': {
-    name: 'Patel Cyber & Xerox Center',
-    slug: 'patel-xerox',
-    ownerName: 'Rajesh Patel',
-    address: 'Near City College Gate #2, Station Road',
-    phone: '+91 98765 43210',
-    upiId: 'patelxerox@okaxis',
+  'gamara-enterprises': {
+    name: 'GAMARA ENTERPRISES',
+    slug: 'gamara-enterprises',
+    ownerName: 'Gamara',
+    address: 'Main Bazar, Radhanpur',
+    phone: '+91 99095 77877',
+    upiId: 'bmgamara@ybl',
     status: 'online', // 'online' | 'offline'
     pricing: {
       bwSingle: 2.0,     // ₹2 / page
@@ -81,28 +81,12 @@ const shops = {
     }
   },
   'demo': {
-    name: 'PrintGoo Demo Print Station',
+    name: 'PrintGoo Smart Print Station',
     slug: 'demo',
-    ownerName: 'PrintGoo Express Counter',
-    address: 'Counter 1, Tech Innovation Hub',
-    phone: '+91 91234 56789',
-    upiId: 'printgoodemo@upi',
-    status: 'online',
-    pricing: {
-      bwSingle: 2.0,
-      bwDouble: 3.0,
-      colorSingle: 8.0,
-      colorDouble: 14.0,
-      legalMarkup: 1.0
-    }
-  },
-  'gamara-enterprises': {
-    name: 'GAMARA ENTERPRISES',
-    slug: 'gamara-enterprises',
-    ownerName: 'Gamara',
-    address: 'Radhanpur',
-    phone: '+91 98000 12345',
-    upiId: 'gamaraenterprises@okaxis',
+    ownerName: 'PrintGoo Counter',
+    address: 'Station Road Counter #1',
+    phone: '+91 99095 77877',
+    upiId: 'bmgamara@ybl',
     status: 'online',
     pricing: {
       bwSingle: 2.0,
@@ -287,8 +271,8 @@ app.get('/api/shops/:shop_slug', (req, res) => {
       slug: slug,
       ownerName: 'Station Operator',
       address: 'Main Market Counter',
-      phone: '+91 98000 00000',
-      upiId: `${slug.replace(/-/g, '')}@upi`,
+      phone: '+91 99095 77877',
+      upiId: 'bmgamara@ybl',
       status: 'online',
       pricing: {
         bwSingle: 2.0,
