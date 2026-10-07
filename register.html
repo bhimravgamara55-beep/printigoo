@@ -216,6 +216,23 @@
           </div>
         </div>
 
+        <!-- 3.5 Shopkeeper's Personal UPI ID for Receiving Customer Payments -->
+        <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/90 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-black text-stone-900">
+              Shop UPI ID (GPay / PhonePe / Paytm)
+            </label>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">100% Direct Bank Deposit</span>
+          </div>
+          <input 
+            type="text" 
+            id="reg_upiId" 
+            placeholder="e.g. 9909577877@paytm or yourshop@okaxis" 
+            class="w-full px-4 py-2.5 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-pgMaroon text-xs sm:text-sm font-mono text-stone-900 font-semibold bg-white"
+          />
+          <p class="text-[10px] text-stone-500 font-medium">Customers scanning your counter QR will pay 100% directly to this UPI ID with 0% platform commission.</p>
+        </div>
+
         <!-- 4. Choose username & Choose password (2 columns) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -335,6 +352,7 @@
       const city = document.getElementById('reg_city').value.trim();
       const mobile = document.getElementById('reg_mobile').value.trim();
       const whatsapp = document.getElementById('reg_whatsapp').value.trim() || mobile;
+      const upiId = document.getElementById('reg_upiId').value.trim();
       const username = document.getElementById('reg_username').value.trim();
       const password = document.getElementById('reg_password').value;
 
@@ -353,31 +371,37 @@
         return;
       }
 
-      // Generate slug
-      const slug = username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-shop';
-
       const btn = document.getElementById('btnStartTrial');
       btn.disabled = true;
       btn.innerHTML = '<span>Activating Shop...</span>';
 
       try {
         // Send registration to server API
-        const res = await fetch(`/api/shops/${slug}`, {
+        const res = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: shopName,
-            ownerName: ownerName,
-            address: city,
-            phone: mobile,
-            whatsapp: whatsapp,
-            username: username,
-            password: password,
-            plan: '7-Day Free Trial'
+            shopName,
+            ownerName,
+            city,
+            mobile,
+            whatsapp,
+            upiId,
+            username,
+            password
           })
         });
 
-        // Calculate 7-Day trial expiration
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error || 'Registration failed.');
+          btn.disabled = false;
+          btn.innerHTML = '<span>Start free trial</span><span>&rarr;</span>';
+          return;
+        }
+
+        const slug = data.slug;
         const now = new Date();
         const trialExpiry = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
@@ -387,6 +411,8 @@
         localStorage.setItem('printgoo_owner_name', ownerName);
         localStorage.setItem('printgoo_city', city);
         localStorage.setItem('printgoo_mobile', mobile);
+        localStorage.setItem('printgoo_shop_upi', upiId);
+        localStorage.setItem(`printgoo_upi_${slug}`, upiId);
         localStorage.setItem('printgoo_trial_until', trialExpiry.toISOString());
 
         // Also save shop configuration cache
@@ -397,6 +423,7 @@
           slug: slug,
           phone: mobile,
           whatsapp: whatsapp,
+          upiId: upiId,
           status: 'online',
           pricing: { bwSingle: 2, bwDouble: 3, colorSingle: 10, colorDouble: 15, legalMarkup: 1.5 },
           subscription: {
@@ -413,10 +440,9 @@
 
       } catch (err) {
         console.error('Registration error:', err);
-        // Fallback offline-first redirect
-        localStorage.setItem('printgoo_current_user', shopName);
-        localStorage.setItem('printgoo_current_slug', slug);
-        window.location.href = `/dashboard/${slug}`;
+        alert('Server error occurred during registration. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<span>Start free trial</span><span>&rarr;</span>';
       }
     }
   </script>

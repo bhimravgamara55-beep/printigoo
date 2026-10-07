@@ -62,41 +62,93 @@ const upload = multer({
   }
 });
 
-// In-Memory Multi-Tenant Store with default seed shops
-const shops = {
+// ---------------------------------------------------------------------
+// PERSISTENT JSON DATABASE (Storage in data/shops.json & data/subscriptions.json)
+// ---------------------------------------------------------------------
+const DATA_DIR = path.join(__dirname, 'data');
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+const SHOPS_FILE = path.join(DATA_DIR, 'shops.json');
+const SUBS_FILE = path.join(DATA_DIR, 'subscriptions.json');
+
+const DEFAULT_SHOPS = {
   'gamara-enterprises': {
     name: 'GAMARA ENTERPRISES',
     slug: 'gamara-enterprises',
-    ownerName: 'Gamara',
-    address: 'Main Bazar, Radhanpur',
-    phone: '+91 99095 77877',
+    ownerName: 'Bhimrav Gamara',
+    address: 'Radhanpur, Gujarat',
+    phone: '9909577877',
+    whatsapp: '9909577877',
     upiId: 'bmgamara@ybl',
-    status: 'online', // 'online' | 'offline'
-    pricing: {
-      bwSingle: 2.0,     // ₹2 / page
-      bwDouble: 3.0,     // ₹3 / sheet (2 pages)
-      colorSingle: 10.0, // ₹10 / page
-      colorDouble: 15.0, // ₹15 / sheet
-      legalMarkup: 1.5   // extra ₹1.5 per sheet for Legal
-    }
-  },
-  'demo': {
-    name: 'PrintGoo Smart Print Station',
-    slug: 'demo',
-    ownerName: 'PrintGoo Counter',
-    address: 'Station Road Counter #1',
-    phone: '+91 99095 77877',
-    upiId: 'bmgamara@ybl',
+    username: 'gamara',
+    password: 'password123',
     status: 'online',
+    createdAt: new Date().toISOString(),
     pricing: {
       bwSingle: 2.0,
       bwDouble: 3.0,
       colorSingle: 10.0,
       colorDouble: 15.0,
       legalMarkup: 1.5
+    },
+    subscription: {
+      plan: 'Yearly Pro',
+      amount: 1999,
+      status: 'active',
+      validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
     }
   }
 };
+
+function loadShops() {
+  try {
+    if (fs.existsSync(SHOPS_FILE)) {
+      const raw = fs.readFileSync(SHOPS_FILE, 'utf8');
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.error('[Storage] Error reading shops.json:', err.message);
+  }
+  saveShops(DEFAULT_SHOPS);
+  return { ...DEFAULT_SHOPS };
+}
+
+function saveShops(data) {
+  try {
+    fs.writeFileSync(SHOPS_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Storage] Error writing shops.json:', err.message);
+  }
+}
+
+function loadSubscriptions() {
+  try {
+    if (fs.existsSync(SUBS_FILE)) {
+      const raw = fs.readFileSync(SUBS_FILE, 'utf8');
+      return JSON.parse(raw);
+    }
+  } catch (err) {
+    console.error('[Storage] Error reading subscriptions.json:', err.message);
+  }
+  return [];
+}
+
+function saveSubscriptions(arr) {
+  try {
+    fs.writeFileSync(SUBS_FILE, JSON.stringify(arr, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Storage] Error writing subscriptions.json:', err.message);
+  }
+}
+
+// Master In-Memory Cache with instant JSON disk-sync
+const shops = loadShops();
+const subscriptionsList = loadSubscriptions();
+const ADMIN_PIN = '9909';
 
 // Jobs storage: key = jobId
 const jobs = new Map();
@@ -237,6 +289,15 @@ app.get('/register', (req, res) => {
   res.sendFile(path.join(WEB_DIR, 'home.html'));
 });
 
+// Serve Master Admin Dashboard
+app.get('/admin', (req, res) => {
+  const adminPath = path.join(WEB_DIR, 'admin.html');
+  if (fs.existsSync(adminPath)) {
+    return res.sendFile(adminPath);
+  }
+  res.send('PrintGoo Master Admin Panel: admin.html not found.');
+});
+
 // Serve Shopkeeper Live Dashboard
 app.get('/dashboard/:shop_slug?', (req, res) => {
   const dashPath = path.join(WEB_DIR, 'dashboard.html');
@@ -297,7 +358,265 @@ app.get('/api/shops/:shop_slug', (req, res) => {
   res.json({ success: true, shop });
 });
 
-// Update Shop details (name, city, upiId, phone, whatsapp, pricing)
+// ---------------------------------------------------------------------
+// AUTHENTICATION & REGISTRATION APIS
+// ---------------------------------------------------------------------
+
+// 1. Shopkeeper Registration (Free Trial + Custom UPI)
+app.post('/api/register', (req, res) => {
+  const { shopName, ownerName, city, mobile, whatsapp, upiId, username, password } = req.body;
+
+  if (!shopName || !ownerName || !city || !mobile || !username || !password) {
+    return res.status(400).json({ success: false, error: 'બધા જરૂરી ખાના (Shop Name, Owner, City, Mobile, Username, Password) ભરવા ફરજિયાત છે.' });
+  }
+
+  const cleanUser = username.trim().toLowerCase();
+  const slug = cleanUser.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'shop';
+
+  // Check if username or slug already exists
+  if (shops[slug] || Object.values(shops).some(s => s.username && s.username.toLowerCase() === cleanUser)) {
+    return res.status(400).json({ success: false, error: 'આ Username અથવા દુકાન પહેલેથી રજીસ્ટર થયેલી છે. કૃપા કરીને બીજું Username પસંદ કરો અથવા Login કરો.' });
+  }
+
+  const now = new Date();
+  const trialExpiry = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const newShop = {
+    name: shopName.trim(),
+    slug: slug,
+    ownerName: ownerName.trim(),
+    address: city.trim(),
+    phone: mobile.trim(),
+    whatsapp: (whatsapp || mobile).trim(),
+    upiId: (upiId || '').trim(),
+    username: cleanUser,
+    password: password.trim(),
+    status: 'online',
+    createdAt: now.toISOString(),
+    pricing: {
+      bwSingle: 2.0,
+      bwDouble: 3.0,
+      colorSingle: 10.0,
+      colorDouble: 15.0,
+      legalMarkup: 1.5
+    },
+    subscription: {
+      plan: '7-Day Free Trial',
+      amount: 0,
+      status: 'active',
+      paidAt: now.toISOString(),
+      validUntil: trialExpiry.toISOString()
+    }
+  };
+
+  shops[slug] = newShop;
+  saveShops(shops);
+
+  console.log(`[Registration] New Shop Created: "${newShop.name}" (${slug}) by ${newShop.ownerName}, Phone: ${newShop.phone}, UPI: ${newShop.upiId}`);
+  res.json({ success: true, shop: newShop, slug });
+});
+
+// 2. Shopkeeper Login Verification
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ success: false, error: 'કૃપા કરીને Username અને Password બંને લખો.' });
+  }
+
+  const q = username.trim().toLowerCase();
+  const p = password.trim();
+
+  // Find shop by username, slug, or mobile phone
+  const shop = Object.values(shops).find(s => 
+    (s.username && s.username.toLowerCase() === q) || 
+    (s.slug && s.slug.toLowerCase() === q) || 
+    (s.phone && s.phone.replace(/[^0-9]/g, '') === q.replace(/[^0-9]/g, ''))
+  );
+
+  if (!shop) {
+    return res.status(404).json({
+      success: false,
+      error: 'આ દુકાન રજીસ્ટર થયેલી નથી! કૃપા કરીને ૭-દિવસ ફ્રી ટ્રાયલ માટે નવું રજીસ્ટ્રેશન કરો.'
+    });
+  }
+
+  if (shop.password && shop.password !== p) {
+    return res.status(401).json({
+      success: false,
+      error: 'ખોટો પાસવર્ડ! કૃપા કરીને સાચો પાસવર્ડ નાખો.'
+    });
+  }
+
+  if (shop.status === 'suspended' || shop.status === 'blocked') {
+    return res.status(403).json({
+      success: false,
+      error: 'તમારું એકાઉન્ટ હાલ બંધ (Suspended) છે. એડમિન સપોર્ટ: +91 9909577877'
+    });
+  }
+
+  console.log(`[Auth Login] Shop "${shop.name}" (${shop.slug}) logged in successfully.`);
+  res.json({
+    success: true,
+    shop: {
+      name: shop.name,
+      slug: shop.slug,
+      ownerName: shop.ownerName,
+      address: shop.address,
+      phone: shop.phone,
+      whatsapp: shop.whatsapp,
+      upiId: shop.upiId,
+      subscription: shop.subscription
+    }
+  });
+});
+
+// ---------------------------------------------------------------------
+// MASTER ADMIN APIS (/admin Control Room)
+// ---------------------------------------------------------------------
+
+// Admin Login with PIN
+app.post('/api/admin/login', (req, res) => {
+  const { pin } = req.body;
+  if (pin === ADMIN_PIN) {
+    return res.json({ success: true, message: 'Admin verified successfully' });
+  }
+  res.status(401).json({ success: false, error: 'ખોટો એડમિન PIN! સાચો PIN નાખો.' });
+});
+
+// Admin Get All Shops & Stats
+app.get('/api/admin/shops', (req, res) => {
+  const pin = req.headers['x-admin-pin'] || req.query.pin;
+  if (pin !== ADMIN_PIN) {
+    return res.status(401).json({ success: false, error: 'Unauthorized Admin Access' });
+  }
+
+  const allShops = Object.values(shops).map(s => {
+    let daysLeft = 0;
+    if (s.subscription && s.subscription.validUntil) {
+      const ms = new Date(s.subscription.validUntil) - Date.now();
+      daysLeft = Math.ceil(ms / (1000 * 60 * 60 * 24));
+    }
+    return {
+      name: s.name,
+      slug: s.slug,
+      ownerName: s.ownerName,
+      address: s.address,
+      phone: s.phone,
+      whatsapp: s.whatsapp,
+      upiId: s.upiId,
+      username: s.username,
+      status: s.status,
+      createdAt: s.createdAt,
+      subscription: s.subscription,
+      daysRemaining: daysLeft
+    };
+  });
+
+  const totalShops = allShops.length;
+  const activeTrials = allShops.filter(s => s.subscription?.plan?.includes('Trial') && s.daysRemaining > 0).length;
+  const paidShops = allShops.filter(s => !s.subscription?.plan?.includes('Trial') && s.daysRemaining > 0).length;
+  const totalRevenue = subscriptionsList.reduce((acc, sub) => acc + (sub.amount || 0), 0);
+
+  res.json({
+    success: true,
+    stats: { totalShops, activeTrials, paidShops, totalRevenue },
+    shops: allShops,
+    subscriptions: subscriptionsList
+  });
+});
+
+// Admin Manage Shop (Extend, Suspend, Activate, Delete)
+app.post('/api/admin/shop-action', (req, res) => {
+  const pin = req.headers['x-admin-pin'] || req.body.pin;
+  if (pin !== ADMIN_PIN) {
+    return res.status(401).json({ success: false, error: 'Unauthorized Admin Access' });
+  }
+
+  const { slug, action } = req.body;
+  if (!slug || !shops[slug]) {
+    return res.status(404).json({ success: false, error: 'Shop not found' });
+  }
+
+  const shop = shops[slug];
+  const now = new Date();
+
+  if (action === 'extend_30') {
+    const currentValid = (shop.subscription?.validUntil && new Date(shop.subscription.validUntil) > now) 
+      ? new Date(shop.subscription.validUntil) 
+      : now;
+    const newValid = new Date(currentValid.getTime() + 30 * 24 * 60 * 60 * 1000);
+    shop.subscription = {
+      ...(shop.subscription || {}),
+      plan: 'Monthly Plan',
+      status: 'active',
+      validUntil: newValid.toISOString()
+    };
+    shop.status = 'online';
+  } else if (action === 'extend_365') {
+    const currentValid = (shop.subscription?.validUntil && new Date(shop.subscription.validUntil) > now) 
+      ? new Date(shop.subscription.validUntil) 
+      : now;
+    const newValid = new Date(currentValid.getTime() + 365 * 24 * 60 * 60 * 1000);
+    shop.subscription = {
+      ...(shop.subscription || {}),
+      plan: 'Yearly Pro',
+      status: 'active',
+      validUntil: newValid.toISOString()
+    };
+    shop.status = 'online';
+  } else if (action === 'suspend') {
+    shop.status = 'suspended';
+  } else if (action === 'activate') {
+    shop.status = 'online';
+    if (shop.subscription) shop.subscription.status = 'active';
+  } else if (action === 'delete') {
+    delete shops[slug];
+  }
+
+  saveShops(shops);
+  res.json({ success: true, shop: shops[slug] });
+});
+
+// Admin Approve Subscription Payment (UTR Verification)
+app.post('/api/admin/approve-utr', (req, res) => {
+  const pin = req.headers['x-admin-pin'] || req.body.pin;
+  if (pin !== ADMIN_PIN) {
+    return res.status(401).json({ success: false, error: 'Unauthorized Admin Access' });
+  }
+
+  const { utrIndex, slug } = req.body;
+  if (typeof utrIndex === 'number' && subscriptionsList[utrIndex]) {
+    const sub = subscriptionsList[utrIndex];
+    sub.verifiedByAdmin = true;
+    sub.verifiedAt = new Date().toISOString();
+    
+    const targetSlug = slug || sub.shopSlug;
+    if (targetSlug && shops[targetSlug]) {
+      const days = (sub.amount >= 1500) ? 365 : 30;
+      const now = new Date();
+      const currentValid = (shops[targetSlug].subscription?.validUntil && new Date(shops[targetSlug].subscription.validUntil) > now)
+        ? new Date(shops[targetSlug].subscription.validUntil)
+        : now;
+      const newValid = new Date(currentValid.getTime() + days * 24 * 60 * 60 * 1000);
+      shops[targetSlug].subscription = {
+        plan: days === 365 ? 'Yearly Pro' : 'Monthly Pro',
+        amount: sub.amount,
+        utrNumber: sub.utrNumber,
+        status: 'active',
+        paidAt: now.toISOString(),
+        validUntil: newValid.toISOString()
+      };
+      saveShops(shops);
+    }
+    saveSubscriptions(subscriptionsList);
+    return res.json({ success: true, subscription: sub });
+  }
+
+  res.status(400).json({ success: false, error: 'Subscription entry not found.' });
+});
+
+// Update Shop details (name, city, upiId, phone, whatsapp, pricing) with instant JSON save
 app.post('/api/shops/:shop_slug', (req, res) => {
   const slug = req.params.shop_slug.toLowerCase();
   if (!shops[slug]) {
@@ -312,16 +631,17 @@ app.post('/api/shops/:shop_slug', (req, res) => {
   const { name, address, upiId, phone, whatsapp, pricing } = req.body;
   if (name) shops[slug].name = name;
   if (address) shops[slug].address = address;
-  if (upiId) shops[slug].upiId = upiId;
+  if (typeof upiId === 'string') shops[slug].upiId = upiId;
   if (phone) shops[slug].phone = phone;
   if (whatsapp) shops[slug].whatsapp = whatsapp;
   if (pricing) shops[slug].pricing = { ...shops[slug].pricing, ...pricing };
 
-  console.log(`[Shop Config] Updated shop ${slug}: Name="${shops[slug].name}", UPI="${shops[slug].upiId}"`);
+  saveShops(shops);
+  console.log(`[Shop Config] Saved shop ${slug} to disk: Name="${shops[slug].name}", UPI="${shops[slug].upiId}"`);
   res.json({ success: true, shop: shops[slug] });
 });
 
-// Submit & Record Subscription Payment (Shopkeeper pays Admin)
+// Submit & Record Subscription Payment (Shopkeeper pays Admin) with instant JSON save
 app.post('/api/subscriptions/:shop_slug', (req, res) => {
   const slug = req.params.shop_slug.toLowerCase();
   const { planName, amount, utrNumber, phone } = req.body;
@@ -334,17 +654,33 @@ app.post('/api/subscriptions/:shop_slug', (req, res) => {
   const now = new Date();
   const validUntil = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
 
-  shops[slug].subscription = {
+  const subRecord = {
+    shopSlug: slug,
+    shopName: shops[slug].name || slug,
     plan: planName || (days === 365 ? 'Yearly Pro' : 'Monthly Pro'),
     amount: amount || (days === 365 ? 1999 : 299),
     utrNumber: utrNumber || '',
     phone: phone || '',
+    status: 'pending_verification',
+    submittedAt: now.toISOString(),
+    validUntil: validUntil.toISOString()
+  };
+
+  shops[slug].subscription = {
+    plan: subRecord.plan,
+    amount: subRecord.amount,
+    utrNumber: subRecord.utrNumber,
+    phone: subRecord.phone,
     status: 'active',
     paidAt: now.toISOString(),
     validUntil: validUntil.toISOString()
   };
 
-  console.log(`[Subscription Activated] Shop ${slug} activated plan "${shops[slug].subscription.plan}" until ${validUntil.toDateString()}`);
+  subscriptionsList.unshift(subRecord);
+  saveSubscriptions(subscriptionsList);
+  saveShops(shops);
+
+  console.log(`[Subscription Payment Recorded] Shop ${slug}: ₹${subRecord.amount}, UTR: ${subRecord.utrNumber}`);
   res.json({ success: true, subscription: shops[slug].subscription });
 });
 

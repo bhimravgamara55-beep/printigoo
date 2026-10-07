@@ -182,8 +182,11 @@
               </div>
             </div>
 
+            <!-- Error Message Alert -->
+            <div id="loginErrorBox" class="hidden text-xs font-bold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200 text-center"></div>
+
             <!-- Login Button -->
-            <button type="submit" class="w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover active:scale-[0.99] text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 transition">
+            <button type="submit" id="btnLoginSubmit" class="w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover active:scale-[0.99] text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 transition cursor-pointer">
               <span>Login</span>
               <span>&rarr;</span>
             </button>
@@ -454,16 +457,48 @@
       p.type = p.type === 'password' ? 'text' : 'password';
     }
 
-    function handleLogin(e) {
+    async function handleLogin(e) {
       e.preventDefault();
-      const raw = document.getElementById('loginUsername').value.trim();
-      const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-xerox';
-      
-      // Save session in localStorage
-      localStorage.setItem('printgoo_current_user', raw);
-      localStorage.setItem('printgoo_current_slug', slug);
-      
-      window.location.href = `/dashboard/${slug}`;
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const errBox = document.getElementById('loginErrorBox');
+      const btn = document.getElementById('btnLoginSubmit');
+
+      errBox.classList.add('hidden');
+      btn.disabled = true;
+      btn.innerHTML = '<span>Verifying...</span>';
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success && data.shop) {
+          const s = data.shop;
+          localStorage.setItem('printgoo_current_user', s.name);
+          localStorage.setItem('printgoo_current_slug', s.slug);
+          if (s.upiId) localStorage.setItem('printgoo_shop_upi', s.upiId);
+          if (s.address) localStorage.setItem('printgoo_city', s.address);
+          if (s.phone) localStorage.setItem('printgoo_mobile', s.phone);
+          if (s.subscription?.validUntil) localStorage.setItem('printgoo_trial_until', s.subscription.validUntil);
+
+          window.location.href = `/dashboard/${s.slug}`;
+        } else {
+          errBox.textContent = data.error || 'Login failed. Please check username and password.';
+          errBox.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerHTML = '<span>Login</span><span>&rarr;</span>';
+        }
+      } catch (err) {
+        console.error('Login error:', err);
+        errBox.textContent = 'Server connection error. Please try again.';
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = '<span>Login</span><span>&rarr;</span>';
+      }
     }
   </script>
 </body>

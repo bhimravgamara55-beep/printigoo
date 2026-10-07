@@ -581,8 +581,14 @@
       }
 
       const total = calcTotal();
-      const upiId = shopData.upiId || 'bmgamara@ybl';
-      const name = encodeURIComponent(shopData.name || 'Gamara Enterprises');
+      const upiId = shopData.upiId || '';
+      
+      if (!upiId) {
+        alert('આ ઝેરોક્ષ દુકાને ઓનલાઇન UPI સેટ કરેલ નથી.\nકૃપા કરીને કાઉન્ટર પર રોકડા (Pay at Counter - Cash) વિકલ્પ પસંદ કરો.');
+        return;
+      }
+
+      const name = encodeURIComponent(shopData.name || 'PrintGoo Xerox');
       const uri = `upi://pay?pa=${upiId}&pn=${name}&am=${total}&cu=INR&tn=PrintGoo Xerox`;
 
       document.getElementById('portalUpiIdText').textContent = upiId;

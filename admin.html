@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrintGoo — Master Admin Control Room</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pgBg: '#FAF7F2',
+            pgMaroon: '#78251B',
+            pgMaroonHover: '#5E1B13',
+            pgRed: '#BD3A2B',
+            pgYellow: '#FFE68C',
+          }
+        }
+      }
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8F9FA; color: #1E293B; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- PIN LOCK MODAL OVERLAY (Initial screen until Admin enters PIN) -->
+  <div id="pinLockModal" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white max-w-sm w-full rounded-3xl p-6 sm:p-8 shadow-2xl border border-stone-200 text-center space-y-5">
+      <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-2xl mx-auto shadow-inner">
+        🔒
+      </div>
+      <div>
+        <h2 class="text-xl font-black text-stone-900">Master Admin Access</h2>
+        <p class="text-xs text-stone-500 mt-1">Enter your 4-digit secret admin PIN to manage all PrintGoo shops &amp; subscriptions.</p>
+      </div>
+
+      <form onsubmit="handlePinLogin(event)" class="space-y-4">
+        <div>
+          <input 
+            type="password" 
+            id="adminPinInput" 
+            maxlength="8" 
+            required 
+            placeholder="Enter Admin PIN" 
+            class="w-full text-center tracking-widest text-2xl font-mono py-3 px-4 rounded-2xl border-2 border-stone-300 focus:border-pgMaroon focus:outline-none bg-stone-50"
+            autofocus
+          />
+        </div>
+
+        <p id="pinErrorMsg" class="text-xs font-bold text-red-600 hidden"></p>
+
+        <button type="submit" id="btnUnlock" class="w-full py-3.5 rounded-2xl bg-pgMaroon hover:bg-pgMaroonHover text-white font-bold text-xs shadow-md transition cursor-pointer">
+          Unlock Control Room &rarr;
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN ADMIN DASHBOARD -->
+  <div id="adminMainContent" class="hidden flex-1 flex flex-col">
+    
+    <!-- Top Header -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-30 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-2xs">
+      <div class="flex items-center space-x-3">
+        <a href="/" class="flex items-center space-x-2">
+          <span class="inline-block bg-gradient-to-r from-amber-400 to-yellow-400 border border-pgMaroon px-2.5 py-0.5 rounded-full font-black text-xs text-pgMaroon">
+            Print<span class="text-sky-600">Goo</span>
+          </span>
+          <span class="text-xs font-black tracking-wider uppercase bg-stone-900 text-white px-2 py-0.5 rounded-md">
+            MASTER ADMIN
+          </span>
+        </a>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Owner Console Active</span>
+        </span>
+        <button onclick="adminLogout()" class="text-xs font-bold text-stone-600 hover:text-red-600 px-2.5 py-1 rounded-lg border border-stone-200 hover:bg-stone-50 transition cursor-pointer">
+          Logout 🚪
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6 flex-1">
+      
+      <!-- 4 KPI CARDS -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Total Shops -->
+        <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
+          <div class="flex items-center justify-between text-stone-400 mb-1">
+            <span class="text-[10px] font-black uppercase tracking-wider text-stone-500">TOTAL SHOPS</span>
+            <span class="text-lg">🏪</span>
+          </div>
+          <p id="kpiTotalShops" class="text-3xl font-black text-stone-900">0</p>
+          <p class="text-[11px] text-stone-400 font-medium mt-1">Registered Xerox desks</p>
+        </div>
+
+        <!-- Active Trials -->
+        <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
+          <div class="flex items-center justify-between text-amber-500 mb-1">
+            <span class="text-[10px] font-black uppercase tracking-wider text-amber-800">FREE TRIALS</span>
+            <span class="text-lg">⏳</span>
+          </div>
+          <p id="kpiActiveTrials" class="text-3xl font-black text-amber-700">0</p>
+          <p class="text-[11px] text-stone-400 font-medium mt-1">7-Day free trial users</p>
+        </div>
+
+        <!-- Paid Memberships -->
+        <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
+          <div class="flex items-center justify-between text-emerald-500 mb-1">
+            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800">PAID PRO SHOPS</span>
+            <span class="text-lg">💎</span>
+          </div>
+          <p id="kpiPaidShops" class="text-3xl font-black text-emerald-700">0</p>
+          <p class="text-[11px] text-stone-400 font-medium mt-1">Monthly / Yearly paid</p>
+        </div>
+
+        <!-- Total Revenue -->
+        <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
+          <div class="flex items-center justify-between text-sky-500 mb-1">
+            <span class="text-[10px] font-black uppercase tracking-wider text-sky-800">TOTAL SUBSCRIPTION REVENUE</span>
+            <span class="text-lg">💰</span>
+          </div>
+          <p id="kpiRevenue" class="text-3xl font-black text-pgMaroon">₹0</p>
+          <p class="text-[11px] text-stone-400 font-medium mt-1">Collected via bmgamara@ybl</p>
+        </div>
+
+      </div>
+
+      <!-- SHOPS MANAGEMENT TABLE -->
+      <div class="bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden">
+        
+        <!-- Table Header & Filter Bar -->
+        <div class="p-5 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-50/50">
+          <div>
+            <h2 class="text-lg font-black text-stone-900">Registered Shopkeepers</h2>
+            <p class="text-xs text-stone-500 font-medium">Live monitoring, WhatsApp/call links, and subscription controls</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input 
+              type="text" 
+              id="shopSearchInput" 
+              oninput="filterShopsTable()" 
+              placeholder="Search by name, city, phone..." 
+              class="px-3.5 py-2 rounded-xl border border-stone-300 text-xs text-stone-800 focus:outline-none focus:border-pgMaroon w-64 bg-white"
+            />
+            <button onclick="fetchAdminData()" class="p-2 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-bold" title="Refresh">
+              🔄
+            </button>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-black uppercase text-[10px] tracking-wider">
+                <th class="py-3 px-4">Shop &amp; Owner</th>
+                <th class="py-3 px-4">City</th>
+                <th class="py-3 px-4">Contact (Call / WhatsApp)</th>
+                <th class="py-3 px-4">Shopkeeper UPI ID</th>
+                <th class="py-3 px-4">Current Plan</th>
+                <th class="py-3 px-4">Status / Days Left</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="shopsTableBody" class="divide-y divide-stone-100">
+              <tr>
+                <td colspan="7" class="text-center py-8 text-stone-400">Loading shops...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- SUBSCRIPTION PAYMENT UTR VERIFICATION QUEUE -->
+      <div class="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-black text-stone-900">Subscription Payments &amp; UTR Queue</h2>
+            <p class="text-xs text-stone-500 font-medium">Verify 12-digit UTR numbers submitted by shopkeepers paying to bmgamara@ybl</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black uppercase">
+            UPI Verification
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-black uppercase text-[10px] tracking-wider">
+                <th class="py-2.5 px-3">Date</th>
+                <th class="py-2.5 px-3">Shop</th>
+                <th class="py-2.5 px-3">Plan</th>
+                <th class="py-2.5 px-3">Amount</th>
+                <th class="py-2.5 px-3">12-Digit UTR</th>
+                <th class="py-2.5 px-3">Phone</th>
+                <th class="py-2.5 px-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="utrTableBody" class="divide-y divide-stone-100">
+              <tr>
+                <td colspan="7" class="text-center py-6 text-stone-400">No pending payments.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    let adminPin = sessionStorage.getItem('printgoo_admin_pin') || '';
+    let allShopsData = [];
+
+    // Check if already authenticated
+    if (adminPin) {
+      unlockDashboard();
+    }
+
+    async function handlePinLogin(e) {
+      e.preventDefault();
+      const pin = document.getElementById('adminPinInput').value.trim();
+      const errEl = document.getElementById('pinErrorMsg');
+      errEl.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          adminPin = pin;
+          sessionStorage.setItem('printgoo_admin_pin', pin);
+          unlockDashboard();
+        } else {
+          errEl.textContent = data.error || 'Incorrect PIN.';
+          errEl.classList.remove('hidden');
+        }
+      } catch (err) {
+        errEl.textContent = 'Server connection error.';
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    function unlockDashboard() {
+      document.getElementById('pinLockModal').classList.add('hidden');
+      document.getElementById('adminMainContent').classList.remove('hidden');
+      fetchAdminData();
+    }
+
+    function adminLogout() {
+      sessionStorage.removeItem('printgoo_admin_pin');
+      window.location.reload();
+    }
+
+    async function fetchAdminData() {
+      try {
+        const res = await fetch('/api/admin/shops', {
+          headers: { 'x-admin-pin': adminPin }
+        });
+        const d = await res.json();
+
+        if (!d.success) {
+          alert('Admin session expired. Please re-enter PIN.');
+          adminLogout();
+          return;
+        }
+
+        // Render KPIs
+        document.getElementById('kpiTotalShops').textContent = d.stats.totalShops || 0;
+        document.getElementById('kpiActiveTrials').textContent = d.stats.activeTrials || 0;
+        document.getElementById('kpiPaidShops').textContent = d.stats.paidShops || 0;
+        document.getElementById('kpiRevenue').textContent = `₹${(d.stats.totalRevenue || 0).toLocaleString('en-IN')}`;
+
+        allShopsData = d.shops || [];
+        renderShopsTable(allShopsData);
+        renderUtrTable(d.subscriptions || []);
+
+      } catch (err) {
+        console.error('Fetch admin error:', err);
+      }
+    }
+
+    function renderShopsTable(shops) {
+      const tbody = document.getElementById('shopsTableBody');
+      if (!shops || shops.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-stone-400">No shops registered yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = shops.map(s => {
+        const cleanPhone = (s.phone || '').replace(/[^0-9]/g, '');
+        const days = s.daysRemaining || 0;
+        const plan = s.subscription?.plan || 'Free Trial';
+        
+        let statusBadge = '';
+        if (s.status === 'suspended') {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-bold text-[10px]">Suspended</span>`;
+        } else if (days <= 0) {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-bold text-[10px]">Expired</span>`;
+        } else if (plan.includes('Trial')) {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">${days} days left</span>`;
+        } else {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">${days} days left</span>`;
+        }
+
+        const upiDisplay = s.upiId ? `<span class="font-mono text-emerald-700 font-bold">${s.upiId}</span>` : `<span class="text-stone-400 italic">Not set</span>`;
+
+        return `
+          <tr class="hover:bg-stone-50/80 transition">
+            <td class="py-3 px-4">
+              <a href="/dashboard/${s.slug}" target="_blank" class="font-bold text-stone-900 hover:text-pgRed flex items-center gap-1">
+                <span>${s.name}</span>
+                <span class="text-[10px] text-stone-400 font-mono">(/${s.slug})</span>
+              </a>
+              <p class="text-[11px] text-stone-500 font-medium">Owner: ${s.ownerName || '—'}</p>
+            </td>
+
+            <td class="py-3 px-4 font-semibold text-stone-700">
+              ${s.address || '—'}
+            </td>
+
+            <td class="py-3 px-4">
+              <div class="flex items-center space-x-2">
+                <span class="font-mono text-stone-800 font-bold">${s.phone || '—'}</span>
+                ${cleanPhone ? `
+                  <a href="tel:${cleanPhone}" class="p-1 rounded-md bg-stone-100 hover:bg-emerald-100 text-emerald-700 text-xs font-bold" title="Call">📞</a>
+                  <a href="https://wa.me/91${cleanPhone}?text=Hello%20${encodeURIComponent(s.ownerName || s.name)}%2C%20PrintGoo%20Support" target="_blank" class="p-1 rounded-md bg-stone-100 hover:bg-emerald-100 text-emerald-700 text-xs font-bold" title="WhatsApp">💬</a>
+                ` : ''}
+              </div>
+            </td>
+
+            <td class="py-3 px-4">
+              ${upiDisplay}
+            </td>
+
+            <td class="py-3 px-4">
+              <span class="font-bold text-stone-800">${plan}</span>
+            </td>
+
+            <td class="py-3 px-4">
+              ${statusBadge}
+            </td>
+
+            <td class="py-3 px-4 text-right">
+              <div class="inline-flex items-center gap-1.5">
+                <button onclick="shopAction('${s.slug}', 'extend_30')" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-amber-100 text-amber-800 font-bold text-[10px] transition" title="Add 30 Days">
+                  +30d
+                </button>
+                <button onclick="shopAction('${s.slug}', 'extend_365')" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] transition" title="Add 1 Year">
+                  +1y
+                </button>
+                ${s.status === 'suspended' ? `
+                  <button onclick="shopAction('${s.slug}', 'activate')" class="px-2 py-1 rounded-lg bg-emerald-600 text-white font-bold text-[10px] transition">
+                    Activate
+                  </button>
+                ` : `
+                  <button onclick="shopAction('${s.slug}', 'suspend')" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-red-100 text-red-600 font-bold text-[10px] transition">
+                    Suspend
+                  </button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterShopsTable() {
+      const q = document.getElementById('shopSearchInput').value.toLowerCase().trim();
+      if (!q) {
+        renderShopsTable(allShopsData);
+        return;
+      }
+      const filtered = allShopsData.filter(s => 
+        (s.name && s.name.toLowerCase().includes(q)) ||
+        (s.slug && s.slug.toLowerCase().includes(q)) ||
+        (s.ownerName && s.ownerName.toLowerCase().includes(q)) ||
+        (s.address && s.address.toLowerCase().includes(q)) ||
+        (s.phone && s.phone.includes(q)) ||
+        (s.upiId && s.upiId.toLowerCase().includes(q))
+      );
+      renderShopsTable(filtered);
+    }
+
+    function renderUtrTable(subs) {
+      const tbody = document.getElementById('utrTableBody');
+      if (!subs || subs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-stone-400">No payment records yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = subs.map((sub, idx) => {
+        const d = sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString('en-GB') : '—';
+        return `
+          <tr class="hover:bg-stone-50/80 transition">
+            <td class="py-2.5 px-3 text-stone-500 font-mono">${d}</td>
+            <td class="py-2.5 px-3 font-bold text-stone-900">${sub.shopName || sub.shopSlug}</td>
+            <td class="py-2.5 px-3 font-semibold text-stone-700">${sub.plan}</td>
+            <td class="py-2.5 px-3 font-black text-pgMaroon">₹${sub.amount}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-stone-800">${sub.utrNumber || '—'}</td>
+            <td class="py-2.5 px-3 font-mono text-stone-600">${sub.phone || '—'}</td>
+            <td class="py-2.5 px-3 text-right">
+              ${sub.verifiedByAdmin ? `
+                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">Verified ✓</span>
+              ` : `
+                <button onclick="approveUtr(${idx}, '${sub.shopSlug}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition cursor-pointer">
+                  Approve ✓
+                </button>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function shopAction(slug, action) {
+      const confirmAction = confirm(`Are you sure you want to perform "${action}" on shop "${slug}"?`);
+      if (!confirmAction) return;
+
+      try {
+        const res = await fetch('/api/admin/shop-action', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-pin': adminPin
+          },
+          body: JSON.stringify({ slug, action })
+        });
+        const d = await res.json();
+        if (d.success) {
+          fetchAdminData();
+        } else {
+          alert(d.error || 'Failed to update shop.');
+        }
+      } catch (e) {
+        alert('Server error.');
+      }
+    }
+
+    async function approveUtr(utrIndex, slug) {
+      if (!confirm(`Verify and approve payment for shop "${slug}"? This will extend their validity immediately.`)) return;
+
+      try {
+        const res = await fetch('/api/admin/approve-utr', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-pin': adminPin
+          },
+          body: JSON.stringify({ utrIndex, slug })
+        });
+        const d = await res.json();
+        if (d.success) {
+          alert('Payment verified and membership activated!');
+          fetchAdminData();
+        } else {
+          alert(d.error || 'Failed to approve.');
+        }
+      } catch (e) {
+        alert('Server error.');
+      }
+    }
+  </script>
+
+</body>
+</html>

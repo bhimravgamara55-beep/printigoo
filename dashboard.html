@@ -1662,11 +1662,18 @@
     // Live UPI QR Preview generator
     function updateLiveUpiQr() {
       const upiInput = document.getElementById('setting_upiId');
-      const val = (upiInput ? upiInput.value.trim() : '') || shopData.upiId || 'gamaraenterprises@okaxis';
-      const name = encodeURIComponent(shopData.name || 'PrintGoo Shop');
+      const val = (upiInput ? upiInput.value.trim() : '') || shopData.upiId || '';
       const previewText = document.getElementById('liveUpiPreviewText');
-      if (previewText) previewText.textContent = val;
       const previewImg = document.getElementById('liveUpiPreviewImg');
+      
+      if (!val) {
+        if (previewText) previewText.innerHTML = '<span class="text-amber-600 font-bold">⚠️ UPI ID not set yet! Enter your GPay/PhonePe UPI ID above.</span>';
+        if (previewImg) previewImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f3f4f6"/><text x="50" y="55" font-size="11" text-anchor="middle" fill="%239ca3af">No UPI Set</text></svg>';
+        return;
+      }
+
+      const name = encodeURIComponent(shopData.name || 'PrintGoo Shop');
+      if (previewText) previewText.textContent = val;
       if (previewImg) {
         const intent = `upi://pay?pa=${val}&pn=${name}&cu=INR&tn=PrintGoo Xerox`;
         previewImg.src = `https://quickchart.io/qr?text=${encodeURIComponent(intent)}&size=200&margin=1`;
@@ -1676,6 +1683,10 @@
     function testLiveUpiQr() {
       updateLiveUpiQr();
       const currentUpi = document.getElementById('setting_upiId')?.value.trim() || shopData.upiId;
+      if (!currentUpi) {
+        alert('Please enter your UPI ID first (e.g. 9909577877@paytm or yourshop@okaxis) to test.');
+        return;
+      }
       alert(`Live UPI QR generated for "${currentUpi}". Scan this QR with your GPay, PhonePe, or Paytm app on your phone to verify payments.`);
     }
 
@@ -1683,9 +1694,10 @@
     function applyShopDataToUI() {
       const savedUser = localStorage.getItem('printgoo_current_user') || '';
       const savedCity = localStorage.getItem('printgoo_city') || '';
+      const savedUpi = localStorage.getItem('printgoo_shop_upi') || localStorage.getItem(`printgoo_upi_${currentShopSlug}`) || '';
       const sName = shopData.name || savedUser || currentShopSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      const sCity = shopData.address || savedCity || 'Main Market';
-      const sUpi = shopData.upiId || 'bmgamara@ybl';
+      const sCity = shopData.address || savedCity || (currentShopSlug === 'gamara-enterprises' ? 'Radhanpur, Gujarat' : 'Main Market');
+      const sUpi = shopData.upiId || savedUpi || (currentShopSlug === 'gamara-enterprises' ? 'bmgamara@ybl' : '');
 
       if (document.getElementById('topShopTitle')) document.getElementById('topShopTitle').textContent = sName;
       if (document.getElementById('topCityTag')) document.getElementById('topCityTag').textContent = sCity.toUpperCase();
@@ -1837,8 +1849,8 @@
     // Save Store Settings Form
     async function saveStoreSettingsNew() {
       const newName = document.getElementById('setting_shopName').value.trim() || shopData.name;
-      const newCity = document.getElementById('setting_shopCity').value.trim() || (shopData.address || 'Radhanpur');
-      const newUpi = document.getElementById('setting_upiId').value.trim() || (shopData.upiId || 'gamaraenterprises@okaxis');
+      const newCity = document.getElementById('setting_shopCity').value.trim() || shopData.address || '';
+      const newUpi = document.getElementById('setting_upiId').value.trim() || shopData.upiId || '';
       const newPhone = document.getElementById('setting_phone') ? document.getElementById('setting_phone').value.trim() : (shopData.phone || '');
       const newWhatsapp = document.getElementById('setting_whatsapp') ? document.getElementById('setting_whatsapp').value.trim() : (shopData.whatsapp || '');
       const bwRate = parseFloat(document.getElementById('setting_topBwSingle').value) || 2;
@@ -1849,6 +1861,8 @@
       shopData.upiId = newUpi;
       shopData.phone = newPhone;
       shopData.whatsapp = newWhatsapp;
+      localStorage.setItem('printgoo_shop_upi', newUpi);
+      localStorage.setItem(`printgoo_upi_${currentShopSlug}`, newUpi);
       shopData.pricing = {
         bwSingle: bwRate,
         bwDouble: bwRate * 1.5,
