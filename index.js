@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
@@ -510,7 +510,7 @@ app.post('/api/login', (req, res) => {
 
 // Admin Login with PIN
 app.post('/api/admin/login', (req, res) => {
-  const { pin } = req.body;
+  const pin = String(req.body.pin || '').trim();
   if (pin === ADMIN_PIN) {
     return res.json({ success: true, message: 'Admin verified successfully' });
   }

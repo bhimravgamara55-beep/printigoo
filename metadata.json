@@ -1,0 +1,6 @@
+{
+  "name": "PrintGoo",
+  "description": "B2B Xerox & Print Automation Platform with Zero-Retention Privacy, Instant QR Kiosk, Silent Hardware Routing, and Gemini AI Document Intelligence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
