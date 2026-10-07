@@ -142,7 +142,7 @@
         <div class="p-5 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-50/50">
           <div>
             <h2 class="text-lg font-black text-stone-900">Registered Shopkeepers</h2>
-            <p class="text-xs text-stone-500 font-medium">Live monitoring, WhatsApp/call links, and subscription controls</p>
+            <p class="text-xs text-stone-500 font-medium">Live monitoring of 7-Day Trial and Paid users with direct WhatsApp/Call links</p>
           </div>
 
           <div class="flex items-center gap-2">
@@ -157,6 +157,22 @@
               🔄
             </button>
           </div>
+        </div>
+
+        <!-- Filter Segment Tabs (All, 7-Day Trials, Paid, Expired) -->
+        <div class="px-5 py-2.5 bg-stone-100/60 border-b border-stone-200 flex items-center space-x-2 text-xs font-bold overflow-x-auto">
+          <button onclick="setFilterCategory('all')" id="tabFilter_all" class="filter-tab px-3 py-1.5 rounded-xl bg-pgMaroon text-white shadow-xs">
+            All Shops (<span id="countFilterAll">0</span>)
+          </button>
+          <button onclick="setFilterCategory('trial')" id="tabFilter_trial" class="filter-tab px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-amber-800 hover:bg-amber-50">
+            ⏳ 7-Day Free Trials (<span id="countFilterTrial">0</span>)
+          </button>
+          <button onclick="setFilterCategory('paid')" id="tabFilter_paid" class="filter-tab px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-emerald-800 hover:bg-emerald-50">
+            💎 Paid Pro Members (<span id="countFilterPaid">0</span>)
+          </button>
+          <button onclick="setFilterCategory('expired')" id="tabFilter_expired" class="filter-tab px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-red-700 hover:bg-red-50">
+            ⚠️ Expired (<span id="countFilterExpired">0</span>)
+          </button>
         </div>
 
         <!-- Table View -->
@@ -292,6 +308,59 @@
         renderShopsTable(allShopsData);
         renderUtrTable(d.subscriptions || []);
 
+    let currentFilterCategory = 'all';
+
+    function setFilterCategory(cat) {
+      currentFilterCategory = cat;
+      document.querySelectorAll('.filter-tab').forEach(b => {
+        b.className = 'filter-tab px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-stone-700 hover:bg-stone-50';
+      });
+      const activeBtn = document.getElementById(`tabFilter_${cat}`);
+      if (activeBtn) {
+        if (cat === 'trial') activeBtn.className = 'filter-tab px-3 py-1.5 rounded-xl bg-amber-600 text-white shadow-xs';
+        else if (cat === 'paid') activeBtn.className = 'filter-tab px-3 py-1.5 rounded-xl bg-emerald-600 text-white shadow-xs';
+        else if (cat === 'expired') activeBtn.className = 'filter-tab px-3 py-1.5 rounded-xl bg-red-600 text-white shadow-xs';
+        else activeBtn.className = 'filter-tab px-3 py-1.5 rounded-xl bg-pgMaroon text-white shadow-xs';
+      }
+      filterShopsTable();
+    }
+
+    async function fetchAdminData() {
+      try {
+        const res = await fetch('/api/admin/shops', {
+          headers: { 'x-admin-pin': adminPin }
+        });
+        const d = await res.json();
+
+        if (!d.success) {
+          alert('Admin session expired. Please re-enter PIN.');
+          adminLogout();
+          return;
+        }
+
+        allShopsData = d.shops || [];
+
+        // Calculate counts
+        const total = allShopsData.length;
+        const trials = allShopsData.filter(s => s.subscription?.plan?.includes('Trial') && (s.daysRemaining || 0) > 0).length;
+        const paid = allShopsData.filter(s => !s.subscription?.plan?.includes('Trial') && (s.daysRemaining || 0) > 0).length;
+        const expired = allShopsData.filter(s => (s.daysRemaining || 0) <= 0).length;
+
+        // Render KPIs
+        document.getElementById('kpiTotalShops').textContent = total;
+        document.getElementById('kpiActiveTrials').textContent = trials;
+        document.getElementById('kpiPaidShops').textContent = paid;
+        document.getElementById('kpiRevenue').textContent = `₹${(d.stats.totalRevenue || 0).toLocaleString('en-IN')}`;
+
+        // Update Filter Segment Counts
+        if (document.getElementById('countFilterAll')) document.getElementById('countFilterAll').textContent = total;
+        if (document.getElementById('countFilterTrial')) document.getElementById('countFilterTrial').textContent = trials;
+        if (document.getElementById('countFilterPaid')) document.getElementById('countFilterPaid').textContent = paid;
+        if (document.getElementById('countFilterExpired')) document.getElementById('countFilterExpired').textContent = expired;
+
+        filterShopsTable();
+        renderUtrTable(d.subscriptions || []);
+
       } catch (err) {
         console.error('Fetch admin error:', err);
       }
@@ -300,7 +369,7 @@
     function renderShopsTable(shops) {
       const tbody = document.getElementById('shopsTableBody');
       if (!shops || shops.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-stone-400">No shops registered yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-stone-400">No matching shops found in this category.</td></tr>`;
         return;
       }
 
@@ -308,70 +377,96 @@
         const cleanPhone = (s.phone || '').replace(/[^0-9]/g, '');
         const days = s.daysRemaining || 0;
         const plan = s.subscription?.plan || 'Free Trial';
-        
+        const isTrial = plan.includes('Trial');
+        const regDate = s.createdAt ? new Date(s.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '—';
+        const expiryDate = s.subscription?.validUntil ? new Date(s.subscription.validUntil).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '—';
+
         let statusBadge = '';
         if (s.status === 'suspended') {
-          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-bold text-[10px]">Suspended</span>`;
+          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-bold text-[10px]">Suspended</span>`;
         } else if (days <= 0) {
-          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-bold text-[10px]">Expired</span>`;
-        } else if (plan.includes('Trial')) {
-          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">${days} days left</span>`;
+          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-bold text-[10px]">Expired</span>`;
+        } else if (isTrial) {
+          if (days <= 2) {
+            statusBadge = `<span class="px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200 font-black text-[10px] animate-pulse">⚠️ ${days}d left (Follow-up)</span>`;
+          } else {
+            statusBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 font-bold text-[10px]">⏳ ${days} days left</span>`;
+          }
         } else {
-          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">${days} days left</span>`;
+          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-[10px]">💎 ${days} days left</span>`;
         }
 
-        const upiDisplay = s.upiId ? `<span class="font-mono text-emerald-700 font-bold">${s.upiId}</span>` : `<span class="text-stone-400 italic">Not set</span>`;
+        const upiDisplay = s.upiId 
+          ? `<span class="font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">${s.upiId}</span>` 
+          : `<span class="text-stone-400 italic bg-stone-100 px-2 py-0.5 rounded-md">Not configured</span>`;
+
+        // WhatsApp Custom Message (Asking about trial or renewal)
+        const waText = isTrial 
+          ? `નમસ્તે ${s.ownerName || ''}, PrintGoo 7-Day Free Trial તમારા ${s.name || ''} માટે કેવું ચાલે છે? કોઈ સપોર્ટ કે સેટઅપની જરૂર હોય તો જણાવો.`
+          : `નમસ્તે ${s.ownerName || ''}, PrintGoo તરફથી શુભેચ્છા. આપની દુકાન ${s.name || ''} માટે કોઈ સહાયતાની જરૂર છે?`;
 
         return `
           <tr class="hover:bg-stone-50/80 transition">
-            <td class="py-3 px-4">
-              <a href="/dashboard/${s.slug}" target="_blank" class="font-bold text-stone-900 hover:text-pgRed flex items-center gap-1">
+            <td class="py-3.5 px-4">
+              <a href="/dashboard/${s.slug}" target="_blank" class="font-bold text-stone-900 hover:text-pgRed flex items-center gap-1.5">
                 <span>${s.name}</span>
                 <span class="text-[10px] text-stone-400 font-mono">(/${s.slug})</span>
               </a>
-              <p class="text-[11px] text-stone-500 font-medium">Owner: ${s.ownerName || '—'}</p>
+              <div class="flex items-center gap-2 mt-0.5 text-[11px] text-stone-500 font-medium">
+                <span>Owner: <strong class="text-stone-700">${s.ownerName || '—'}</strong></span>
+                <span>•</span>
+                <span class="text-stone-400">Reg: ${regDate}</span>
+              </div>
             </td>
 
-            <td class="py-3 px-4 font-semibold text-stone-700">
+            <td class="py-3.5 px-4 font-semibold text-stone-700">
               ${s.address || '—'}
             </td>
 
-            <td class="py-3 px-4">
+            <td class="py-3.5 px-4">
               <div class="flex items-center space-x-2">
                 <span class="font-mono text-stone-800 font-bold">${s.phone || '—'}</span>
                 ${cleanPhone ? `
-                  <a href="tel:${cleanPhone}" class="p-1 rounded-md bg-stone-100 hover:bg-emerald-100 text-emerald-700 text-xs font-bold" title="Call">📞</a>
-                  <a href="https://wa.me/91${cleanPhone}?text=Hello%20${encodeURIComponent(s.ownerName || s.name)}%2C%20PrintGoo%20Support" target="_blank" class="p-1 rounded-md bg-stone-100 hover:bg-emerald-100 text-emerald-700 text-xs font-bold" title="WhatsApp">💬</a>
+                  <a href="tel:${cleanPhone}" class="p-1.5 rounded-lg bg-stone-100 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition shadow-2xs" title="Direct Phone Call">📞</a>
+                  <a href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent(waText)}" target="_blank" class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition border border-emerald-200 shadow-2xs" title="Chat on WhatsApp">💬</a>
                 ` : ''}
               </div>
             </td>
 
-            <td class="py-3 px-4">
+            <td class="py-3.5 px-4">
               ${upiDisplay}
             </td>
 
-            <td class="py-3 px-4">
-              <span class="font-bold text-stone-800">${plan}</span>
+            <td class="py-3.5 px-4">
+              <div>
+                <span class="font-black text-stone-900 text-xs ${isTrial ? 'text-amber-800' : 'text-emerald-800'}">${plan}</span>
+                <p class="text-[10px] text-stone-400 font-medium mt-0.5">Expires: ${expiryDate}</p>
+              </div>
             </td>
 
-            <td class="py-3 px-4">
+            <td class="py-3.5 px-4">
               ${statusBadge}
             </td>
 
-            <td class="py-3 px-4 text-right">
+            <td class="py-3.5 px-4 text-right">
               <div class="inline-flex items-center gap-1.5">
-                <button onclick="shopAction('${s.slug}', 'extend_30')" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-amber-100 text-amber-800 font-bold text-[10px] transition" title="Add 30 Days">
+                ${isTrial ? `
+                  <button onclick="shopAction('${s.slug}', 'extend_7')" class="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-black text-[10px] transition cursor-pointer" title="Extend 7 Days Free Trial">
+                    +7d Trial
+                  </button>
+                ` : ''}
+                <button onclick="shopAction('${s.slug}', 'extend_30')" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-[10px] transition cursor-pointer" title="Activate/Add 30 Days">
                   +30d
                 </button>
-                <button onclick="shopAction('${s.slug}', 'extend_365')" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] transition" title="Add 1 Year">
+                <button onclick="shopAction('${s.slug}', 'extend_365')" class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] transition border border-emerald-200 cursor-pointer" title="Activate 1 Year Pro">
                   +1y
                 </button>
                 ${s.status === 'suspended' ? `
-                  <button onclick="shopAction('${s.slug}', 'activate')" class="px-2 py-1 rounded-lg bg-emerald-600 text-white font-bold text-[10px] transition">
+                  <button onclick="shopAction('${s.slug}', 'activate')" class="px-2 py-1 rounded-lg bg-emerald-600 text-white font-bold text-[10px] transition cursor-pointer">
                     Activate
                   </button>
                 ` : `
-                  <button onclick="shopAction('${s.slug}', 'suspend')" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-red-100 text-red-600 font-bold text-[10px] transition">
+                  <button onclick="shopAction('${s.slug}', 'suspend')" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-red-50 text-red-600 font-bold text-[10px] transition cursor-pointer">
                     Suspend
                   </button>
                 `}
@@ -384,19 +479,30 @@
 
     function filterShopsTable() {
       const q = document.getElementById('shopSearchInput').value.toLowerCase().trim();
-      if (!q) {
-        renderShopsTable(allShopsData);
-        return;
+      let list = allShopsData;
+
+      // Filter by category tab
+      if (currentFilterCategory === 'trial') {
+        list = list.filter(s => s.subscription?.plan?.includes('Trial') && (s.daysRemaining || 0) > 0);
+      } else if (currentFilterCategory === 'paid') {
+        list = list.filter(s => !s.subscription?.plan?.includes('Trial') && (s.daysRemaining || 0) > 0);
+      } else if (currentFilterCategory === 'expired') {
+        list = list.filter(s => (s.daysRemaining || 0) <= 0);
       }
-      const filtered = allShopsData.filter(s => 
-        (s.name && s.name.toLowerCase().includes(q)) ||
-        (s.slug && s.slug.toLowerCase().includes(q)) ||
-        (s.ownerName && s.ownerName.toLowerCase().includes(q)) ||
-        (s.address && s.address.toLowerCase().includes(q)) ||
-        (s.phone && s.phone.includes(q)) ||
-        (s.upiId && s.upiId.toLowerCase().includes(q))
-      );
-      renderShopsTable(filtered);
+
+      // Filter by search query
+      if (q) {
+        list = list.filter(s => 
+          (s.name && s.name.toLowerCase().includes(q)) ||
+          (s.slug && s.slug.toLowerCase().includes(q)) ||
+          (s.ownerName && s.ownerName.toLowerCase().includes(q)) ||
+          (s.address && s.address.toLowerCase().includes(q)) ||
+          (s.phone && s.phone.includes(q)) ||
+          (s.upiId && s.upiId.toLowerCase().includes(q))
+        );
+      }
+
+      renderShopsTable(list);
     }
 
     function renderUtrTable(subs) {

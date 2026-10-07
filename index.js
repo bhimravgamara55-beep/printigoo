@@ -289,6 +289,39 @@ app.get('/register', (req, res) => {
   res.sendFile(path.join(WEB_DIR, 'home.html'));
 });
 
+// Serve Windows Print Station Setup Downloader (.bat script)
+app.get('/download/print-station', (req, res) => {
+  const batScript = `@echo off
+title PrintGoo Windows Print Station Installer
+echo ========================================================
+echo       PrintGoo Smart Print Station - Windows Setup
+echo ========================================================
+echo.
+echo Installing PrintGoo Desktop App on your Windows PC...
+echo.
+
+set SCRIPT="%TEMP%\\CreatePrintGooShortcut.vbs"
+echo Set oWS = WScript.CreateObject("WScript.Shell") > %SCRIPT%
+echo sLinkFile = oWS.SpecialFolders("Desktop") ^& "\\PrintGoo Station.lnk" >> %SCRIPT%
+echo Set oLink = oWS.CreateShortcut(sLinkFile) >> %SCRIPT%
+echo oLink.TargetPath = "https://www.printgoo.in" >> %SCRIPT%
+echo oLink.Description = "PrintGoo Smart Print Desk" >> %SCRIPT%
+echo oLink.Save >> %SCRIPT%
+cscript /nologo %SCRIPT%
+del %SCRIPT%
+
+echo.
+echo [SUCCESS] PrintGoo Desktop Shortcut created on your Desktop!
+echo Launching PrintGoo Station...
+start "" "msedge.exe" --app="https://www.printgoo.in" || start "" "chrome.exe" --app="https://www.printgoo.in" || start "" "https://www.printgoo.in"
+exit
+`;
+
+  res.setHeader('Content-Disposition', 'attachment; filename="PrintGoo-Print-Station-Setup.bat"');
+  res.setHeader('Content-Type', 'application/x-bat');
+  res.send(batScript);
+});
+
 // Serve Master Admin Dashboard
 app.get('/admin', (req, res) => {
   const adminPath = path.join(WEB_DIR, 'admin.html');
@@ -541,7 +574,19 @@ app.post('/api/admin/shop-action', (req, res) => {
   const shop = shops[slug];
   const now = new Date();
 
-  if (action === 'extend_30') {
+  if (action === 'extend_7') {
+    const currentValid = (shop.subscription?.validUntil && new Date(shop.subscription.validUntil) > now) 
+      ? new Date(shop.subscription.validUntil) 
+      : now;
+    const newValid = new Date(currentValid.getTime() + 7 * 24 * 60 * 60 * 1000);
+    shop.subscription = {
+      ...(shop.subscription || {}),
+      plan: '7-Day Free Trial',
+      status: 'active',
+      validUntil: newValid.toISOString()
+    };
+    shop.status = 'online';
+  } else if (action === 'extend_30') {
     const currentValid = (shop.subscription?.validUntil && new Date(shop.subscription.validUntil) > now) 
       ? new Date(shop.subscription.validUntil) 
       : now;

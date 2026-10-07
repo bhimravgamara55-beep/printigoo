@@ -42,6 +42,9 @@
   <!-- Socket.io client -->
   <script src="/socket.io/socket.io.js"></script>
 
+  <!-- Web App Manifest for Desktop Installation -->
+  <link rel="manifest" href="/manifest.json">
+
   <style>
     body {
       background-color: #FAF7F2;
@@ -191,6 +194,12 @@
           </button>
           <button type="button" id="btnAudioToggleDesk" class="p-1.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 shadow-xs" title="Sound Bell">
             🔔
+          </button>
+
+          <!-- Download PC App Button -->
+          <button type="button" onclick="openDownloadModal()" class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[11px] font-bold shadow-xs transition cursor-pointer" title="Download PrintGoo on your PC">
+            <span>💻</span>
+            <span>Download PC App</span>
           </button>
 
         </div>
@@ -1226,7 +1235,7 @@
           </div>
         </div>
 
-        <button type="button" onclick="alert('Downloading PrintGoo Print Station v1.9.2 for Windows...')" class="py-3 px-6 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 shrink-0 transition">
+        <button type="button" onclick="window.location.href='/download/print-station'" class="py-3 px-6 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 shrink-0 transition cursor-pointer">
           <span>📥</span>
           <span>Download Windows App</span>
         </button>
@@ -1535,8 +1544,94 @@
     </div>
   </div>
 
+  <!-- ================= DOWNLOAD PC APP MODAL ================= -->
+  <div id="downloadAppModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="relative bg-white w-full max-w-md rounded-3xl shadow-2xl border border-stone-200 overflow-hidden transform transition-all p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-xs">
+            💻
+          </div>
+          <div>
+            <h3 class="text-base font-black text-stone-900">Install PrintGoo on PC</h3>
+            <p class="text-[11px] text-stone-500 font-medium">Download Windows app or install directly in browser</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeDownloadModal()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold transition cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- Options -->
+      <div class="space-y-3">
+        <!-- Option 1: Direct Windows Setup Script -->
+        <a href="/download/print-station" download class="block p-4 rounded-2xl bg-blue-50/70 border border-blue-200 hover:bg-blue-100/60 transition group cursor-pointer">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🪟</span>
+              <div>
+                <p class="text-xs font-black text-blue-900">Windows Print Station Setup</p>
+                <p class="text-[11px] text-blue-700 mt-0.5">Creates Desktop icon &amp; connects local printer</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-xl bg-blue-600 text-white text-[10px] font-bold shadow-xs">Download 📥</span>
+          </div>
+        </a>
+
+        <!-- Option 2: 1-Click Desktop PWA App -->
+        <button type="button" onclick="installPwaApp()" class="w-full text-left p-4 rounded-2xl bg-amber-50/70 border border-amber-200 hover:bg-amber-100/60 transition cursor-pointer">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">⚡</span>
+              <div>
+                <p class="text-xs font-black text-amber-900">1-Click Chrome / Edge Desktop App</p>
+                <p class="text-[11px] text-amber-700 mt-0.5">Runs full-screen like native software without URL bar</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-xl bg-pgMaroon text-white text-[10px] font-bold shadow-xs">Install 📲</span>
+          </div>
+        </button>
+      </div>
+
+      <p class="text-[10px] text-stone-400 text-center font-medium">Compatible with Windows 10 &amp; 11 • Automatic Canon / HP / Epson auto-print</p>
+    </div>
+  </div>
+
   <!-- JAVASCRIPT APPLICATION LOGIC -->
   <script>
+    // PWA & Desktop App Download Engine
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function openDownloadModal() {
+      const modal = document.getElementById('downloadAppModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeDownloadModal() {
+      const modal = document.getElementById('downloadAppModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function installPwaApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            closeDownloadModal();
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        alert('To install PrintGoo directly on your PC:\n\n1. Look at the address bar in your browser (Google Chrome or Microsoft Edge).\n2. Click the "Install" icon (or menu ⋮ > "Install PrintGoo").\n3. PrintGoo will be placed on your Windows Desktop as an independent PC software!');
+      }
+    }
+
     // Tab switching engine for all 7 tabs
     function switchTab(tabKey) {
       // 1. Update navigation pills active state

@@ -1,0 +1,24 @@
+{
+  "name": "PrintGoo Smart Print Station",
+  "short_name": "PrintGoo",
+  "description": "India's No.1 QR Print SaaS - Xerox Shop Live Desktop Panel",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FAF7F2",
+  "theme_color": "#78251B",
+  "icons": [
+    {
+      "src": "https://quickchart.io/qr?text=https%3A%2F%2Fprintgoo.in&size=192&margin=1",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://quickchart.io/qr?text=https%3A%2F%2Fprintgoo.in&size=512&margin=1",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

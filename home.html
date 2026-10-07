@@ -49,6 +49,9 @@
       font-style: italic;
     }
   </style>
+
+  <!-- Web App Manifest for Desktop App Installation -->
+  <link rel="manifest" href="/manifest.json">
 </head>
 <body class="bg-pgBg min-h-screen flex flex-col antialiased selection:bg-pgYellow selection:text-pgMaroon">
 
@@ -64,9 +67,14 @@
       <span class="text-[10px] text-stone-500 font-bold tracking-wider mt-0.5 ml-1">Print | Pay | Get it Done</span>
     </div>
 
-    <!-- Right Header: Call for Setup Button + Tagline -->
-    <div class="flex items-center gap-3">
-      <a href="tel:+919909577877" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition shadow-xs">
+    <!-- Right Header: Download PC App + Call for Setup Button + Tagline -->
+    <div class="flex items-center gap-2.5">
+      <a href="/download/print-station" download class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-xs cursor-pointer" title="Download Windows Print Station">
+        <span>💻</span>
+        <span>Download PC App</span>
+      </a>
+
+      <a href="tel:+919909577877" class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition shadow-xs">
         <span>📞</span>
         <span>Call for setup: <span class="font-black text-emerald-900 font-mono">9909577877</span></span>
       </a>
@@ -440,12 +448,14 @@
         <p class="font-bold text-stone-800">PrintGoo</p>
         <p class="text-[11px]">&copy; 2026 PrintGoo. All rights reserved.</p>
       </div>
-      <div class="flex items-center space-x-6 text-[11px] font-medium text-stone-600">
+      <div class="flex items-center space-x-4 sm:space-x-6 text-[11px] font-medium text-stone-600">
         <a href="#features" class="hover:text-stone-900">Print shop software</a>
         <span>•</span>
         <a href="#pricing" class="hover:text-stone-900">QR workflow</a>
         <span>•</span>
-        <a href="#pricing" class="hover:text-stone-900">Payments & subscriptions</a>
+        <a href="/download/print-station" download class="text-blue-600 hover:underline font-bold">💻 PC App</a>
+        <span>•</span>
+        <a href="/admin" class="hover:text-stone-900 font-semibold">🔒 Admin</a>
       </div>
     </div>
   </footer>
