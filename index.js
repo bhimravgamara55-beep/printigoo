@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
@@ -148,7 +148,7 @@ function saveSubscriptions(arr) {
 // Master In-Memory Cache with instant JSON disk-sync
 const shops = loadShops();
 const subscriptionsList = loadSubscriptions();
-const ADMIN_PIN = '9909';
+const ADMIN_PIN = 'Gamara@0933';
 
 // Jobs storage: key = jobId
 const jobs = new Map();
@@ -296,24 +296,24 @@ title PrintGoo Windows Print Station Installer
 echo ========================================================
 echo       PrintGoo Smart Print Station - Windows Setup
 echo ========================================================
-echo.
+echâœ…
 echo Installing PrintGoo Desktop App on your Windows PC...
-echo.
+echâœ…
 
 set SCRIPT="%TEMP%\\CreatePrintGooShortcut.vbs"
 echo Set oWS = WScript.CreateObject("WScript.Shell") > %SCRIPT%
 echo sLinkFile = oWS.SpecialFolders("Desktop") ^& "\\PrintGoo Station.lnk" >> %SCRIPT%
 echo Set oLink = oWS.CreateShortcut(sLinkFile) >> %SCRIPT%
-echo oLink.TargetPath = "https://www.printgoo.in" >> %SCRIPT%
+echo oLink.TargetPath = "https://www.printgoâœ…in" >> %SCRIPT%
 echo oLink.Description = "PrintGoo Smart Print Desk" >> %SCRIPT%
 echo oLink.Save >> %SCRIPT%
 cscript /nologo %SCRIPT%
 del %SCRIPT%
 
-echo.
+echâœ…
 echo [SUCCESS] PrintGoo Desktop Shortcut created on your Desktop!
 echo Launching PrintGoo Station...
-start "" "msedge.exe" --app="https://www.printgoo.in" || start "" "chrome.exe" --app="https://www.printgoo.in" || start "" "https://www.printgoo.in"
+start "" "msedge.exe" --app="https://www.printgoâœ…in" || start "" "chrome.exe" --app="https://www.printgoâœ…in" || start "" "https://www.printgoâœ…in"
 exit
 `;
 
@@ -323,7 +323,7 @@ exit
 });
 
 // Serve Master Admin Dashboard
-app.get('/admin', (req, res) => {
+app.get('/gamara-admin', (req, res) => {
   const adminPath = path.join(WEB_DIR, 'admin.html');
   if (fs.existsSync(adminPath)) {
     return res.sendFile(adminPath);
@@ -400,7 +400,7 @@ app.post('/api/register', (req, res) => {
   const { shopName, ownerName, city, mobile, whatsapp, upiId, username, password } = req.body;
 
   if (!shopName || !ownerName || !city || !mobile || !username || !password) {
-    return res.status(400).json({ success: false, error: 'બધા જરૂરી ખાના (Shop Name, Owner, City, Mobile, Username, Password) ભરવા ફરજિયાત છે.' });
+    return res.status(400).json({ success: false, error: 'àª¬àª§àª¾ àªœàª°à«‚àª°à«€ àª–àª¾àª¨àª¾ (Shop Name, Owner, City, Mobile, Username, Password) àª­àª°àªµàª¾ àª«àª°àªœàª¿àª¯àª¾àª¤ àª›à«‡.' });
   }
 
   const cleanUser = username.trim().toLowerCase();
@@ -408,7 +408,7 @@ app.post('/api/register', (req, res) => {
 
   // Check if username or slug already exists
   if (shops[slug] || Object.values(shops).some(s => s.username && s.username.toLowerCase() === cleanUser)) {
-    return res.status(400).json({ success: false, error: 'આ Username અથવા દુકાન પહેલેથી રજીસ્ટર થયેલી છે. કૃપા કરીને બીજું Username પસંદ કરો અથવા Login કરો.' });
+    return res.status(400).json({ success: false, error: 'àª† Username àª…àª¥àªµàª¾ àª¦à«àª•àª¾àª¨ àªªàª¹à«‡àª²à«‡àª¥à«€ àª°àªœà«€àª¸à«àªŸàª° àª¥àª¯à«‡àª²à«€ àª›à«‡. àª•à«ƒàªªàª¾ àª•àª°à«€àª¨à«‡ àª¬à«€àªœà«àª‚ Username àªªàª¸àª‚àª¦ àª•àª°à«‹ àª…àª¥àªµàª¾ Login àª•àª°à«‹.' });
   }
 
   const now = new Date();
@@ -454,7 +454,7 @@ app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ success: false, error: 'કૃપા કરીને Username અને Password બંને લખો.' });
+    return res.status(400).json({ success: false, error: 'àª•à«ƒàªªàª¾ àª•àª°à«€àª¨à«‡ Username àª…àª¨à«‡ Password àª¬àª‚àª¨à«‡ àª²àª–à«‹.' });
   }
 
   const q = username.trim().toLowerCase();
@@ -470,21 +470,21 @@ app.post('/api/login', (req, res) => {
   if (!shop) {
     return res.status(404).json({
       success: false,
-      error: 'આ દુકાન રજીસ્ટર થયેલી નથી! કૃપા કરીને ૭-દિવસ ફ્રી ટ્રાયલ માટે નવું રજીસ્ટ્રેશન કરો.'
+      error: 'àª† àª¦à«àª•àª¾àª¨ àª°àªœà«€àª¸à«àªŸàª° àª¥àª¯à«‡àª²à«€ àª¨àª¥à«€! àª•à«ƒàªªàª¾ àª•àª°à«€àª¨à«‡ à«­-àª¦àª¿àªµàª¸ àª«à«àª°à«€ àªŸà«àª°àª¾àª¯àª² àª®àª¾àªŸà«‡ àª¨àªµà«àª‚ àª°àªœà«€àª¸à«àªŸà«àª°à«‡àª¶àª¨ àª•àª°à«‹.'
     });
   }
 
   if (shop.password && shop.password !== p) {
     return res.status(401).json({
       success: false,
-      error: 'ખોટો પાસવર્ડ! કૃપા કરીને સાચો પાસવર્ડ નાખો.'
+      error: 'àª–à«‹àªŸà«‹ àªªàª¾àª¸àªµàª°à«àª¡! àª•à«ƒàªªàª¾ àª•àª°à«€àª¨à«‡ àª¸àª¾àªšà«‹ àªªàª¾àª¸àªµàª°à«àª¡ àª¨àª¾àª–à«‹.'
     });
   }
 
   if (shop.status === 'suspended' || shop.status === 'blocked') {
     return res.status(403).json({
       success: false,
-      error: 'તમારું એકાઉન્ટ હાલ બંધ (Suspended) છે. એડમિન સપોર્ટ: +91 9909577877'
+      error: 'àª¤àª®àª¾àª°à«àª‚ àªàª•àª¾àª‰àª¨à«àªŸ àª¹àª¾àª² àª¬àª‚àª§ (Suspended) àª›à«‡. àªàª¡àª®àª¿àª¨ àª¸àªªà«‹àª°à«àªŸ: +91 9909577877'
     });
   }
 
@@ -514,7 +514,7 @@ app.post('/api/admin/login', (req, res) => {
   if (pin === ADMIN_PIN) {
     return res.json({ success: true, message: 'Admin verified successfully' });
   }
-  res.status(401).json({ success: false, error: 'ખોટો એડમિન PIN! સાચો PIN નાખો.' });
+  res.status(401).json({ success: false, error: 'àª–à«‹àªŸà«‹ àªàª¡àª®àª¿àª¨ PIN! àª¸àª¾àªšà«‹ PIN àª¨àª¾àª–à«‹.' });
 });
 
 // Admin Get All Shops & Stats
@@ -726,7 +726,7 @@ app.post('/api/subscriptions/:shop_slug', (req, res) => {
   saveSubscriptions(subscriptionsList);
   saveShops(shops);
 
-  console.log(`[Subscription Payment Recorded] Shop ${slug}: ₹${subRecord.amount}, UTR: ${subRecord.utrNumber}`);
+  console.log(`[Subscription Payment Recorded] Shop ${slug}: â‚¹${subRecord.amount}, UTR: ${subRecord.utrNumber}`);
   res.json({ success: true, subscription: shops[slug].subscription });
 });
 
@@ -742,7 +742,7 @@ app.post('/api/shops/:shop_slug/status', (req, res) => {
   shops[slug].status = (status === 'offline') ? 'offline' : 'online';
 
   // Broadcast to shop room so all customers see live station status instantly
-  io.to(`shop_${slug}`).emit('station:status', {
+  iâœ…to(`shop_${slug}`).emit('station:status', {
     shopSlug: slug,
     status: shops[slug].status,
     timestamp: new Date().toISOString()
@@ -834,9 +834,9 @@ app.post('/api/upload/:shop_slug', upload.single('file'), async (req, res) => {
     jobs.set(jobId, job);
 
     // Multi-tenant WebSocket Routing: Dispatch new job to the specific shop's room
-    io.to(`shop_${slug}`).emit('job:new', job);
+    iâœ…to(`shop_${slug}`).emit('job:new', job);
 
-    console.log(`[New Job Queued] Token ${token} for shop '${slug}' - ${job.fileName} (${totalPages}p x ${copies}c) = ₹${job.totalAmount}`);
+    console.log(`[New Job Queued] Token ${token} for shop '${slug}' - ${job.fileName} (${totalPages}p x ${copies}c) = â‚¹${job.totalAmount}`);
 
     res.status(201).json({
       success: true,
@@ -893,8 +893,8 @@ app.post('/api/jobs/:jobId/approve', (req, res) => {
   job.approvedAt = new Date().toISOString();
 
   // Notify shop dashboard and customer in real-time
-  io.to(`shop_${job.shopSlug}`).emit('job:updated', job);
-  io.to(`job_${job.id}`).emit('job:updated', job);
+  iâœ…to(`shop_${job.shopSlug}`).emit('job:updated', job);
+  iâœ…to(`job_${job.id}`).emit('job:updated', job);
 
   console.log(`[Job Approved & Dispatched] Token ${job.token} - Cash collected, printing released.`);
 
@@ -911,8 +911,8 @@ app.post('/api/jobs/:jobId/print', (req, res) => {
   }
 
   job.jobStatus = 'printing';
-  io.to(`shop_${job.shopSlug}`).emit('job:updated', job);
-  io.to(`job_${job.id}`).emit('job:updated', job);
+  iâœ…to(`shop_${job.shopSlug}`).emit('job:updated', job);
+  iâœ…to(`job_${job.id}`).emit('job:updated', job);
 
   res.json({ success: true, job });
 });
@@ -933,8 +933,8 @@ app.post('/api/jobs/:jobId/complete', (req, res) => {
   shredFile(job.filePath);
   job.filePath = null;
 
-  io.to(`shop_${job.shopSlug}`).emit('job:updated', job);
-  io.to(`job_${job.id}`).emit('job:updated', job);
+  iâœ…to(`shop_${job.shopSlug}`).emit('job:updated', job);
+  iâœ…to(`job_${job.id}`).emit('job:updated', job);
 
   res.json({ success: true, message: 'Job marked completed and file securely shredded.', job });
 });
@@ -955,8 +955,8 @@ app.post('/api/jobs/:jobId/cancel', (req, res) => {
   shredFile(job.filePath);
   job.filePath = null;
 
-  io.to(`shop_${job.shopSlug}`).emit('job:updated', job);
-  io.to(`job_${job.id}`).emit('job:updated', job);
+  iâœ…to(`shop_${job.shopSlug}`).emit('job:updated', job);
+  iâœ…to(`job_${job.id}`).emit('job:updated', job);
 
   console.log(`[Job Cancelled] Token ${job.token} cancelled and file deleted.`);
 
@@ -985,7 +985,7 @@ app.get('/api/files/:filename', (req, res) => {
 // ---------------------------------------------------------------------
 // REAL-TIME WEBSOCKET ROOM ENGINE
 // ---------------------------------------------------------------------
-io.on('connection', (socket) => {
+iâœ…on('connection', (socket) => {
   console.log(`[Socket Connected] ID: ${socket.id}`);
 
   // Shopkeeper joins multi-tenant shop room
@@ -1019,7 +1019,7 @@ io.on('connection', (socket) => {
     const slug = (shopSlug || socket.shopSlug || '').toLowerCase();
     if (shops[slug]) {
       shops[slug].status = status === 'offline' ? 'offline' : 'online';
-      io.to(`shop_${slug}`).emit('station:status', {
+      iâœ…to(`shop_${slug}`).emit('station:status', {
         shopSlug: slug,
         status: shops[slug].status
       });
@@ -1035,10 +1035,10 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log('========================================================');
-  console.log(`🚀 PrintGoo Full-Stack SaaS Server Running on Port ${PORT}`);
-  console.log(`📱 Customer Portal : http://localhost:${PORT}/q/patel-xerox`);
-  console.log(`🖥️  Shop Dashboard  : http://localhost:${PORT}/dashboard/patel-xerox`);
-  console.log(`🔒 Ephemeral Clean  : Active (Auto-purges files > 30 mins)`);
+  console.log(`ðŸš€ PrintGoo Full-Stack SaaS Server Running on Port ${PORT}`);
+  console.log(`ðŸ“± Customer Portal : http://localhost:${PORT}/q/patel-xerox`);
+  console.log(`🖥️  Shop Dashboard  : http://localhost:${PORT}/dashboard/patel-xerox`);
+  console.log(`ðŸ”’ Ephemeral Clean  : Active (Auto-purges files > 30 mins)`);
   console.log('========================================================');
 });
 
@@ -1075,4 +1075,5 @@ setInterval(() => {
   });
   if (dbChanged) saveJobs(jobs);
 }, 2 * 60 * 1000); // Check every 2 mins
+
 

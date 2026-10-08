@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -27,7 +27,7 @@
           },
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace']
+            mono: ['"JetBrains Mon❌', 'monospace']
           }
         }
       }
@@ -40,7 +40,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
   <!-- Socket.io client -->
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="/socket.io/socket.i✅js"></script>
 
   <!-- Web App Manifest for Desktop Installation -->
   <link rel="manifest" href="/manifest.json">
@@ -69,7 +69,7 @@
       <div class="flex items-center justify-between pb-3 border-b border-stone-200/60 mb-4">
         <div class="flex items-center space-x-2">
           <div class="w-8 h-8 rounded-full bg-pgYellow flex items-center justify-center shadow-sm text-lg">
-            ðŸ¤–
+            🤖
           </div>
           <div>
             <div class="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 border border-pgMaroon px-2.5 py-0.5 rounded-full shadow-sm flex items-center">
@@ -89,43 +89,43 @@
       <nav class="space-y-1.5 flex flex-row xl:flex-col overflow-x-auto xl:overflow-visible pb-2 xl:pb-0">
         <!-- 1. Overview (Default Active) -->
         <button type="button" onclick="switchTab('overview')" data-tab="overview" class="nav-pill active w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-2xl bg-pgYellow border-2 border-pgMaroon text-pgMaroon font-bold text-xs shadow-sm transition whitespace-nowrap">
-          <span class="text-sm">ðŸ“Š</span>
+          <span class="text-sm">📊</span>
           <span>Overview</span>
         </button>
 
         <!-- 2. Bills & reports -->
         <button type="button" onclick="switchTab('bills')" data-tab="bills" class="nav-pill w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-2xl bg-[#FFF6DC] border border-amber-300 hover:bg-pgYellow text-pgMaroon font-semibold text-xs transition whitespace-nowrap">
-          <span class="text-sm">ðŸ’°</span>
+          <span class="text-sm">💰</span>
           <span>Bills & reports</span>
         </button>
 
         <!-- 3. Settings -->
         <button type="button" onclick="switchTab('settings')" data-tab="settings" class="nav-pill w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-2xl bg-[#FFF6DC] border border-amber-300 hover:bg-pgYellow text-pgMaroon font-semibold text-xs transition whitespace-nowrap">
-          <span class="text-sm">âš™ï¸</span>
+          <span class="text-sm">⚙️</span>
           <span>Settings</span>
         </button>
 
         <!-- 4. Subscription Plan -->
         <button type="button" onclick="switchTab('plan')" data-tab="plan" class="nav-pill w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-2xl bg-[#FFF6DC] border border-amber-300 hover:bg-pgYellow text-pgMaroon font-semibold text-xs transition whitespace-nowrap">
-          <span class="text-sm">ðŸ“…</span>
+          <span class="text-sm">📅</span>
           <span>Subscription Plan</span>
         </button>
 
         <!-- 5. Integrations -->
         <button type="button" onclick="switchTab('integrations')" data-tab="integrations" class="nav-pill w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-2xl bg-[#FFF6DC] border border-amber-300 hover:bg-pgYellow text-pgMaroon font-semibold text-xs transition whitespace-nowrap">
-          <span class="text-sm">ðŸ’³</span>
+          <span class="text-sm">💳</span>
           <span>Integrations</span>
         </button>
 
         <!-- 6. Shop QR -->
         <button type="button" onclick="switchTab('shopqr')" data-tab="shopqr" class="nav-pill w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-2xl bg-[#FFF6DC] border border-amber-300 hover:bg-pgYellow text-pgMaroon font-semibold text-xs transition whitespace-nowrap">
-          <span class="text-sm">ðŸ”²</span>
+          <span class="text-sm">🔲</span>
           <span>Shop QR</span>
         </button>
 
         <!-- 7. Printer setting -->
         <button type="button" onclick="switchTab('printersetting')" data-tab="printersetting" class="nav-pill w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-2xl bg-[#FFF6DC] border border-amber-300 hover:bg-pgYellow text-pgMaroon font-semibold text-xs transition whitespace-nowrap">
-          <span class="text-sm">ðŸ–¥ï¸</span>
+          <span class="text-sm">🖥️</span>
           <span>Printer setting</span>
         </button>
       </nav>
@@ -154,19 +154,19 @@
           <!-- Paid Auto-Print Toggle -->
           <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-white border border-stone-200 shadow-xs text-[11px] font-bold text-stone-700">
             <span>Paid Auto-Print</span>
-            <button type="button" id="btnTogglePaidAuto" onclick="toggleAutoPrint('paid')" class="w-8 h-4 bg-emerald-500 rounded-full flex items-center px-0.5 cursor-pointer">
-              <span id="knobPaidAuto" class="w-3 h-3 bg-white rounded-full ml-auto shadow"></span>
+            <button type="button" id="btnTogglePaidAut❌ onclick="toggleAutoPrint('paid')" class="w-8 h-4 bg-emerald-500 rounded-full flex items-center px-0.5 cursor-pointer">
+              <span id="knobPaidAut❌ class="w-3 h-3 bg-white rounded-full ml-auto shadow"></span>
             </button>
-            <span id="textPaidAuto" class="text-[9px] text-emerald-700">ON</span>
+            <span id="textPaidAut❌ class="text-[9px] text-emerald-700">ON</span>
           </div>
 
           <!-- Cash Auto-Print Toggle -->
           <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-white border border-stone-200 shadow-xs text-[11px] font-bold text-stone-700">
             <span>Cash Auto-Print</span>
-            <button type="button" id="btnToggleCashAuto" onclick="toggleAutoPrint('cash')" class="w-8 h-4 bg-stone-300 rounded-full flex items-center px-0.5 cursor-pointer">
-              <span id="knobCashAuto" class="w-3 h-3 bg-white rounded-full shadow"></span>
+            <button type="button" id="btnToggleCashAut❌ onclick="toggleAutoPrint('cash')" class="w-8 h-4 bg-stone-300 rounded-full flex items-center px-0.5 cursor-pointer">
+              <span id="knobCashAut❌ class="w-3 h-3 bg-white rounded-full shadow"></span>
             </button>
-            <span id="textCashAuto" class="text-[9px] text-stone-500">OFF</span>
+            <span id="textCashAut❌ class="text-[9px] text-stone-500">OFF</span>
           </div>
 
           <!-- Accepting orders badge -->
@@ -229,7 +229,7 @@
 
             <div class="p-2.5 rounded-2xl bg-pgBg border border-stone-100">
               <div class="flex items-center space-x-1.5 text-stone-500 mb-1">
-                <span class="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-[10px]">ðŸ“Š</span>
+                <span class="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-[10px]">📊</span>
                 <span class="text-[9px] font-extrabold uppercase tracking-wider">PENDING</span>
               </div>
               <p id="deskPendingOrders" class="text-xl font-black text-stone-900 font-sans ml-1">0</p>
@@ -311,7 +311,7 @@
 
           <div class="text-[10px] text-stone-400 flex items-center justify-between pt-2 border-t border-stone-100">
             <span>Auto-Print Active</span>
-            <span class="font-mono">Socket Room: Active</span>
+            <span class="font-mon❌>Socket Room: Active</span>
           </div>
         </div>
 
@@ -417,7 +417,7 @@
             <h3 class="text-sm font-black text-stone-900">Daily report</h3>
             <p class="text-[11px] text-stone-500">Latest 14 active days in the selected period</p>
           </div>
-          <div class="overflow-x-auto">
+          <div class="overflow-x-aut❌>
             <table class="w-full text-left text-[11px]">
               <thead class="bg-stone-50 text-stone-500 uppercase tracking-wider font-extrabold border-y border-stone-200/60">
                 <tr>
@@ -447,7 +447,7 @@
             <h3 class="text-sm font-black text-stone-900">Monthly report</h3>
             <p class="text-[11px] text-stone-500">Latest 12 months available in the selected period</p>
           </div>
-          <div class="overflow-x-auto">
+          <div class="overflow-x-aut❌>
             <table class="w-full text-left text-[11px]">
               <thead class="bg-stone-50 text-stone-500 uppercase tracking-wider font-extrabold border-y border-stone-200/60">
                 <tr>
@@ -490,10 +490,10 @@
             ðŸ›ï¸
           </div>
           <p class="text-xs font-bold text-stone-800 pt-1">No print orders yet</p>
-          <p class="text-[11px] text-stone-500 max-w-md mx-auto">Customer orders appear here; files are received directly by your desktop app.</p>
+          <p class="text-[11px] text-stone-500 max-w-md mx-aut❌>Customer orders appear here; files are received directly by your desktop app.</p>
         </div>
 
-        <div id="allBillsTableContainer" class="hidden overflow-x-auto">
+        <div id="allBillsTableContainer" class="hidden overflow-x-aut❌>
           <table class="w-full text-left text-xs">
             <thead class="bg-stone-50 text-stone-500 uppercase tracking-wider font-extrabold border-y border-stone-200/60">
               <tr>
@@ -524,7 +524,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div class="flex items-center space-x-1.5 text-pgRed text-[10px] font-black uppercase tracking-wider mb-1">
-              <span class="w-4 h-4 rounded-full bg-pgRed text-white flex items-center justify-center text-[9px]">âš™ï¸</span>
+              <span class="w-4 h-4 rounded-full bg-pgRed text-white flex items-center justify-center text-[9px]">⚙️</span>
               <span>SHOP CONTROLS</span>
             </div>
             <h2 class="text-2xl font-black text-stone-900 tracking-tight">Settings</h2>
@@ -777,7 +777,7 @@
           <div class="bg-white rounded-3xl border border-stone-200/90 p-6 flex flex-col justify-between shadow-xs">
             <div>
               <div class="flex items-center space-x-3 mb-4">
-                <span class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-lg">ðŸ“…</span>
+                <span class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-lg">📅</span>
                 <div>
                   <h3 class="text-lg font-black text-stone-900">Monthly</h3>
                   <p class="text-[11px] text-stone-400">Flexible month-to-month membership</p>
@@ -905,12 +905,12 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
           <button type="button" onclick="checkoutPlan(1999, 'Yearly Upgrade')" class="py-3 px-6 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition">
-            <span>ðŸ’³</span>
+            <span>💳</span>
             <span>Upgrade now - â‚¹1999</span>
           </button>
           
           <button type="button" onclick="checkoutPlan(1999, 'Yearly Autopay')" class="py-3 px-6 rounded-2xl bg-white hover:bg-stone-50 border border-stone-300 text-stone-900 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition">
-            <span>ðŸ“…</span>
+            <span>📅</span>
             <span>Upgrade + Yearly Autopay</span>
           </button>
         </div>
@@ -967,7 +967,7 @@
 
             <div class="space-y-2.5">
               <button type="button" onclick="checkoutPlan(1999, 'Yearly Renewal')" class="w-full py-3 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition">
-                <span>ðŸ’³</span>
+                <span>💳</span>
                 <span>Pay â‚¹1999 â€¢ Renew</span>
               </button>
 
@@ -1062,7 +1062,7 @@
         </div>
 
         <button type="button" onclick="connectRazorpayGateway()" class="py-3 px-6 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition">
-          <span>ðŸ’³</span>
+          <span>💳</span>
           <span>Connect &amp; Test Razorpay</span>
         </button>
       </div>
@@ -1136,7 +1136,7 @@
                 <p class="text-[8px] font-extrabold uppercase tracking-widest text-stone-700">SCAN HERE TO PRINT</p>
                 
                 <div class="bg-white p-2.5 rounded-xl border border-stone-300 inline-block shadow-xs">
-                  <img id="qrPosterDirectImg" class="w-32 h-32 mx-auto" alt="Shop QR Code" />
+                  <img id="qrPosterDirectImg" class="w-32 h-32 mx-aut❌ alt="Shop QR Code" />
                 </div>
 
                 <div class="flex items-center justify-center gap-1 text-[7px] font-bold text-stone-800">
@@ -1147,7 +1147,7 @@
               </div>
 
               <!-- URL Textbox -->
-              <input type="text" id="standee1UrlText" readonly value="https://printgoo.in/q/my-shop" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-stone-50 border border-stone-200 text-stone-600 select-all" />
+              <input type="text" id="standee1UrlText" readonly value="https://printgo✅in/q/my-shop" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-stone-50 border border-stone-200 text-stone-600 select-all" />
 
               <div class="space-y-2">
                 <button type="button" onclick="downloadQrPng('direct')" class="w-full py-2.5 rounded-xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
@@ -1182,7 +1182,7 @@
                 <p class="text-[8px] font-extrabold uppercase tracking-widest text-stone-800">PRIVATE FILE &amp; CHAT DROP</p>
                 
                 <div class="bg-white p-2.5 rounded-xl border border-stone-300 inline-block shadow-xs">
-                  <img id="qrPosterUploadBoxImg" class="w-32 h-32 mx-auto" alt="Upload Box QR Code" />
+                  <img id="qrPosterUploadBoxImg" class="w-32 h-32 mx-aut❌ alt="Upload Box QR Code" />
                 </div>
 
                 <div class="flex items-center justify-center gap-1 text-[7px] font-bold text-stone-800">
@@ -1193,7 +1193,7 @@
               </div>
 
               <!-- URL Textbox -->
-              <input type="text" id="standee2UrlText" readonly value="https://printgoo.in/q/my-shop?box=1" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-white border border-teal-200 text-teal-800 select-all" />
+              <input type="text" id="standee2UrlText" readonly value="https://printgo✅in/q/my-shop?box=1" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-white border border-teal-200 text-teal-800 select-all" />
 
               <div class="space-y-2">
                 <button type="button" onclick="downloadQrPng('uploadbox')" class="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
@@ -1344,7 +1344,7 @@
         <div class="bg-white rounded-3xl border border-stone-200/80 p-6 shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div class="flex items-center space-x-2 pb-3 border-b border-stone-100">
-              <span class="text-base">ðŸ–¥ï¸</span>
+              <span class="text-base">🖥️</span>
               <h3 class="text-sm font-black text-stone-900">Station status</h3>
             </div>
 
@@ -1462,7 +1462,7 @@
       <div class="bg-gradient-to-r from-pgMaroon via-amber-900 to-pgMaroon text-white p-5 flex items-center justify-between">
         <div class="flex items-center space-x-2.5">
           <div class="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-300/30 flex items-center justify-center text-lg shadow-inner">
-            ðŸ’³
+            💳
           </div>
           <div>
             <h3 class="text-sm font-black tracking-tight flex items-center gap-1.5">
@@ -1636,7 +1636,7 @@
           deferredPrompt = null;
         });
       } else {
-        alert('To install PrintGoo directly on your PC:\n\n1. Look at the address bar in your browser (Google Chrome or Microsoft Edge).\n2. Click the "Install" icon (or menu â‹® > "Install PrintGoo").\n3. PrintGoo will be placed on your Windows Desktop as an independent PC software!');
+        alert('To install PrintGoo directly on your PC:\n\n1. Look at the address bar in your browser (Google Chrome or Microsoft Edge).\n2. Click the "Install" icon (or menu â‹® > "Install PrintGo❌).\n3. PrintGoo will be placed on your Windows Desktop as an independent PC software!');
       }
     }
 
@@ -1832,13 +1832,13 @@
       });
 
       // Update standee URLs
-      const directUrl = `https://printgoo.in/q/${currentShopSlug}`;
+      const directUrl = `https://printgo✅in/q/${currentShopSlug}`;
       const standee1Url = document.getElementById('standee1UrlText');
       if (standee1Url) standee1Url.value = directUrl;
       const imgDirect = document.getElementById('qrPosterDirectImg');
       if (imgDirect) imgDirect.src = `https://quickchart.io/qr?text=${encodeURIComponent(directUrl)}&size=300&margin=2`;
 
-      const uploadBoxUrl = `https://printgoo.in/q/${currentShopSlug}?box=1`;
+      const uploadBoxUrl = `https://printgo✅in/q/${currentShopSlug}?box=1`;
       const standee2Url = document.getElementById('standee2UrlText');
       if (standee2Url) standee2Url.value = uploadBoxUrl;
       const imgBox = document.getElementById('qrPosterUploadBoxImg');
@@ -1885,7 +1885,7 @@
     }
 
     function downloadQrPng(type) {
-      const url = type === 'direct' ? `https://printgoo.in/q/${currentShopSlug}` : `https://printgoo.in/q/${currentShopSlug}?box=1`;
+      const url = type === 'direct' ? `https://printgo✅in/q/${currentShopSlug}` : `https://printgo✅in/q/${currentShopSlug}?box=1`;
       const qrApi = `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=800&margin=2`;
       window.open(qrApi, '_blank');
     }
@@ -2192,8 +2192,8 @@
             <td class="py-2 px-2.5">${comp.length}</td>
             <td class="py-2 px-2.5">${bw}</td>
             <td class="py-2 px-2.5">${clr}</td>
-            <td class="py-2 px-2.5 font-mono">${units}</td>
-            <td class="py-2 px-2.5 text-right font-black font-mono">â‚¹${rev.toFixed(2)}</td>
+            <td class="py-2 px-2.5 font-mon❌>${units}</td>
+            <td class="py-2 px-2.5 text-right font-black font-mon❌>â‚¹${rev.toFixed(2)}</td>
           </tr>
         `;
       }
@@ -2204,8 +2204,8 @@
             <td class="py-2 px-2.5 font-bold">${monthStr}</td>
             <td class="py-2 px-2.5">${comp.length}</td>
             <td class="py-2 px-2.5">${comp.length}</td>
-            <td class="py-2 px-2.5 font-mono">${units}</td>
-            <td class="py-2 px-2.5 text-right font-black font-mono">â‚¹${rev.toFixed(2)}</td>
+            <td class="py-2 px-2.5 font-mon❌>${units}</td>
+            <td class="py-2 px-2.5 text-right font-black font-mon❌>â‚¹${rev.toFixed(2)}</td>
           </tr>
         `;
       }
