@@ -224,7 +224,7 @@
           <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Copies</label>
           <div class="flex items-center justify-between bg-pgBg border border-stone-200 rounded-2xl p-1">
             <button type="button" id="btnMinus" class="w-8 h-7 rounded-xl bg-white text-stone-900 font-black shadow-sm flex items-center justify-center">
-              âˆ’
+              -
             </button>
             <span id="copiesValDisplay" class="font-bold text-xs text-stone-900 px-2 font-mono">1</span>
             <button type="button" id="btnPlus" class="w-8 h-7 rounded-xl bg-pgYellow text-pgMaroon font-black shadow-sm flex items-center justify-center border border-amber-300">
@@ -254,7 +254,7 @@
     <div class="space-y-2 pt-1">
       <!-- Pay via UPI -->
       <button type="button" id="btnActionUpi" class="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] font-bold text-white text-xs shadow-md flex items-center justify-center space-x-2 transition">
-        <span>âš¡ Pay via UPI (GPay / PhonePe / Paytm)</span>
+        <span>⚡ Pay via UPI (GPay / PhonePe / Paytm)</span>
       </button>
 
       <!-- Pay at Counter (Cash) -->
@@ -618,7 +618,7 @@
 
       const job = await uploadJob('upi');
       btn.disabled = false;
-      btn.textContent = 'âš¡ Pay via UPI (GPay / PhonePe / Paytm)';
+      btn.textContent = '⚡ Pay via UPI (GPay / PhonePe / Paytm)';
 
       if (job) showReceipt(job);
     });

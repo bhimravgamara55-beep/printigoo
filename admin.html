@@ -97,7 +97,7 @@
         <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
           <div class="flex items-center justify-between text-stone-400 mb-1">
             <span class="text-[10px] font-black uppercase tracking-wider text-stone-500">TOTAL SHOPS</span>
-            <span class="text-lg">ðŸª</span>
+            <span class="text-lg">/span>
           </div>
           <p id="kpiTotalShops" class="text-3xl font-black text-stone-900">0</p>
           <p class="text-[11px] text-stone-400 font-medium mt-1">Registered Xerox desks</p>
@@ -107,7 +107,7 @@
         <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
           <div class="flex items-center justify-between text-amber-500 mb-1">
             <span class="text-[10px] font-black uppercase tracking-wider text-amber-800">FREE TRIALS</span>
-            <span class="text-lg">â³</span>
+            <span class="text-lg">⏳</span>
           </div>
           <p id="kpiActiveTrials" class="text-3xl font-black text-amber-700">0</p>
           <p class="text-[11px] text-stone-400 font-medium mt-1">7-Day free trial users</p>
@@ -165,7 +165,7 @@
             All Shops (<span id="countFilterAll">0</span>)
           </button>
           <button onclick="setFilterCategory('trial')" id="tabFilter_trial" class="filter-tab px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-amber-800 hover:bg-amber-50">
-            â³ 7-Day Free Trials (<span id="countFilterTrial">0</span>)
+            ⏳ 7-Day Free Trials (<span id="countFilterTrial">0</span>)
           </button>
           <button onclick="setFilterCategory('paid')" id="tabFilter_paid" class="filter-tab px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-emerald-800 hover:bg-emerald-50">
             💎 Paid Pro Members (<span id="countFilterPaid">0</span>)
@@ -366,7 +366,7 @@
           if (days <= 2) {
             statusBadge = `<span class="px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200 font-black text-[10px] animate-pulse">⚠️ ${days}d left (Follow-up)</span>`;
           } else {
-            statusBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 font-bold text-[10px]">â³ ${days} days left</span>`;
+            statusBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 font-bold text-[10px]">⏳ ${days} days left</span>`;
           }
         } else {
           statusBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-[10px]">💎 ${days} days left</span>`;
@@ -403,8 +403,8 @@
               <div class="flex items-center space-x-2">
                 <span class="font-mono text-stone-800 font-bold">${s.phone || '-'}</span>
                 ${cleanPhone ? `
-                  <a href="tel:${cleanPhone}" class="p-1.5 rounded-lg bg-stone-100 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition shadow-2xs" title="Direct Phone Call">ðŸ“ž</a>
-                  <a href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent(waText)}" target="_blank" class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition border border-emerald-200 shadow-2xs" title="Chat on WhatsApp">ðŸ’¬</a>
+                  <a href="tel:${cleanPhone}" class="p-1.5 rounded-lg bg-stone-100 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition shadow-2xs" title="Direct Phone Call">📞</a>
+                  <a href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent(waText)}" target="_blank" class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition border border-emerald-200 shadow-2xs" title="Chat on WhatsApp">💬</a>
                 ` : ''}
               </div>
             </td>
