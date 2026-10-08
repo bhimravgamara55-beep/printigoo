@@ -154,19 +154,19 @@
           <!-- Paid Auto-Print Toggle -->
           <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-white border border-stone-200 shadow-xs text-[11px] font-bold text-stone-700">
             <span>Paid Auto-Print</span>
-            <button type="button" id="btnTogglePaidAut❌ onclick="toggleAutoPrint('paid')" class="w-8 h-4 bg-emerald-500 rounded-full flex items-center px-0.5 cursor-pointer">
-              <span id="knobPaidAut❌ class="w-3 h-3 bg-white rounded-full ml-auto shadow"></span>
+            <button type="button" id="btnTogglePaidAuto" onclick="toggleAutoPrint('paid')" class="w-8 h-4 bg-emerald-500 rounded-full flex items-center px-0.5 cursor-pointer">
+              <span id="knobPaidAuto" class="w-3 h-3 bg-white rounded-full ml-auto shadow"></span>
             </button>
-            <span id="textPaidAut❌ class="text-[9px] text-emerald-700">ON</span>
+            <span id="textPaidAuto" class="text-[9px] text-emerald-700">ON</span>
           </div>
 
           <!-- Cash Auto-Print Toggle -->
           <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-white border border-stone-200 shadow-xs text-[11px] font-bold text-stone-700">
             <span>Cash Auto-Print</span>
-            <button type="button" id="btnToggleCashAut❌ onclick="toggleAutoPrint('cash')" class="w-8 h-4 bg-stone-300 rounded-full flex items-center px-0.5 cursor-pointer">
-              <span id="knobCashAut❌ class="w-3 h-3 bg-white rounded-full shadow"></span>
+            <button type="button" id="btnToggleCashAuto" onclick="toggleAutoPrint('cash')" class="w-8 h-4 bg-stone-300 rounded-full flex items-center px-0.5 cursor-pointer">
+              <span id="knobCashAuto" class="w-3 h-3 bg-white rounded-full shadow"></span>
             </button>
-            <span id="textCashAut❌ class="text-[9px] text-stone-500">OFF</span>
+            <span id="textCashAuto" class="text-[9px] text-stone-500">OFF</span>
           </div>
 
           <!-- Accepting orders badge -->
@@ -311,7 +311,7 @@
 
           <div class="text-[10px] text-stone-400 flex items-center justify-between pt-2 border-t border-stone-100">
             <span>Auto-Print Active</span>
-            <span class="font-mon❌>Socket Room: Active</span>
+            <span class="font-mono">Socket Room: Active</span>
           </div>
         </div>
 
@@ -417,7 +417,7 @@
             <h3 class="text-sm font-black text-stone-900">Daily report</h3>
             <p class="text-[11px] text-stone-500">Latest 14 active days in the selected period</p>
           </div>
-          <div class="overflow-x-aut❌>
+          <div class="overflow-x-auto">
             <table class="w-full text-left text-[11px]">
               <thead class="bg-stone-50 text-stone-500 uppercase tracking-wider font-extrabold border-y border-stone-200/60">
                 <tr>
@@ -447,7 +447,7 @@
             <h3 class="text-sm font-black text-stone-900">Monthly report</h3>
             <p class="text-[11px] text-stone-500">Latest 12 months available in the selected period</p>
           </div>
-          <div class="overflow-x-aut❌>
+          <div class="overflow-x-auto">
             <table class="w-full text-left text-[11px]">
               <thead class="bg-stone-50 text-stone-500 uppercase tracking-wider font-extrabold border-y border-stone-200/60">
                 <tr>
@@ -490,10 +490,10 @@
             ðŸ›ï¸
           </div>
           <p class="text-xs font-bold text-stone-800 pt-1">No print orders yet</p>
-          <p class="text-[11px] text-stone-500 max-w-md mx-aut❌>Customer orders appear here; files are received directly by your desktop app.</p>
+          <p class="text-[11px] text-stone-500 max-w-md mx-auto">Customer orders appear here; files are received directly by your desktop app.</p>
         </div>
 
-        <div id="allBillsTableContainer" class="hidden overflow-x-aut❌>
+        <div id="allBillsTableContainer" class="hidden overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-stone-50 text-stone-500 uppercase tracking-wider font-extrabold border-y border-stone-200/60">
               <tr>
@@ -1136,7 +1136,7 @@
                 <p class="text-[8px] font-extrabold uppercase tracking-widest text-stone-700">SCAN HERE TO PRINT</p>
                 
                 <div class="bg-white p-2.5 rounded-xl border border-stone-300 inline-block shadow-xs">
-                  <img id="qrPosterDirectImg" class="w-32 h-32 mx-aut❌ alt="Shop QR Code" />
+                  <img id="qrPosterDirectImg" class="w-32 h-32 mx-auto" alt="Shop QR Code" />
                 </div>
 
                 <div class="flex items-center justify-center gap-1 text-[7px] font-bold text-stone-800">
@@ -1182,7 +1182,7 @@
                 <p class="text-[8px] font-extrabold uppercase tracking-widest text-stone-800">PRIVATE FILE &amp; CHAT DROP</p>
                 
                 <div class="bg-white p-2.5 rounded-xl border border-stone-300 inline-block shadow-xs">
-                  <img id="qrPosterUploadBoxImg" class="w-32 h-32 mx-aut❌ alt="Upload Box QR Code" />
+                  <img id="qrPosterUploadBoxImg" class="w-32 h-32 mx-auto" alt="Upload Box QR Code" />
                 </div>
 
                 <div class="flex items-center justify-center gap-1 text-[7px] font-bold text-stone-800">
@@ -1636,7 +1636,7 @@
           deferredPrompt = null;
         });
       } else {
-        alert('To install PrintGoo directly on your PC:\n\n1. Look at the address bar in your browser (Google Chrome or Microsoft Edge).\n2. Click the "Install" icon (or menu â‹® > "Install PrintGo❌).\n3. PrintGoo will be placed on your Windows Desktop as an independent PC software!');
+        alert('To install PrintGoo directly on your PC:\n\n1. Look at the address bar in your browser (Google Chrome or Microsoft Edge).\n2. Click the "Install" icon (or menu â‹® > "Install PrintGoo").\n3. PrintGoo will be placed on your Windows Desktop as an independent PC software!');
       }
     }
 
@@ -2192,8 +2192,8 @@
             <td class="py-2 px-2.5">${comp.length}</td>
             <td class="py-2 px-2.5">${bw}</td>
             <td class="py-2 px-2.5">${clr}</td>
-            <td class="py-2 px-2.5 font-mon❌>${units}</td>
-            <td class="py-2 px-2.5 text-right font-black font-mon❌>â‚¹${rev.toFixed(2)}</td>
+            <td class="py-2 px-2.5 font-mono">${units}</td>
+            <td class="py-2 px-2.5 text-right font-black font-mono">â‚¹${rev.toFixed(2)}</td>
           </tr>
         `;
       }
@@ -2204,8 +2204,8 @@
             <td class="py-2 px-2.5 font-bold">${monthStr}</td>
             <td class="py-2 px-2.5">${comp.length}</td>
             <td class="py-2 px-2.5">${comp.length}</td>
-            <td class="py-2 px-2.5 font-mon❌>${units}</td>
-            <td class="py-2 px-2.5 text-right font-black font-mon❌>â‚¹${rev.toFixed(2)}</td>
+            <td class="py-2 px-2.5 font-mono">${units}</td>
+            <td class="py-2 px-2.5 text-right font-black font-mono">â‚¹${rev.toFixed(2)}</td>
           </tr>
         `;
       }
