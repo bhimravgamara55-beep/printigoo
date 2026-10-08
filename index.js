@@ -253,9 +253,11 @@ setInterval(() => {
 // Static Web UI Serving (Works in both nested and flat folder modes)
 // ---------------------------------------------------------------------
 let WEB_DIR = __dirname;
-if (fs.existsSync(path.join(__dirname, 'web'))) {
+if (fs.existsSync(path.join(__dirname, 'dashboard.html'))) {
+  WEB_DIR = __dirname;
+} else if (fs.existsSync(path.join(__dirname, 'web', 'dashboard.html'))) {
   WEB_DIR = path.join(__dirname, 'web');
-} else if (fs.existsSync(path.join(__dirname, '..', 'web'))) {
+} else if (fs.existsSync(path.join(__dirname, '..', 'web', 'dashboard.html'))) {
   WEB_DIR = path.join(__dirname, '..', 'web');
 }
 // Serve Landing & Sign-in Page on Root / (Guaranteed home.html)
