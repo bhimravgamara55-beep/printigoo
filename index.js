@@ -402,7 +402,7 @@ app.post('/api/register', (req, res) => {
   const { shopName, ownerName, city, mobile, whatsapp, upiId, username, password } = req.body;
 
   if (!shopName || !ownerName || !city || !mobile || !username || !password) {
-    return res.status(400).json({ success: false, error: 'બધા જરૂરી ખાના (Shop Name, Owner, City, Mobile, Username, Password) ભરવા ફરજિયાત છે.' });
+    return res.status(400).json({ success: false, error: 'All fields (Shop Name, Owner Name, City, Mobile, Username, Password) are required.' });
   }
 
   const cleanUser = username.trim().toLowerCase();
@@ -410,7 +410,7 @@ app.post('/api/register', (req, res) => {
 
   // Check if username or slug already exists
   if (shops[slug] || Object.values(shops).some(s => s.username && s.username.toLowerCase() === cleanUser)) {
-    return res.status(400).json({ success: false, error: 'આ Username અથવા દુકાન પહેલેથી રજીસ્ટર થયેલી છે. કૃપા કરીને બીજું Username પસંદ કરો અથવા Login કરો.' });
+    return res.status(400).json({ success: false, error: 'This Username or shop name is already registered! Please choose another Username.' });
   }
 
   const now = new Date();
@@ -456,7 +456,7 @@ app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ success: false, error: 'કૃપા કરીને Username અને Password બંને લખો.' });
+    return res.status(400).json({ success: false, error: 'Please enter both Username and Password.' });
   }
 
   const q = username.trim().toLowerCase();
@@ -472,21 +472,21 @@ app.post('/api/login', (req, res) => {
   if (!shop) {
     return res.status(404).json({
       success: false,
-      error: 'આ દુકાન રજીસ્ટર થયેલી નથી! કૃપા કરીને ૭-દિવસ ફ્રી ટ્રાયલ માટે નવું રજીસ્ટ્રેશન કરો.'
+      error: 'This shop is not registered! Please register for a 7-Day Free Trial.'
     });
   }
 
   if (shop.password && shop.password !== p) {
     return res.status(401).json({
       success: false,
-      error: 'ખોટો પાસવર્ડ! કૃપા કરીને સાચો પાસવર્ડ નાખો.'
+      error: 'Incorrect password! Please enter the correct password.'
     });
   }
 
   if (shop.status === 'suspended' || shop.status === 'blocked') {
     return res.status(403).json({
       success: false,
-      error: 'તમારું એકાઉન્ટ હાલ બંધ (Suspended) છે. એડમિન સપોર્ટ: +91 9909577877'
+      error: 'Your account is currently suspended. Admin Support: +91 9909577877'
     });
   }
 
@@ -516,7 +516,7 @@ app.post('/api/admin/login', (req, res) => {
   if (pin === ADMIN_PIN) {
     return res.json({ success: true, message: 'Admin verified successfully' });
   }
-  res.status(401).json({ success: false, error: 'ખોટો એડમિન PIN! સાચો PIN નાખો.' });
+  res.status(401).json({ success: false, error: 'Incorrect Admin Password! Please enter the correct password.' });
 });
 
 // Admin Get All Shops & Stats

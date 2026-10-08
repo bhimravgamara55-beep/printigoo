@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PrintGoo â€” Master Admin Control Room</title>
+  <title>PrintGoo - Master Admin Control Room</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -82,7 +82,7 @@
           <span>Owner Console Active</span>
         </span>
         <button onclick="adminLogout()" class="text-xs font-bold text-stone-600 hover:text-red-600 px-2.5 py-1 rounded-lg border border-stone-200 hover:bg-stone-50 transition cursor-pointer">
-          Logout ðŸšª
+          Logout 🚪
         </button>
       </div>
     </header>
@@ -117,7 +117,7 @@
         <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
           <div class="flex items-center justify-between text-emerald-500 mb-1">
             <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800">PAID PRO SHOPS</span>
-            <span class="text-lg">ðŸ’Ž</span>
+            <span class="text-lg">💎</span>
           </div>
           <p id="kpiPaidShops" class="text-3xl font-black text-emerald-700">0</p>
           <p class="text-[11px] text-stone-400 font-medium mt-1">Monthly / Yearly paid</p>
@@ -127,7 +127,7 @@
         <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
           <div class="flex items-center justify-between text-sky-500 mb-1">
             <span class="text-[10px] font-black uppercase tracking-wider text-sky-800">TOTAL SUBSCRIPTION REVENUE</span>
-            <span class="text-lg">ðŸ’°</span>
+            <span class="text-lg">💰</span>
           </div>
           <p id="kpiRevenue" class="text-3xl font-black text-pgMaroon">₹0</p>
           <p class="text-[11px] text-stone-400 font-medium mt-1">Collected via bmgamara@ybl</p>
@@ -154,7 +154,7 @@
               class="px-3.5 py-2 rounded-xl border border-stone-300 text-xs text-stone-800 focus:outline-none focus:border-pgMaroon w-64 bg-white"
             />
             <button onclick="fetchAdminData()" class="p-2 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-bold" title="Refresh">
-              ðŸ”„
+              🔄
             </button>
           </div>
         </div>
@@ -168,7 +168,7 @@
             â³ 7-Day Free Trials (<span id="countFilterTrial">0</span>)
           </button>
           <button onclick="setFilterCategory('paid')" id="tabFilter_paid" class="filter-tab px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-emerald-800 hover:bg-emerald-50">
-            ðŸ’Ž Paid Pro Members (<span id="countFilterPaid">0</span>)
+            💎 Paid Pro Members (<span id="countFilterPaid">0</span>)
           </button>
           <button onclick="setFilterCategory('expired')" id="tabFilter_expired" class="filter-tab px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-red-700 hover:bg-red-50">
             ⚠️ Expired (<span id="countFilterExpired">0</span>)
@@ -354,8 +354,8 @@
         const days = s.daysRemaining || 0;
         const plan = s.subscription?.plan || 'Free Trial';
         const isTrial = plan.includes('Trial');
-        const regDate = s.createdAt ? new Date(s.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'â€”';
-        const expiryDate = s.subscription?.validUntil ? new Date(s.subscription.validUntil).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'â€”';
+        const regDate = s.createdAt ? new Date(s.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '-';
+        const expiryDate = s.subscription?.validUntil ? new Date(s.subscription.validUntil).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '-';
 
         let statusBadge = '';
         if (s.status === 'suspended') {
@@ -369,7 +369,7 @@
             statusBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 font-bold text-[10px]">â³ ${days} days left</span>`;
           }
         } else {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-[10px]">ðŸ’Ž ${days} days left</span>`;
+          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-[10px]">💎 ${days} days left</span>`;
         }
 
         const upiDisplay = s.upiId 
@@ -389,19 +389,19 @@
                 <span class="text-[10px] text-stone-400 font-mono">(/${s.slug})</span>
               </a>
               <div class="flex items-center gap-2 mt-0.5 text-[11px] text-stone-500 font-medium">
-                <span>Owner: <strong class="text-stone-700">${s.ownerName || 'â€”'}</strong></span>
+                <span>Owner: <strong class="text-stone-700">${s.ownerName || '-'}</strong></span>
                 <span>•</span>
                 <span class="text-stone-400">Reg: ${regDate}</span>
               </div>
             </td>
 
             <td class="py-3.5 px-4 font-semibold text-stone-700">
-              ${s.address || 'â€”'}
+              ${s.address || '-'}
             </td>
 
             <td class="py-3.5 px-4">
               <div class="flex items-center space-x-2">
-                <span class="font-mono text-stone-800 font-bold">${s.phone || 'â€”'}</span>
+                <span class="font-mono text-stone-800 font-bold">${s.phone || '-'}</span>
                 ${cleanPhone ? `
                   <a href="tel:${cleanPhone}" class="p-1.5 rounded-lg bg-stone-100 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition shadow-2xs" title="Direct Phone Call">ðŸ“ž</a>
                   <a href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent(waText)}" target="_blank" class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition border border-emerald-200 shadow-2xs" title="Chat on WhatsApp">ðŸ’¬</a>
@@ -489,15 +489,15 @@
       }
 
       tbody.innerHTML = subs.map((sub, idx) => {
-        const d = sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString('en-GB') : 'â€”';
+        const d = sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString('en-GB') : '-';
         return `
           <tr class="hover:bg-stone-50/80 transition">
             <td class="py-2.5 px-3 text-stone-500 font-mono">${d}</td>
             <td class="py-2.5 px-3 font-bold text-stone-900">${sub.shopName || sub.shopSlug}</td>
             <td class="py-2.5 px-3 font-semibold text-stone-700">${sub.plan}</td>
             <td class="py-2.5 px-3 font-black text-pgMaroon">₹${sub.amount}</td>
-            <td class="py-2.5 px-3 font-mono font-bold text-stone-800">${sub.utrNumber || 'â€”'}</td>
-            <td class="py-2.5 px-3 font-mono text-stone-600">${sub.phone || 'â€”'}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-stone-800">${sub.utrNumber || '-'}</td>
+            <td class="py-2.5 px-3 font-mono text-stone-600">${sub.phone || '-'}</td>
             <td class="py-2.5 px-3 text-right">
               ${sub.verifiedByAdmin ? `
                 <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">Verified ✓</span>

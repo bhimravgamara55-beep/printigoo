@@ -66,7 +66,7 @@
 <body class="bg-pgBg min-h-screen flex flex-col antialiased selection:bg-pgYellow selection:text-pgMaroon pb-12">
   <div id="globalLoader">
     <div class="spinner"></div>
-    <p style="margin-top: 15px; color: #78251B; font-weight: bold;">Loading PrintGo✅..</p>
+    <p style="margin-top: 15px; color: #78251B; font-weight: bold;">Loading PrintGoo........</p>
   </div>
 
   <!-- TOP HEADER -->
@@ -593,7 +593,7 @@
       const upiId = shopData.upiId || '';
       
       if (!upiId) {
-        alert('આ àªà«‡àª°à«‹àª•à«àª· àª¦à«àª•àª¾àª¨à«‡ àª“àª¨àª²àª¾àª‡àª¨ UPI àª¸à«‡àªŸ àª•àª°à«‡àª² àª¨àª¥à«€.\nàª•à«ƒàªªàª¾ àª•àª°à«€àª¨à«‡ àª•àª¾àª‰àª¨à«àªŸàª° àªªàª° àª°à«‹àª•àª¡àª¾ (Pay at Counter - Cash) àªµàª¿àª•àª²à«àªª àªªàª¸àª‚àª¦ àª•àª°à«‹.');
+        alert('This shop currently accepts cash payments at counter.');
         return;
       }
 
@@ -671,7 +671,7 @@
             liveText.textContent = '🖨️ Printing right now on Xerox machine!';
             liveText.className = 'text-[11px] font-bold text-indigo-700';
           } else if (updated.jobStatus === 'completed') {
-            liveText.textContent = 'âœ… Finished! Please collect your prints from counter.';
+            liveText.textContent = '✅ Finished! Please collect your prints from counter.';
             liveText.className = 'text-[11px] font-bold text-emerald-700';
           }
         }
