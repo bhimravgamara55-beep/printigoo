@@ -680,6 +680,7 @@ app.post('/api/shops/:shop_slug', (req, res) => {
   if (phone) shops[slug].phone = phone;
   if (whatsapp) shops[slug].whatsapp = whatsapp;
   if (pricing) shops[slug].pricing = { ...shops[slug].pricing, ...pricing };
+    if (req.body.autoDeleteTimer) shops[slug].autoDeleteTimer = req.body.autoDeleteTimer;
 
   saveShops(shops);
   console.log(`[Shop Config] Saved shop ${slug} to disk: Name="${shops[slug].name}", UPI="${shops[slug].upiId}"`);
@@ -1042,3 +1043,35 @@ server.listen(PORT, () => {
 });
 
 module.exports = { app, server, io };
+
+
+// ==========================================
+// AUTO-DELETE PDF FILES BACKGROUND JOB
+// ==========================================
+setInterval(() => {
+  const now = Date.now();
+  let dbChanged = false;
+  Object.values(shops).forEach(shop => {
+    const timer = shop.autoDeleteTimer || 'never';
+    if (timer === 'never') return;
+    const msLimit = timer === '30m' ? 30 * 60 * 1000 : 60 * 60 * 1000;
+    
+    if (jobs[shop.slug]) {
+      jobs[shop.slug].forEach(job => {
+        // Auto-delete if it's completed or cancelled and older than the limit
+        if ((job.status === 'completed' || job.status === 'cancelled') && !job.fileDeleted) {
+           const jobAge = now - job.createdAt;
+           if (jobAge > msLimit) {
+              try { 
+                fs.unlinkSync(path.join(__dirname, 'uploads', job.filename)); 
+                console.log([Auto-Delete] Deleted physical file  for shop );
+              } catch(e) {}
+              job.fileDeleted = true; // Mark as deleted so we don't try again
+              dbChanged = true;
+           }
+        }
+      });
+    }
+  });
+  if (dbChanged) saveJobs(jobs);
+}, 2 * 60 * 1000); // Check every 2 mins

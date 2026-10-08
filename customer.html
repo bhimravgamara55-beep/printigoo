@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -57,8 +57,17 @@
       animation: pulse-dot 1.8s infinite ease-in-out;
     }
   </style>
+  <style>
+    #globalLoader { position: fixed; inset: 0; background: #FAF7F2; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; }
+    .spinner { border: 4px solid #EFE8DA; border-top: 4px solid #78251B; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
 </head>
 <body class="bg-pgBg min-h-screen flex flex-col antialiased selection:bg-pgYellow selection:text-pgMaroon pb-12">
+  <div id="globalLoader">
+    <div class="spinner"></div>
+    <p style="margin-top: 15px; color: #78251B; font-weight: bold;">Loading PrintGoo...</p>
+  </div>
 
   <!-- TOP HEADER -->
   <header class="bg-[#FAF7F2] border-b border-pgBorder py-3 px-4 sticky top-0 z-30 shadow-sm">
@@ -67,7 +76,7 @@
       <!-- Logo & Brand Badge -->
       <div class="flex items-center space-x-2">
         <div class="w-8 h-8 rounded-full bg-pgYellow flex items-center justify-center shadow-sm text-lg">
-          🤖
+          ðŸ¤–
         </div>
         <div>
           <div class="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 border border-pgMaroon px-2.5 py-0.5 rounded-full shadow-sm flex items-center">
@@ -92,7 +101,7 @@
       <p id="cShopCity" class="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">SMART PRINT DESK</p>
       <h1 id="cShopTitle" class="text-xl font-black text-stone-900 mt-0.5">PRINTGOO INSTANT XEROX</h1>
       <p class="text-xs text-stone-500 mt-0.5 flex items-center gap-1">
-        <span>📍 Main Counter Xerox & Print Desk</span>
+        <span>ðŸ“ Main Counter Xerox & Print Desk</span>
       </p>
     </div>
 
@@ -113,7 +122,7 @@
         <!-- Placeholder state -->
         <div id="portalDropEmpty" class="space-y-2">
           <div class="w-12 h-12 rounded-2xl bg-white border border-stone-200 shadow-sm mx-auto flex items-center justify-center text-2xl">
-            📄
+            ðŸ“„
           </div>
           <div>
             <p class="text-xs font-bold text-stone-800">Tap to select PDF or Photos</p>
@@ -134,7 +143,7 @@
               <p id="previewName" class="text-xs font-bold text-stone-900 truncate">document.pdf</p>
               <div class="flex items-center space-x-1.5 text-[10px] text-stone-500 mt-0.5">
                 <span id="previewSize">1.2 MB</span>
-                <span>•</span>
+                <span>â€¢</span>
                 <span id="previewPagesBadge" class="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">
                   Calculating...
                 </span>
@@ -142,7 +151,7 @@
             </div>
           </div>
           <button type="button" id="btnRemoveUploadedFile" class="p-1 text-stone-400 hover:text-pgRed rounded-lg">
-            ✕
+            âœ•
           </button>
         </div>
       </div>
@@ -162,17 +171,17 @@
           <button type="button" data-val="bw" class="btn-ctrl-color active p-3 rounded-2xl border-2 border-pgMaroon bg-pgYellow text-left transition flex items-center justify-between">
             <div>
               <p class="text-xs font-black text-pgMaroon">Black & White</p>
-              <p class="text-[10px] text-stone-600">₹2.00 / sheet</p>
+              <p class="text-[10px] text-stone-600">â‚¹2.00 / sheet</p>
             </div>
-            <span class="text-xs font-bold text-pgMaroon indicator">✓</span>
+            <span class="text-xs font-bold text-pgMaroon indicator">âœ“</span>
           </button>
 
           <button type="button" data-val="color" class="btn-ctrl-color p-3 rounded-2xl border border-stone-200 bg-pgBg text-left transition flex items-center justify-between">
             <div>
               <p class="text-xs font-bold text-stone-800">Color</p>
-              <p class="text-[10px] text-stone-500">₹10.00 / sheet</p>
+              <p class="text-[10px] text-stone-500">â‚¹10.00 / sheet</p>
             </div>
-            <span class="text-xs font-bold text-pgMaroon indicator hidden">✓</span>
+            <span class="text-xs font-bold text-pgMaroon indicator hidden">âœ“</span>
           </button>
         </div>
       </div>
@@ -186,7 +195,7 @@
               <p class="text-xs font-black text-pgMaroon">Single-Sided</p>
               <p class="text-[10px] text-stone-600">Front only</p>
             </div>
-            <span class="text-xs font-bold text-pgMaroon indicator">✓</span>
+            <span class="text-xs font-bold text-pgMaroon indicator">âœ“</span>
           </button>
 
           <button type="button" data-val="double" class="btn-ctrl-sides p-3 rounded-2xl border border-stone-200 bg-pgBg text-left transition flex items-center justify-between">
@@ -194,7 +203,7 @@
               <p class="text-xs font-bold text-stone-800">Double-Sided</p>
               <p class="text-[10px] text-stone-500">Back-to-Back</p>
             </div>
-            <span class="text-xs font-bold text-pgMaroon indicator hidden">✓</span>
+            <span class="text-xs font-bold text-pgMaroon indicator hidden">âœ“</span>
           </button>
         </div>
       </div>
@@ -215,7 +224,7 @@
           <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Copies</label>
           <div class="flex items-center justify-between bg-pgBg border border-stone-200 rounded-2xl p-1">
             <button type="button" id="btnMinus" class="w-8 h-7 rounded-xl bg-white text-stone-900 font-black shadow-sm flex items-center justify-center">
-              −
+              âˆ’
             </button>
             <span id="copiesValDisplay" class="font-bold text-xs text-stone-900 px-2 font-mono">1</span>
             <button type="button" id="btnPlus" class="w-8 h-7 rounded-xl bg-pgYellow text-pgMaroon font-black shadow-sm flex items-center justify-center border border-amber-300">
@@ -230,12 +239,12 @@
     <div class="bg-[#FFF5D6] rounded-3xl border border-amber-300 p-4 shadow-sm">
       <div class="flex items-center justify-between text-xs pb-2 border-b border-amber-200/80">
         <span class="text-stone-600 font-medium">Estimated Bill</span>
-        <span id="priceFormulaDisplay" class="font-bold text-stone-800">1 Page × 1 Copy</span>
+        <span id="priceFormulaDisplay" class="font-bold text-stone-800">1 Page Ã— 1 Copy</span>
       </div>
       <div class="flex items-end justify-between pt-2">
         <div>
           <p class="text-[10px] text-stone-500 uppercase font-bold tracking-wider">Total Amount</p>
-          <p class="text-3xl font-black text-pgMaroon font-sans">₹<span id="totalBillDisplay">2.00</span></p>
+          <p class="text-3xl font-black text-pgMaroon font-sans">â‚¹<span id="totalBillDisplay">2.00</span></p>
         </div>
         <span id="physicalSheetsDisplay" class="text-xs font-semibold text-stone-600">1 Physical Sheet</span>
       </div>
@@ -245,19 +254,19 @@
     <div class="space-y-2 pt-1">
       <!-- Pay via UPI -->
       <button type="button" id="btnActionUpi" class="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] font-bold text-white text-xs shadow-md flex items-center justify-center space-x-2 transition">
-        <span>⚡ Pay via UPI (GPay / PhonePe / Paytm)</span>
+        <span>âš¡ Pay via UPI (GPay / PhonePe / Paytm)</span>
       </button>
 
       <!-- Pay at Counter (Cash) -->
       <button type="button" id="btnActionCash" class="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-stone-50 active:scale-[0.99] font-bold text-stone-800 text-xs border border-stone-300 shadow-sm flex items-center justify-center space-x-2 transition">
-        <span>💵 Pay at Counter (Cash)</span>
+        <span>ðŸ’µ Pay at Counter (Cash)</span>
       </button>
     </div>
 
     <!-- ZERO-RETENTION FOOTER -->
     <div class="text-center pt-2">
       <p class="text-[11px] text-stone-500">
-        🔒 Zero-Retention Privacy: Documents auto-shredded after 30 mins
+        ðŸ”’ Zero-Retention Privacy: Documents auto-shredded after 30 mins
       </p>
     </div>
 
@@ -267,7 +276,7 @@
   <div id="receiptModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-stone-200">
       <div class="w-12 h-12 rounded-full bg-pgYellow mx-auto flex items-center justify-center text-2xl mb-2">
-        🤖
+        ðŸ¤–
       </div>
       <span class="inline-block text-[10px] font-black uppercase tracking-wider text-pgMaroon bg-[#FFF5D6] px-3 py-1 rounded-full border border-amber-300 mb-1">
         Order Received
@@ -283,7 +292,7 @@
         </div>
         <div class="flex justify-between">
           <span class="text-stone-500">Total Bill:</span>
-          <span id="receiptDocBill" class="font-bold text-stone-900">₹0.00</span>
+          <span id="receiptDocBill" class="font-bold text-stone-900">â‚¹0.00</span>
         </div>
         <div class="flex justify-between">
           <span class="text-stone-500">Payment:</span>
@@ -311,14 +320,14 @@
         <img id="portalUpiQrImage" class="w-44 h-44 mx-auto" alt="UPI QR" />
       </div>
 
-      <p class="text-2xl font-black text-stone-900 font-sans mb-3">₹<span id="portalUpiBillText">0.00</span></p>
+      <p class="text-2xl font-black text-stone-900 font-sans mb-3">â‚¹<span id="portalUpiBillText">0.00</span></p>
 
       <div class="space-y-2">
         <a id="portalUpiIntentAnchor" href="#" class="block w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">
           Open UPI App (GPay / PhonePe)
         </a>
         <button type="button" id="btnConfirmUpiCustomerPaid" class="w-full py-2.5 rounded-xl bg-pgYellow border border-amber-300 text-pgMaroon font-bold text-xs">
-          I Have Paid • Send to Print
+          I Have Paid â€¢ Send to Print
         </button>
         <button type="button" onclick="document.getElementById('customerUpiModal').classList.add('hidden')" class="w-full py-1 text-xs text-stone-400">
           Cancel
@@ -405,7 +414,7 @@
       const formatted = total.toFixed(2);
 
       document.getElementById('totalBillDisplay').textContent = formatted;
-      document.getElementById('priceFormulaDisplay').textContent = `${detectedPages} Page${detectedPages > 1 ? 's' : ''} × ${copies} Cop${copies > 1 ? 'ies' : 'y'}`;
+      document.getElementById('priceFormulaDisplay').textContent = `${detectedPages} Page${detectedPages > 1 ? 's' : ''} Ã— ${copies} Cop${copies > 1 ? 'ies' : 'y'}`;
       document.getElementById('physicalSheetsDisplay').textContent = `${sheets * copies} Physical Sheet${(sheets * copies) > 1 ? 's' : ''} (${isDuplex ? '2-Sided' : '1-Sided'})`;
 
       return formatted;
@@ -568,7 +577,7 @@
 
       const job = await uploadJob('cash');
       btn.disabled = false;
-      btn.textContent = '💵 Pay at Counter (Cash)';
+      btn.textContent = 'ðŸ’µ Pay at Counter (Cash)';
 
       if (job) showReceipt(job);
     });
@@ -584,7 +593,7 @@
       const upiId = shopData.upiId || '';
       
       if (!upiId) {
-        alert('આ ઝેરોક્ષ દુકાને ઓનલાઇન UPI સેટ કરેલ નથી.\nકૃપા કરીને કાઉન્ટર પર રોકડા (Pay at Counter - Cash) વિકલ્પ પસંદ કરો.');
+        alert('àª† àªà«‡àª°à«‹àª•à«àª· àª¦à«àª•àª¾àª¨à«‡ àª“àª¨àª²àª¾àª‡àª¨ UPI àª¸à«‡àªŸ àª•àª°à«‡àª² àª¨àª¥à«€.\nàª•à«ƒàªªàª¾ àª•àª°à«€àª¨à«‡ àª•àª¾àª‰àª¨à«àªŸàª° àªªàª° àª°à«‹àª•àª¡àª¾ (Pay at Counter - Cash) àªµàª¿àª•àª²à«àªª àªªàª¸àª‚àª¦ àª•àª°à«‹.');
         return;
       }
 
@@ -609,7 +618,7 @@
 
       const job = await uploadJob('upi');
       btn.disabled = false;
-      btn.textContent = '⚡ Pay via UPI (GPay / PhonePe / Paytm)';
+      btn.textContent = 'âš¡ Pay via UPI (GPay / PhonePe / Paytm)';
 
       if (job) showReceipt(job);
     });
@@ -617,10 +626,10 @@
     function showReceipt(job) {
       document.getElementById('receiptTokenVal').textContent = job.token;
       document.getElementById('receiptDocName').textContent = job.fileName;
-      document.getElementById('receiptDocBill').textContent = `₹${job.totalAmount.toFixed(2)}`;
+      document.getElementById('receiptDocBill').textContent = `â‚¹${job.totalAmount.toFixed(2)}`;
 
       if (job.paymentStatus === 'paid') {
-        document.getElementById('receiptDocPayment').textContent = '✓ Paid via UPI';
+        document.getElementById('receiptDocPayment').textContent = 'âœ“ Paid via UPI';
         document.getElementById('receiptDocPayment').className = 'font-bold text-emerald-700';
       } else {
         document.getElementById('receiptDocPayment').textContent = 'Cash Pending at Counter';
@@ -659,10 +668,10 @@
           activeJob = updated;
           const liveText = document.getElementById('receiptStatusLiveText');
           if (updated.jobStatus === 'printing') {
-            liveText.textContent = '🖨️ Printing right now on Xerox machine!';
+            liveText.textContent = 'ðŸ–¨ï¸ Printing right now on Xerox machine!';
             liveText.className = 'text-[11px] font-bold text-indigo-700';
           } else if (updated.jobStatus === 'completed') {
-            liveText.textContent = '✅ Finished! Please collect your prints from counter.';
+            liveText.textContent = 'âœ… Finished! Please collect your prints from counter.';
             liveText.className = 'text-[11px] font-bold text-emerald-700';
           }
         }
@@ -670,6 +679,8 @@
     } catch (e) {}
 
     initShop();
+    document.getElementById('globalLoader').style.display = 'none';
   </script>
 </body>
 </html>
+
