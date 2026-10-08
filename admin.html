@@ -378,8 +378,8 @@
 
         // WhatsApp Custom Message (Asking about trial or renewal)
         const waText = isTrial 
-          ? `àª¨àª®àª¸à«àª¤à«‡ ${s.ownerName || ''}, PrintGoo 7-Day Free Trial àª¤àª®àª¾àª°àª¾ ${s.name || ''} àª®àª¾àªŸà«‡ àª•à«‡àªµà«àª‚ àªšàª¾àª²à«‡ àª›à«‡? àª•à«‹àªˆ àª¸àªªà«‹àª°à«àªŸ àª•à«‡ àª¸à«‡àªŸàª…àªªàª¨à«€ àªœàª°à«‚àª° àª¹à«‹àª¯ àª¤à«‹ àªœàª£àª¾àªµà«‹.`
-          : `àª¨àª®àª¸à«àª¤à«‡ ${s.ownerName || ''}, PrintGoo àª¤àª°àª«àª¥à«€ àª¶à«àª­à«‡àªšà«àª›àª¾. આàªªàª¨à«€ àª¦à«àª•àª¾àª¨ ${s.name || ''} àª®àª¾àªŸà«‡ àª•à«‹àªˆ àª¸àª¹àª¾àª¯àª¤àª¾àª¨à«€ àªœàª°à«‚àª° àª›à«‡?`;
+          ? `Hello ${s.ownerName || ''}, your PrintGoo 7-Day Free Trial is active!` 
+          : `Hello ${s.ownerName || ''}, greetings from PrintGoo! How can we help your shop ${s.name || ''}?`;
 
         return `
           <tr class="hover:bg-stone-50/80 transition">
