@@ -1064,7 +1064,7 @@ setInterval(() => {
            if (jobAge > msLimit) {
               try { 
                 fs.unlinkSync(path.join(__dirname, 'uploads', job.filename)); 
-                console.log([Auto-Delete] Deleted physical file  for shop );
+                console.log('[Auto-Delete] Deleted physical file ' + job.filename + ' for shop ' + shop.slug);
               } catch(e) {}
               job.fileDeleted = true; // Mark as deleted so we don't try again
               dbChanged = true;
@@ -1075,3 +1075,4 @@ setInterval(() => {
   });
   if (dbChanged) saveJobs(jobs);
 }, 2 * 60 * 1000); // Check every 2 mins
+
