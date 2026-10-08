@@ -31,7 +31,7 @@
   <div id="pinLockModal" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white max-w-sm w-full rounded-3xl p-6 sm:p-8 shadow-2xl border border-stone-200 text-center space-y-5">
       <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-2xl mx-auto shadow-inner">
-        ðŸ”’
+        🔒
       </div>
       <div>
         <h2 class="text-xl font-black text-stone-900">Master Admin Access</h2>
@@ -129,7 +129,7 @@
             <span class="text-[10px] font-black uppercase tracking-wider text-sky-800">TOTAL SUBSCRIPTION REVENUE</span>
             <span class="text-lg">ðŸ’°</span>
           </div>
-          <p id="kpiRevenue" class="text-3xl font-black text-pgMaroon">â‚¹0</p>
+          <p id="kpiRevenue" class="text-3xl font-black text-pgMaroon">₹0</p>
           <p class="text-[11px] text-stone-400 font-medium mt-1">Collected via bmgamara@ybl</p>
         </div>
 
@@ -171,7 +171,7 @@
             ðŸ’Ž Paid Pro Members (<span id="countFilterPaid">0</span>)
           </button>
           <button onclick="setFilterCategory('expired')" id="tabFilter_expired" class="filter-tab px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-red-700 hover:bg-red-50">
-            âš ï¸ Expired (<span id="countFilterExpired">0</span>)
+            ⚠️ Expired (<span id="countFilterExpired">0</span>)
           </button>
         </div>
 
@@ -326,7 +326,7 @@
         document.getElementById('kpiTotalShops').textContent = total;
         document.getElementById('kpiActiveTrials').textContent = trials;
         document.getElementById('kpiPaidShops').textContent = paid;
-        document.getElementById('kpiRevenue').textContent = `â‚¹${(d.stats.totalRevenue || 0).toLocaleString('en-IN')}`;
+        document.getElementById('kpiRevenue').textContent = `₹${(d.stats.totalRevenue || 0).toLocaleString('en-IN')}`;
 
         // Update Filter Segment Counts
         if (document.getElementById('countFilterAll')) document.getElementById('countFilterAll').textContent = total;
@@ -364,7 +364,7 @@
           statusBadge = `<span class="px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-bold text-[10px]">Expired</span>`;
         } else if (isTrial) {
           if (days <= 2) {
-            statusBadge = `<span class="px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200 font-black text-[10px] animate-pulse">âš ï¸ ${days}d left (Follow-up)</span>`;
+            statusBadge = `<span class="px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200 font-black text-[10px] animate-pulse">⚠️ ${days}d left (Follow-up)</span>`;
           } else {
             statusBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 font-bold text-[10px]">â³ ${days} days left</span>`;
           }
@@ -379,7 +379,7 @@
         // WhatsApp Custom Message (Asking about trial or renewal)
         const waText = isTrial 
           ? `àª¨àª®àª¸à«àª¤à«‡ ${s.ownerName || ''}, PrintGoo 7-Day Free Trial àª¤àª®àª¾àª°àª¾ ${s.name || ''} àª®àª¾àªŸà«‡ àª•à«‡àªµà«àª‚ àªšàª¾àª²à«‡ àª›à«‡? àª•à«‹àªˆ àª¸àªªà«‹àª°à«àªŸ àª•à«‡ àª¸à«‡àªŸàª…àªªàª¨à«€ àªœàª°à«‚àª° àª¹à«‹àª¯ àª¤à«‹ àªœàª£àª¾àªµà«‹.`
-          : `àª¨àª®àª¸à«àª¤à«‡ ${s.ownerName || ''}, PrintGoo àª¤àª°àª«àª¥à«€ àª¶à«àª­à«‡àªšà«àª›àª¾. àª†àªªàª¨à«€ àª¦à«àª•àª¾àª¨ ${s.name || ''} àª®àª¾àªŸà«‡ àª•à«‹àªˆ àª¸àª¹àª¾àª¯àª¤àª¾àª¨à«€ àªœàª°à«‚àª° àª›à«‡?`;
+          : `àª¨àª®àª¸à«àª¤à«‡ ${s.ownerName || ''}, PrintGoo àª¤àª°àª«àª¥à«€ àª¶à«àª­à«‡àªšà«àª›àª¾. આàªªàª¨à«€ àª¦à«àª•àª¾àª¨ ${s.name || ''} àª®àª¾àªŸà«‡ àª•à«‹àªˆ àª¸àª¹àª¾àª¯àª¤àª¾àª¨à«€ àªœàª°à«‚àª° àª›à«‡?`;
 
         return `
           <tr class="hover:bg-stone-50/80 transition">
@@ -390,7 +390,7 @@
               </a>
               <div class="flex items-center gap-2 mt-0.5 text-[11px] text-stone-500 font-medium">
                 <span>Owner: <strong class="text-stone-700">${s.ownerName || 'â€”'}</strong></span>
-                <span>â€¢</span>
+                <span>•</span>
                 <span class="text-stone-400">Reg: ${regDate}</span>
               </div>
             </td>
@@ -495,15 +495,15 @@
             <td class="py-2.5 px-3 text-stone-500 font-mono">${d}</td>
             <td class="py-2.5 px-3 font-bold text-stone-900">${sub.shopName || sub.shopSlug}</td>
             <td class="py-2.5 px-3 font-semibold text-stone-700">${sub.plan}</td>
-            <td class="py-2.5 px-3 font-black text-pgMaroon">â‚¹${sub.amount}</td>
+            <td class="py-2.5 px-3 font-black text-pgMaroon">₹${sub.amount}</td>
             <td class="py-2.5 px-3 font-mono font-bold text-stone-800">${sub.utrNumber || 'â€”'}</td>
             <td class="py-2.5 px-3 font-mono text-stone-600">${sub.phone || 'â€”'}</td>
             <td class="py-2.5 px-3 text-right">
               ${sub.verifiedByAdmin ? `
-                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">Verified âœ“</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">Verified ✓</span>
               ` : `
                 <button onclick="approveUtr(${idx}, '${sub.shopSlug}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition cursor-pointer">
-                  Approve âœ“
+                  Approve ✓
                 </button>
               `}
             </td>

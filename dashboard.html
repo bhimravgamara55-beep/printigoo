@@ -171,7 +171,7 @@
 
           <!-- Accepting orders badge -->
           <span class="px-3 py-1 rounded-full bg-pgMaroon text-white text-[11px] font-black flex items-center gap-1 shadow-xs">
-            <span>âš ï¸</span>
+            <span>⚠️</span>
             <span>Accepting orders</span>
           </span>
 
@@ -190,15 +190,15 @@
 
           <!-- Quick Printer & Bell Icon buttons -->
           <button type="button" onclick="switchTab('printersetting')" class="p-1.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 shadow-xs" title="Printer Spooler">
-            ðŸ–¨ï¸
+            🖨️
           </button>
           <button type="button" id="btnAudioToggleDesk" class="p-1.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 shadow-xs" title="Sound Bell">
-            ðŸ””
+            🔔
           </button>
 
           <!-- Download PC App Button -->
           <button type="button" onclick="openDownloadModal()" class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[11px] font-bold shadow-xs transition cursor-pointer" title="Download PrintGoo on your PC">
-            <span>ðŸ’»</span>
+            <span>💻</span>
             <span>Download PC App</span>
           </button>
 
@@ -221,7 +221,7 @@
           <div class="bg-white rounded-3xl border border-stone-200/80 p-4 shadow-sm grid grid-cols-2 gap-3">
             <div class="p-2.5 rounded-2xl bg-pgBg border border-stone-100">
               <div class="flex items-center space-x-1.5 text-stone-500 mb-1">
-                <span class="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-[10px]">ðŸ›ï¸</span>
+                <span class="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-[10px]">🛍️</span>
                 <span class="text-[9px] font-extrabold uppercase tracking-wider">TODAY'S ORDERS</span>
               </div>
               <p id="deskTodayOrders" class="text-xl font-black text-stone-900 font-sans ml-1">0</p>
@@ -237,7 +237,7 @@
 
             <div class="p-2.5 rounded-2xl bg-pgBg border border-stone-100">
               <div class="flex items-center space-x-1.5 text-stone-500 mb-1">
-                <span class="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-[10px]">ðŸ“¦</span>
+                <span class="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-[10px]">📦</span>
                 <span class="text-[9px] font-extrabold uppercase tracking-wider">COMPLETED</span>
               </div>
               <p id="deskCompletedOrders" class="text-xl font-black text-stone-900 font-sans ml-1">0</p>
@@ -245,10 +245,10 @@
 
             <div class="p-2.5 rounded-2xl bg-pgBg border border-stone-100">
               <div class="flex items-center space-x-1.5 text-stone-500 mb-1">
-                <span class="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-[10px] font-bold text-stone-700">â‚¹</span>
+                <span class="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-[10px] font-bold text-stone-700">₹</span>
                 <span class="text-[9px] font-extrabold uppercase tracking-wider">TODAY'S REVENUE</span>
               </div>
-              <p id="deskTodayRevenue" class="text-xl font-black text-stone-900 font-sans ml-1">â‚¹0.00</p>
+              <p id="deskTodayRevenue" class="text-xl font-black text-stone-900 font-sans ml-1">₹0.00</p>
             </div>
           </div>
 
@@ -256,7 +256,7 @@
           <div class="bg-white rounded-2xl border border-stone-200/80 p-3.5 shadow-sm flex items-center justify-between">
             <div class="flex items-center space-x-2.5">
               <div class="w-8 h-8 rounded-xl bg-pgBg border border-stone-200 flex items-center justify-center text-stone-600 text-sm">
-                ðŸ–¨ï¸
+                🖨️
               </div>
               <div>
                 <p class="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">B&W PRINTER</p>
@@ -273,7 +273,7 @@
           <div class="bg-white rounded-2xl border border-stone-200/80 p-3.5 shadow-sm flex items-center justify-between">
             <div class="flex items-center space-x-2.5">
               <div class="w-8 h-8 rounded-xl bg-pgBg border border-stone-200 flex items-center justify-center text-stone-600 text-sm">
-                ðŸ–¨ï¸
+                🖨️
               </div>
               <div>
                 <p class="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">COLOUR PRINTER</p>
@@ -293,7 +293,7 @@
           <div>
             <div class="flex items-center justify-between pb-3 border-b border-stone-100">
               <div class="flex items-center space-x-2">
-                <span class="text-amber-500">ðŸ“„</span>
+                <span class="text-amber-500">📄</span>
                 <h3 class="text-xs font-extrabold uppercase tracking-wider text-stone-800">ORDER QUEUE</h3>
               </div>
               <span id="queueWaitingTag" class="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-bold">
@@ -323,7 +323,7 @@
           <div>
             <h3 class="text-sm font-black text-stone-900">Recent orders</h3>
             <p id="receiverStatusLine" class="text-[10px] text-stone-500 mt-0.5">
-              Receiver: online â€¢ last seen active
+              Receiver: online • last seen active
             </p>
           </div>
           <button type="button" onclick="switchTab('bills')" class="text-xs font-bold text-pgRed hover:underline">
@@ -333,7 +333,7 @@
 
         <div id="recentOrdersContainer" class="p-8 rounded-2xl bg-pgBg border border-dashed border-stone-300 text-center space-y-1">
           <div class="w-10 h-10 rounded-full bg-white border border-stone-200 flex items-center justify-center text-lg mx-auto shadow-xs">
-            ðŸ›ï¸
+            🛍️
           </div>
           <p class="text-xs font-bold text-stone-700 pt-1">No print orders yet</p>
           <p class="text-[11px] text-stone-500">Customer orders appear here; files are received directly by your desktop app.</p>
@@ -359,8 +359,8 @@
         <!-- Card 2: COLLECTED REVENUE -->
         <div class="bg-white rounded-2xl border border-stone-200/80 p-4 shadow-xs">
           <p class="text-[10px] font-black uppercase tracking-wider text-stone-500">COLLECTED REVENUE</p>
-          <p id="kpi_collected_revenue" class="text-2xl font-black text-stone-900 font-sans mt-1">â‚¹0.00</p>
-          <p id="kpi_sub_revenue" class="text-[11px] text-stone-400 mt-0.5">â‚¹0.00 total billed â€¢ â‚¹0.00 online</p>
+          <p id="kpi_collected_revenue" class="text-2xl font-black text-stone-900 font-sans mt-1">₹0.00</p>
+          <p id="kpi_sub_revenue" class="text-[11px] text-stone-400 mt-0.5">₹0.00 total billed • ₹0.00 online</p>
         </div>
 
         <!-- Card 3: B&W PRINTED -->
@@ -398,14 +398,14 @@
         <div class="bg-white rounded-2xl border border-stone-200/80 p-4 shadow-xs">
           <p class="text-[10px] font-black uppercase tracking-wider text-stone-500">PAPER USAGE</p>
           <p id="kpi_paper_usage" class="text-2xl font-black text-stone-900 font-sans mt-1">0 A4</p>
-          <p id="kpi_sub_paper" class="text-[11px] text-stone-400 mt-0.5">0 A3 â€¢ 0 duplex jobs</p>
+          <p id="kpi_sub_paper" class="text-[11px] text-stone-400 mt-0.5">0 A3 • 0 duplex jobs</p>
         </div>
 
         <!-- Card 8: CASH DUE -->
         <div class="bg-white rounded-2xl border border-stone-200/80 p-4 shadow-xs">
           <p class="text-[10px] font-black uppercase tracking-wider text-stone-500">CASH DUE</p>
-          <p id="kpi_cash_due" class="text-2xl font-black text-stone-900 font-sans mt-1">â‚¹0.00</p>
-          <p id="kpi_sub_cash_due" class="text-[11px] text-stone-400 mt-0.5">â‚¹0.00 UPI awaiting review</p>
+          <p id="kpi_cash_due" class="text-2xl font-black text-stone-900 font-sans mt-1">₹0.00</p>
+          <p id="kpi_sub_cash_due" class="text-[11px] text-stone-400 mt-0.5">₹0.00 UPI awaiting review</p>
         </div>
       </div>
 
@@ -487,7 +487,7 @@
 
         <div id="allBillsEmptyBox" class="p-12 rounded-2xl bg-[#FFFDF9] border border-amber-200/60 text-center space-y-1.5">
           <div class="w-10 h-10 rounded-xl bg-white border border-stone-200 flex items-center justify-center text-lg mx-auto shadow-xs">
-            ðŸ›ï¸
+            🛍️
           </div>
           <p class="text-xs font-bold text-stone-800 pt-1">No print orders yet</p>
           <p class="text-[11px] text-stone-500 max-w-md mx-auto">Customer orders appear here; files are received directly by your desktop app.</p>
@@ -499,7 +499,7 @@
               <tr>
                 <th class="py-2.5 px-3">Order #</th>
                 <th class="py-2.5 px-3">File Name</th>
-                <th class="py-2.5 px-3 text-center">Pages Ã— Copies</th>
+                <th class="py-2.5 px-3 text-center">Pages × Copies</th>
                 <th class="py-2.5 px-3 text-center">Type</th>
                 <th class="py-2.5 px-3 text-right">Amount</th>
                 <th class="py-2.5 px-3 text-center">Payment</th>
@@ -544,7 +544,7 @@
           <div class="bg-white rounded-2xl border border-amber-200/80 p-3.5 shadow-xs">
             <label class="block text-[11px] font-bold text-stone-600 mb-1.5">A4 B&amp;W</label>
             <div class="flex items-center bg-stone-50 rounded-xl border border-stone-200 px-3 py-1.5 focus-within:border-pgMaroon">
-              <span class="text-xs font-bold text-stone-500 mr-1.5">â‚¹</span>
+              <span class="text-xs font-bold text-stone-500 mr-1.5">₹</span>
               <input type="number" step="0.5" id="setting_topBwSingle" value="2" class="w-full bg-transparent text-sm font-black text-stone-900 focus:outline-none" />
             </div>
             <p class="text-[10px] text-stone-400 mt-1">per page</p>
@@ -554,7 +554,7 @@
           <div class="bg-white rounded-2xl border border-amber-200/80 p-3.5 shadow-xs">
             <label class="block text-[11px] font-bold text-stone-600 mb-1.5">A4 Colour</label>
             <div class="flex items-center bg-stone-50 rounded-xl border border-stone-200 px-3 py-1.5 focus-within:border-pgMaroon">
-              <span class="text-xs font-bold text-stone-500 mr-1.5">â‚¹</span>
+              <span class="text-xs font-bold text-stone-500 mr-1.5">₹</span>
               <input type="number" step="0.5" id="setting_topColorSingle" value="10" class="w-full bg-transparent text-sm font-black text-stone-900 focus:outline-none" />
             </div>
             <p class="text-[10px] text-stone-400 mt-1">per page</p>
@@ -752,7 +752,7 @@
           </div>
         </div>
         <button type="button" onclick="checkoutPlan(1999, 'Yearly Upgrade')" class="px-4 py-2 rounded-xl bg-pgRed hover:bg-pgRedHover text-white text-xs font-bold shadow-xs shrink-0 transition cursor-pointer">
-          Upgrade to Yearly (â‚¹1999) &rarr;
+          Upgrade to Yearly (₹1999) &rarr;
         </button>
       </div>
 
@@ -773,7 +773,7 @@
         <!-- TWO PLANS GRID -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
           
-          <!-- PLAN 1: MONTHLY (â‚¹299) -->
+          <!-- PLAN 1: MONTHLY (₹299) -->
           <div class="bg-white rounded-3xl border border-stone-200/90 p-6 flex flex-col justify-between shadow-xs">
             <div>
               <div class="flex items-center space-x-3 mb-4">
@@ -787,31 +787,31 @@
               <!-- Price Box -->
               <div class="mb-4">
                 <div class="flex items-baseline space-x-1.5">
-                  <span class="text-4xl font-black text-stone-900 font-sans">â‚¹299</span>
+                  <span class="text-4xl font-black text-stone-900 font-sans">₹299</span>
                   <span class="text-xs font-semibold text-stone-500">/month</span>
                 </div>
                 <div class="flex items-center space-x-2 mt-1">
-                  <span class="text-xs line-through text-stone-400">â‚¹499</span>
-                  <span class="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">Save â‚¹200</span>
+                  <span class="text-xs line-through text-stone-400">₹499</span>
+                  <span class="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">Save ₹200</span>
                 </div>
               </div>
 
               <!-- Features list -->
               <ul class="space-y-2.5 text-xs text-stone-700 py-3 border-t border-stone-100">
                 <li class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold">âœ“</span>
+                  <span class="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
                   <span>Permanent shop QR workflow</span>
                 </li>
                 <li class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold">âœ“</span>
+                  <span class="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
                   <span>Browser &amp; desktop print receiver</span>
                 </li>
                 <li class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold">âœ“</span>
+                  <span class="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
                   <span>Bills, reports and revenue tracking</span>
                 </li>
                 <li class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold">âœ“</span>
+                  <span class="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
                   <span>Payment integration controls</span>
                 </li>
               </ul>
@@ -825,7 +825,7 @@
             </div>
           </div>
 
-          <!-- PLAN 2: YEARLY (â‚¹1999) - HIGHLIGHTED -->
+          <!-- PLAN 2: YEARLY (₹1999) - HIGHLIGHTED -->
           <div class="bg-[#FFF48F] rounded-3xl border-2 border-pgRed p-6 flex flex-col justify-between shadow-sm relative">
             <span class="absolute -top-3 right-4 px-3 py-0.5 rounded-full bg-pgRed text-white text-[10px] font-black uppercase tracking-wider shadow">
               â­ BEST VALUE
@@ -843,31 +843,31 @@
               <!-- Price Box -->
               <div class="mb-4">
                 <div class="flex items-baseline space-x-1.5">
-                  <span class="text-4xl font-black text-stone-900 font-sans">â‚¹1999</span>
+                  <span class="text-4xl font-black text-stone-900 font-sans">₹1999</span>
                   <span class="text-xs font-semibold text-stone-700">/year</span>
                 </div>
                 <div class="flex items-center space-x-2 mt-1">
-                  <span class="text-xs line-through text-stone-500">â‚¹3588</span>
-                  <span class="px-2 py-0.5 rounded-full bg-teal-600 text-white text-[10px] font-bold">Save â‚¹1589</span>
+                  <span class="text-xs line-through text-stone-500">₹3588</span>
+                  <span class="px-2 py-0.5 rounded-full bg-teal-600 text-white text-[10px] font-bold">Save ₹1589</span>
                 </div>
               </div>
 
               <!-- Features list -->
               <ul class="space-y-2.5 text-xs text-stone-900 py-3 border-t border-amber-300/60 font-medium">
                 <li class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">âœ“</span>
+                  <span class="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
                   <span>Permanent shop QR workflow</span>
                 </li>
                 <li class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">âœ“</span>
+                  <span class="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
                   <span>Browser &amp; desktop print receiver</span>
                 </li>
                 <li class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">âœ“</span>
+                  <span class="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
                   <span>Bills, reports and revenue tracking</span>
                 </li>
                 <li class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">âœ“</span>
+                  <span class="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
                   <span>Payment integration controls</span>
                 </li>
               </ul>
@@ -906,7 +906,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
           <button type="button" onclick="checkoutPlan(1999, 'Yearly Upgrade')" class="py-3 px-6 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition">
             <span>💳</span>
-            <span>Upgrade now - â‚¹1999</span>
+            <span>Upgrade now - ₹1999</span>
           </button>
           
           <button type="button" onclick="checkoutPlan(1999, 'Yearly Autopay')" class="py-3 px-6 rounded-2xl bg-white hover:bg-stone-50 border border-stone-300 text-stone-900 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition">
@@ -935,17 +935,17 @@
             <div class="grid grid-cols-3 gap-3 pt-2">
               <div class="p-3 rounded-xl bg-stone-50 border border-stone-200">
                 <p class="text-[9px] font-black uppercase text-stone-500">OFFER PRICE</p>
-                <p class="text-xl font-black text-stone-900 font-sans mt-0.5">â‚¹1999</p>
+                <p class="text-xl font-black text-stone-900 font-sans mt-0.5">₹1999</p>
               </div>
 
               <div class="p-3 rounded-xl bg-stone-50 border border-stone-200">
                 <p class="text-[9px] font-black uppercase text-stone-500">STANDARD</p>
-                <p class="text-xl font-black text-stone-500 line-through font-sans mt-0.5">â‚¹3588</p>
+                <p class="text-xl font-black text-stone-500 line-through font-sans mt-0.5">₹3588</p>
               </div>
 
               <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
                 <p class="text-[9px] font-black uppercase text-emerald-700">YOU SAVE</p>
-                <p class="text-xl font-black text-emerald-700 font-sans mt-0.5">â‚¹1589</p>
+                <p class="text-xl font-black text-emerald-700 font-sans mt-0.5">₹1589</p>
               </div>
             </div>
 
@@ -960,7 +960,7 @@
             <div>
               <span class="text-[10px] font-black uppercase tracking-wider text-pgRed block">COMPLETE RENEWAL</span>
               <div class="my-2">
-                <span class="text-4xl font-black text-stone-900 font-sans">â‚¹1999</span>
+                <span class="text-4xl font-black text-stone-900 font-sans">₹1999</span>
                 <p class="text-xs text-stone-700 font-medium mt-0.5">Yearly membership</p>
               </div>
             </div>
@@ -968,7 +968,7 @@
             <div class="space-y-2.5">
               <button type="button" onclick="checkoutPlan(1999, 'Yearly Renewal')" class="w-full py-3 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition">
                 <span>💳</span>
-                <span>Pay â‚¹1999 â€¢ Renew</span>
+                <span>Pay ₹1999 • Renew</span>
               </button>
 
               <button type="button" onclick="checkoutPlan(1999, 'Yearly Autopay')" class="w-full py-3 rounded-2xl bg-white hover:bg-stone-50 border border-stone-300 text-stone-800 font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
@@ -1130,7 +1130,7 @@
               <!-- Poster Mockup Graphic -->
               <div class="bg-[#FFE266] rounded-2xl border-2 border-stone-800 p-3.5 text-center space-y-2 shadow-inner">
                 <div class="bg-pgRed text-white py-0.5 px-2 rounded-md text-[8px] font-black uppercase tracking-wider">
-                  PRINTGOO â€¢ SHOP QR
+                  PRINTGOO • SHOP QR
                 </div>
                 <p id="standee1PosterName" class="font-black text-xs text-stone-900 uppercase">PRINTGOO SMART PRINT DESK</p>
                 <p class="text-[8px] font-extrabold uppercase tracking-widest text-stone-700">SCAN HERE TO PRINT</p>
@@ -1176,7 +1176,7 @@
               <!-- Poster Mockup Graphic -->
               <div class="bg-[#A5E3E3] rounded-2xl border-2 border-stone-800 p-3.5 text-center space-y-2 shadow-inner">
                 <div class="bg-stone-900 text-white py-0.5 px-2 rounded-md text-[8px] font-black uppercase tracking-wider">
-                  PRINTGOO â€¢ UPLOAD BOX
+                  PRINTGOO • UPLOAD BOX
                 </div>
                 <p id="standee2PosterName" class="font-black text-xs text-stone-900 uppercase">PRINTGOO SMART PRINT DESK</p>
                 <p class="text-[8px] font-extrabold uppercase tracking-widest text-stone-800">PRIVATE FILE &amp; CHAT DROP</p>
@@ -1255,7 +1255,7 @@
         <!-- Left 2 Cols: Printer Configuration Form -->
         <div class="lg:col-span-2 bg-white rounded-3xl border border-stone-200/80 p-6 shadow-xs space-y-5">
           <div class="flex items-center space-x-2.5 pb-2 border-b border-stone-100">
-            <span class="text-base">ðŸ–¨ï¸</span>
+            <span class="text-base">🖨️</span>
             <h3 class="text-sm font-black text-stone-900">Printer configuration</h3>
           </div>
 
@@ -1359,7 +1359,7 @@
 
               <div class="py-2.5 flex items-center justify-between">
                 <span class="text-stone-500 font-medium">Machine</span>
-                <span class="font-bold text-stone-800">Browser â€¢ Win32</span>
+                <span class="font-bold text-stone-800">Browser • Win32</span>
               </div>
 
               <div class="py-2.5 flex items-center justify-between">
@@ -1468,11 +1468,11 @@
             <h3 class="text-sm font-black tracking-tight flex items-center gap-1.5">
               <span>PrintGoo Subscription Checkout</span>
             </h3>
-            <p class="text-[11px] text-amber-200/90 font-medium">Pay Admin Directly â€¢ 0% Platform Fee â€¢ Instant Activation</p>
+            <p class="text-[11px] text-amber-200/90 font-medium">Pay Admin Directly • 0% Platform Fee • Instant Activation</p>
           </div>
         </div>
         <button type="button" onclick="closeSubModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition">
-          âœ•
+          ✕
         </button>
       </div>
 
@@ -1488,7 +1488,7 @@
           </div>
           <div class="text-right">
             <span class="text-[10px] text-stone-400 uppercase font-semibold">Total Payable</span>
-            <p id="modalPlanAmount" class="text-2xl font-black text-pgMaroon">â‚¹1999</p>
+            <p id="modalPlanAmount" class="text-2xl font-black text-pgMaroon">₹1999</p>
           </div>
         </div>
 
@@ -1560,7 +1560,7 @@
       <div class="flex items-center justify-between pb-3 border-b border-stone-100">
         <div class="flex items-center space-x-2.5">
           <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-xs">
-            ðŸ’»
+            💻
           </div>
           <div>
             <h3 class="text-base font-black text-stone-900">Install PrintGoo on PC</h3>
@@ -1568,7 +1568,7 @@
           </div>
         </div>
         <button type="button" onclick="closeDownloadModal()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold transition cursor-pointer">
-          âœ•
+          ✕
         </button>
       </div>
 
@@ -1603,7 +1603,7 @@
         </button>
       </div>
 
-      <p class="text-[10px] text-stone-400 text-center font-medium">Compatible with Windows 10 &amp; 11 â€¢ Automatic Canon / HP / Epson auto-print</p>
+      <p class="text-[10px] text-stone-400 text-center font-medium">Compatible with Windows 10 &amp; 11 • Automatic Canon / HP / Epson auto-print</p>
     </div>
   </div>
 
@@ -1770,7 +1770,7 @@
       const previewImg = document.getElementById('liveUpiPreviewImg');
       
       if (!val) {
-        if (previewText) previewText.innerHTML = '<span class="text-amber-600 font-bold">âš ï¸ UPI ID not set yet! Enter your GPay/PhonePe UPI ID above.</span>';
+        if (previewText) previewText.innerHTML = '<span class="text-amber-600 font-bold">⚠️ UPI ID not set yet! Enter your GPay/PhonePe UPI ID above.</span>';
         if (previewImg) previewImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f3f4f6"/><text x="50" y="55" font-size="11" text-anchor="middle" fill="%239ca3af">No UPI Set</text></svg>';
         return;
       }
@@ -2005,7 +2005,7 @@
     function checkoutPlan(amount, planName) {
       currentSubCheckout = { amount, planName };
       document.getElementById('modalPlanTitle').textContent = planName;
-      document.getElementById('modalPlanAmount').textContent = `â‚¹${amount}`;
+      document.getElementById('modalPlanAmount').textContent = `₹${amount}`;
       document.getElementById('adminUpiIdText').textContent = ADMIN_SUBSCRIPTION_UPI;
 
       const upiUri = `upi://pay?pa=${ADMIN_SUBSCRIPTION_UPI}&pn=PrintGoo%20Subscription&am=${amount}&cu=INR&tn=${encodeURIComponent(planName)}`;
@@ -2128,7 +2128,7 @@
       document.getElementById('deskTodayOrders').textContent = jobsList.length;
       document.getElementById('deskPendingOrders').textContent = pending;
       document.getElementById('deskCompletedOrders').textContent = completed;
-      document.getElementById('deskTodayRevenue').textContent = `â‚¹${totalRev.toFixed(2)}`;
+      document.getElementById('deskTodayRevenue').textContent = `₹${totalRev.toFixed(2)}`;
 
       document.getElementById('waitingCountBadge').textContent = `(${pending} waiting)`;
       document.getElementById('queueWaitingTag').textContent = `${pending} waiting`;
@@ -2138,8 +2138,8 @@
         document.getElementById('kpi_total_bills').textContent = completed;
         document.getElementById('kpi_sub_total_bills').textContent = `${completed} printed jobs`;
 
-        document.getElementById('kpi_collected_revenue').textContent = `â‚¹${totalRev.toFixed(2)}`;
-        document.getElementById('kpi_sub_revenue').textContent = `â‚¹${totalRev.toFixed(2)} total billed â€¢ â‚¹${upiRev.toFixed(2)} online`;
+        document.getElementById('kpi_collected_revenue').textContent = `₹${totalRev.toFixed(2)}`;
+        document.getElementById('kpi_sub_revenue').textContent = `₹${totalRev.toFixed(2)} total billed • ₹${upiRev.toFixed(2)} online`;
 
         document.getElementById('kpi_bw_printed').textContent = bwUnits;
         document.getElementById('kpi_sub_bw').textContent = `${bwUnits} printed page units`;
@@ -2153,10 +2153,10 @@
         document.getElementById('kpi_print_units').textContent = totalPrintUnits;
 
         document.getElementById('kpi_paper_usage').textContent = `${a4Count} A4`;
-        document.getElementById('kpi_sub_paper').textContent = `${a3Count} A3 â€¢ ${duplexCount} duplex jobs`;
+        document.getElementById('kpi_sub_paper').textContent = `${a3Count} A3 • ${duplexCount} duplex jobs`;
 
-        document.getElementById('kpi_cash_due').textContent = `â‚¹${cashDue.toFixed(2)}`;
-        document.getElementById('kpi_sub_cash_due').textContent = `â‚¹${upiPending.toFixed(2)} UPI awaiting review`;
+        document.getElementById('kpi_cash_due').textContent = `₹${cashDue.toFixed(2)}`;
+        document.getElementById('kpi_sub_cash_due').textContent = `₹${upiPending.toFixed(2)} UPI awaiting review`;
       }
 
       // Render Queue items, Recent Orders & Bills Tables
@@ -2193,7 +2193,7 @@
             <td class="py-2 px-2.5">${bw}</td>
             <td class="py-2 px-2.5">${clr}</td>
             <td class="py-2 px-2.5 font-mono">${units}</td>
-            <td class="py-2 px-2.5 text-right font-black font-mono">â‚¹${rev.toFixed(2)}</td>
+            <td class="py-2 px-2.5 text-right font-black font-mono">₹${rev.toFixed(2)}</td>
           </tr>
         `;
       }
@@ -2205,7 +2205,7 @@
             <td class="py-2 px-2.5">${comp.length}</td>
             <td class="py-2 px-2.5">${comp.length}</td>
             <td class="py-2 px-2.5 font-mono">${units}</td>
-            <td class="py-2 px-2.5 text-right font-black font-mono">â‚¹${rev.toFixed(2)}</td>
+            <td class="py-2 px-2.5 text-right font-black font-mono">₹${rev.toFixed(2)}</td>
           </tr>
         `;
       }
@@ -2250,13 +2250,13 @@
             <td class="py-2.5 px-3 font-semibold text-stone-900 truncate max-w-[150px]">
               <a href="${j.fileUrl || '#'}" target="_blank" class="hover:text-pgRed hover:underline">${j.fileName}</a>
             </td>
-            <td class="py-2.5 px-3 text-center">${j.pages || 1}p Ã— ${j.copies || 1}c</td>
+            <td class="py-2.5 px-3 text-center">${j.pages || 1}p × ${j.copies || 1}c</td>
             <td class="py-2.5 px-3 text-center">
               <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${j.colorMode === 'color' ? 'bg-pink-100 text-pink-800' : 'bg-stone-100 text-stone-700'}">
                 ${j.colorMode === 'color' ? 'Colour' : 'B&W'}
               </span>
             </td>
-            <td class="py-2.5 px-3 text-right font-mono font-bold text-stone-900">â‚¹${(j.totalAmount || 0).toFixed(2)}</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold text-stone-900">₹${(j.totalAmount || 0).toFixed(2)}</td>
             <td class="py-2.5 px-3 text-center">
               <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${j.paymentMode === 'upi' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
                 ${(j.paymentMode || 'cash').toUpperCase()}
@@ -2289,22 +2289,22 @@
                 <a href="${job.fileUrl}" target="_blank" class="font-bold text-xs text-stone-900 hover:text-pgRed truncate block underline decoration-stone-300">
                   ${job.fileName}
                 </a>
-                <p class="text-[10px] text-stone-500">${job.pages}p Ã— ${job.copies}c â€¢ ${job.colorMode === 'color' ? 'Color' : 'B&W'} â€¢ ${job.paperSize}</p>
+                <p class="text-[10px] text-stone-500">${job.pages}p × ${job.copies}c • ${job.colorMode === 'color' ? 'Color' : 'B&W'} • ${job.paperSize}</p>
               </div>
             </div>
             
             <div class="flex items-center space-x-2">
-              <span class="font-black text-xs text-stone-900">â‚¹${(job.totalAmount || 0).toFixed(2)}</span>
+              <span class="font-black text-xs text-stone-900">₹${(job.totalAmount || 0).toFixed(2)}</span>
               ${isCash ? `
                 <button type="button" onclick="approveJob('${job.id}')" class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow-xs">
                   Collect & Print
                 </button>
               ` : `
                 <button type="button" onclick="printJob('${job.id}', '${job.fileUrl}')" class="px-2.5 py-1 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-[10px] shadow-xs">
-                  ðŸ–¨ï¸ Print
+                  🖨️ Print
                 </button>
               `}
-              <button type="button" onclick="markDone('${job.id}')" class="p-1 rounded-lg text-emerald-700 hover:bg-emerald-50 text-xs" title="Done">âœ“</button>
+              <button type="button" onclick="markDone('${job.id}')" class="p-1 rounded-lg text-emerald-700 hover:bg-emerald-50 text-xs" title="Done">✓</button>
             </div>
           </div>
         `;
@@ -2324,7 +2324,7 @@
                 <span class="font-semibold text-stone-800">${j.fileName}</span>
               </div>
               <div class="flex items-center space-x-2">
-                <span class="font-mono font-bold">â‚¹${(j.totalAmount || 0).toFixed(2)}</span>
+                <span class="font-mono font-bold">₹${(j.totalAmount || 0).toFixed(2)}</span>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${j.jobStatus === 'completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
                   ${j.jobStatus}
                 </span>
@@ -2346,13 +2346,13 @@
         <tr class="hover:bg-pgBg transition">
           <td class="py-2.5 px-3 font-mono font-bold text-pgMaroon">${j.token}</td>
           <td class="py-2.5 px-3 font-semibold text-stone-900 truncate max-w-[150px]">${j.fileName}</td>
-          <td class="py-2.5 px-3 text-center">${j.pages}p Ã— ${j.copies}c</td>
+          <td class="py-2.5 px-3 text-center">${j.pages}p × ${j.copies}c</td>
           <td class="py-2.5 px-3 text-center">
             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${j.colorMode === 'color' ? 'bg-pink-100 text-pink-800' : 'bg-stone-100 text-stone-700'}">
               ${j.colorMode === 'color' ? 'Color' : 'B&W'}
             </span>
           </td>
-          <td class="py-2.5 px-3 text-right font-mono font-bold text-stone-900">â‚¹${(j.totalAmount || 0).toFixed(2)}</td>
+          <td class="py-2.5 px-3 text-right font-mono font-bold text-stone-900">₹${(j.totalAmount || 0).toFixed(2)}</td>
           <td class="py-2.5 px-3 text-center">
             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${j.paymentMode === 'upi' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
               ${(j.paymentMode || 'cash').toUpperCase()}
@@ -2422,8 +2422,8 @@
         const msg = document.createElement('div');
         msg.className = 'p-2.5 rounded-xl bg-amber-50 border border-amber-200';
         msg.innerHTML = `
-          <p class="text-[10px] font-bold text-amber-800">NEW PRINT JOB â€¢ ${newJob.token}</p>
-          <p class="text-stone-800 font-semibold text-[11px]">${newJob.fileName} (${newJob.pages}p Ã— ${newJob.copies}c)</p>
+          <p class="text-[10px] font-bold text-amber-800">NEW PRINT JOB • ${newJob.token}</p>
+          <p class="text-stone-800 font-semibold text-[11px]">${newJob.fileName} (${newJob.pages}p × ${newJob.copies}c)</p>
         `;
         feed.prepend(msg);
 
