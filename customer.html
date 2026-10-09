@@ -134,25 +134,55 @@
         </div>
 
         <!-- Preview state -->
-        <div id="portalDropPreview" class="hidden flex items-center justify-between p-2 rounded-xl bg-white border border-stone-200">
-          <div class="flex items-center space-x-2.5 text-left truncate">
-            <div id="previewIcon" class="w-10 h-10 rounded-xl bg-red-100 text-red-700 font-black text-xs flex items-center justify-center shrink-0 uppercase">
-              PDF
-            </div>
-            <div class="truncate">
-              <p id="previewName" class="text-xs font-bold text-stone-900 truncate">document.pdf</p>
-              <div class="flex items-center space-x-1.5 text-[10px] text-stone-500 mt-0.5">
-                <span id="previewSize">1.2 MB</span>
-                <span>•</span>
-                <span id="previewPagesBadge" class="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">
-                  Calculating...
-                </span>
+        <div id="portalDropPreview" class="hidden p-3 rounded-2xl bg-white border border-stone-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2.5 text-left truncate">
+              <div id="previewIcon" class="w-10 h-10 rounded-xl bg-red-100 text-red-700 font-black text-xs flex items-center justify-center shrink-0 uppercase">
+                PDF
+              </div>
+              <div class="truncate">
+                <p id="previewName" class="text-xs font-bold text-stone-900 truncate">document.pdf</p>
+                <div class="flex items-center space-x-1.5 text-[10px] text-stone-500 mt-0.5">
+                  <span id="previewSize">1.2 MB</span>
+                  <span>•</span>
+                  <span id="previewPagesBadge" class="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">
+                    Calculating...
+                  </span>
+                </div>
               </div>
             </div>
+            <button type="button" id="btnRemoveUploadedFile" class="p-1 text-stone-400 hover:text-pgRed rounded-lg">
+              ✕
+            </button>
           </div>
-          <button type="button" id="btnRemoveUploadedFile" class="p-1 text-stone-400 hover:text-pgRed rounded-lg">
-            ✕
-          </button>
+
+          <!-- Smart Image Xerox/Doc Enhancement Panel -->
+          <div id="imageEnhanceBox" class="hidden p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-left space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">
+                <span>🪄</span> Auto-Clean Document:
+              </span>
+              <span id="filterAppliedBadge" class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-200 text-amber-900">
+                Magic Clean (Xerox)
+              </span>
+            </div>
+            
+            <!-- Live Preview -->
+            <div class="relative rounded-lg overflow-hidden bg-stone-100 border border-stone-200 max-h-48 flex items-center justify-center p-1">
+              <canvas id="filterCanvas" class="hidden max-h-44 rounded object-contain"></canvas>
+              <img id="imagePreviewImg" class="max-h-44 object-contain rounded" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <button type="button" id="btnFilterMagic" class="py-1.5 px-2 rounded-xl text-xs font-bold bg-pgMaroon text-white shadow-xs flex items-center justify-center gap-1 transition">
+                <span>🪄</span> Magic Clean (B&W)
+              </button>
+              <button type="button" id="btnFilterOriginal" class="py-1.5 px-2 rounded-xl text-xs font-bold bg-white text-stone-700 border border-stone-200 hover:bg-stone-100 flex items-center justify-center gap-1 transition">
+                <span>🖼️</span> Original Photo
+              </button>
+            </div>
+            <p class="text-[10px] text-stone-500 text-center">Auto-removes yellow shadows & makes background pure white.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -420,9 +450,61 @@
       return formatted;
     }
 
+    // Image Enhancement State
+    let originalImageFile = null;
+    let enhancedImageBlob = null;
+    let activeFilterMode = 'magic'; // 'magic' or 'original'
+
+    // Clean image using Canvas algorithm (pure white background & crisp contrast)
+    async function enhanceImageToXerox(imageFile) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const d = imgData.data;
+
+          // Smart Document Enhancement (Adaptive binarization / White background boost)
+          for (let i = 0; i < d.length; i += 4) {
+            // Relative luminance
+            const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+            
+            // If near white / grey background shadow -> Push to pure white (255)
+            // If dark text -> Push to deep black / high contrast
+            let enhanced = gray;
+            if (gray > 140) {
+              // Smoothly ramp up background to pure white
+              enhanced = Math.min(255, 140 + (gray - 140) * 2.2);
+            } else {
+              // Deepen dark text
+              enhanced = Math.max(0, gray * 0.75);
+            }
+
+            d[i] = enhanced;
+            d[i + 1] = enhanced;
+            d[i + 2] = enhanced;
+          }
+
+          ctx.putImageData(imgData, 0, 0);
+          canvas.toBlob((blob) => {
+            resolve({ blob, dataUrl: canvas.toDataURL('image/jpeg', 0.92) });
+          }, 'image/jpeg', 0.92);
+        };
+        img.src = URL.createObjectURL(imageFile);
+      });
+    }
+
     // File Inspector (Client PDF.js & Image)
     async function processFile(file) {
       selectedFile = file;
+      originalImageFile = null;
+      enhancedImageBlob = null;
+
       document.getElementById('previewName').textContent = file.name;
       document.getElementById('previewSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
 
@@ -430,10 +512,13 @@
       document.getElementById('portalDropPreview').classList.remove('hidden');
 
       const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+      const isImg = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(file.name);
       const icon = document.getElementById('previewIcon');
       const badge = document.getElementById('previewPagesBadge');
+      const enhanceBox = document.getElementById('imageEnhanceBox');
 
       if (isPdf) {
+        if (enhanceBox) enhanceBox.classList.add('hidden');
         icon.textContent = 'PDF';
         icon.className = 'w-10 h-10 rounded-xl bg-red-100 text-red-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
         badge.textContent = 'Inspecting PDF...';
@@ -452,15 +537,89 @@
           detectedPages = 1;
           badge.textContent = '1 Page';
         }
-      } else {
+      } else if (isImg) {
         icon.textContent = 'IMG';
         icon.className = 'w-10 h-10 rounded-xl bg-sky-100 text-sky-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
         detectedPages = 1;
         badge.textContent = '1 Photo / Page';
+
+        // Auto Document Clean for images
+        originalImageFile = file;
+        if (enhanceBox) {
+          enhanceBox.classList.remove('hidden');
+          const previewImg = document.getElementById('imagePreviewImg');
+          previewImg.src = URL.createObjectURL(file);
+
+          // Apply default Magic Clean automatically
+          setFilterMode('magic');
+        }
+      } else {
+        if (enhanceBox) enhanceBox.classList.add('hidden');
+        icon.textContent = 'DOC';
+        icon.className = 'w-10 h-10 rounded-xl bg-amber-100 text-amber-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
+        detectedPages = 1;
+        badge.textContent = '1 Document';
       }
 
       calcTotal();
     }
+
+    async function setFilterMode(mode) {
+      activeFilterMode = mode;
+      const previewImg = document.getElementById('imagePreviewImg');
+      const btnMagic = document.getElementById('btnFilterMagic');
+      const btnOrig = document.getElementById('btnFilterOriginal');
+      const badge = document.getElementById('filterAppliedBadge');
+
+      if (mode === 'magic') {
+        if (btnMagic) {
+          btnMagic.className = 'py-1.5 px-2 rounded-xl text-xs font-bold bg-pgMaroon text-white shadow-xs flex items-center justify-center gap-1 transition';
+        }
+        if (btnOrig) {
+          btnOrig.className = 'py-1.5 px-2 rounded-xl text-xs font-bold bg-white text-stone-700 border border-stone-200 hover:bg-stone-100 flex items-center justify-center gap-1 transition';
+        }
+        if (badge) {
+          badge.textContent = 'Magic Clean (Xerox)';
+          badge.className = 'text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-200 text-amber-900';
+        }
+
+        // Process image data
+        if (originalImageFile) {
+          if (!enhancedImageBlob) {
+            const res = await enhanceImageToXerox(originalImageFile);
+            enhancedImageBlob = res.blob;
+            previewImg.src = res.dataUrl;
+          } else {
+            previewImg.src = URL.createObjectURL(enhancedImageBlob);
+          }
+          // Wrap blob into a File object with proper name
+          selectedFile = new File([enhancedImageBlob], 'clean_' + originalImageFile.name, { type: 'image/jpeg' });
+        }
+      } else {
+        // Original mode
+        if (btnOrig) {
+          btnOrig.className = 'py-1.5 px-2 rounded-xl text-xs font-bold bg-pgMaroon text-white shadow-xs flex items-center justify-center gap-1 transition';
+        }
+        if (btnMagic) {
+          btnMagic.className = 'py-1.5 px-2 rounded-xl text-xs font-bold bg-white text-stone-700 border border-stone-200 hover:bg-stone-100 flex items-center justify-center gap-1 transition';
+        }
+        if (badge) {
+          badge.textContent = 'Original Photo';
+          badge.className = 'text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-stone-200 text-stone-700';
+        }
+
+        if (originalImageFile) {
+          selectedFile = originalImageFile;
+          previewImg.src = URL.createObjectURL(originalImageFile);
+        }
+      }
+    }
+
+    // Attach filter switch click listeners
+    const btnMagicEl = document.getElementById('btnFilterMagic');
+    if (btnMagicEl) btnMagicEl.addEventListener('click', () => setFilterMode('magic'));
+    const btnOrigEl = document.getElementById('btnFilterOriginal');
+    if (btnOrigEl) btnOrigEl.addEventListener('click', () => setFilterMode('original'));
 
     document.getElementById('portalFileInput').addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) processFile(e.target.files[0]);
@@ -469,6 +628,8 @@
     document.getElementById('btnRemoveUploadedFile').addEventListener('click', (e) => {
       e.stopPropagation();
       selectedFile = null;
+      originalImageFile = null;
+      enhancedImageBlob = null;
       document.getElementById('portalFileInput').value = '';
       detectedPages = 1;
       document.getElementById('portalDropPreview').classList.add('hidden');
