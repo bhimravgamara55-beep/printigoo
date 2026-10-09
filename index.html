@@ -49,9 +49,6 @@
       font-style: italic;
     }
   </style>
-
-  <!-- Web App Manifest for Desktop App Installation -->
-  <link rel="manifest" href="/manifest.json">
 </head>
 <body class="bg-pgBg min-h-screen flex flex-col antialiased selection:bg-pgYellow selection:text-pgMaroon">
 
@@ -67,22 +64,11 @@
       <span class="text-[10px] text-stone-500 font-bold tracking-wider mt-0.5 ml-1">Print | Pay | Get it Done</span>
     </div>
 
-    <!-- Right Header: Download PC App + Call for Setup Button + Tagline -->
-    <div class="flex items-center gap-2.5">
-      <a href="/download/print-station" download class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-xs cursor-pointer" title="Download Windows Print Station">
-        <span>💻</span>
-        <span>Download PC App</span>
-      </a>
-
-      <a href="tel:+919909577877" class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition shadow-xs">
-        <span>📞</span>
-        <span>Call for setup: <span class="font-black text-emerald-900 font-mono">9909577877</span></span>
-      </a>
-      <div class="text-right hidden sm:block">
-        <p class="text-xs font-bold text-stone-700">Simple Prints</p>
-        <p class="text-xs font-bold text-amber-600">Happier People</p>
-        <div class="h-0.5 w-16 bg-amber-400 ml-auto mt-0.5 rounded-full"></div>
-      </div>
+    <!-- Right Header Tagline -->
+    <div class="text-right hidden sm:block">
+      <p class="text-xs font-bold text-stone-700">Simple Prints</p>
+      <p class="text-xs font-bold text-amber-600">Happier People</p>
+      <div class="h-0.5 w-16 bg-amber-400 ml-auto mt-0.5 rounded-full"></div>
     </div>
   </header>
 
@@ -173,7 +159,7 @@
                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </span>
-                <input type="text" id="loginUsername" placeholder="Enter Shop Name / Username (e.g. Patel Xerox)" value="" required class="w-full pl-10 pr-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
+                <input type="text" id="loginUsername" placeholder="Username / Shop ID" value="gamara" required class="w-full pl-10 pr-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
               </div>
             </div>
 
@@ -183,18 +169,15 @@
                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </span>
-                <input type="password" id="loginPassword" placeholder="Enter Password" value="" required class="w-full pl-10 pr-10 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
+                <input type="password" id="loginPassword" placeholder="Password" value="123456" required class="w-full pl-10 pr-10 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
                 <button type="button" onclick="togglePassVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600">
                   👁️
                 </button>
               </div>
             </div>
 
-            <!-- Error Message Alert -->
-            <div id="loginErrorBox" class="hidden text-xs font-bold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200 text-center"></div>
-
             <!-- Login Button -->
-            <button type="submit" id="btnLoginSubmit" class="w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover active:scale-[0.99] text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 transition cursor-pointer">
+            <button type="submit" class="w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover active:scale-[0.99] text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 transition">
               <span>Login</span>
               <span>&rarr;</span>
             </button>
@@ -203,16 +186,16 @@
           <!-- Free Trial Link -->
           <div class="text-center mt-5">
             <p class="text-xs text-stone-500 font-medium">New to PrintGoo?</p>
-            <a href="/register?plan=free" class="text-xs font-bold text-sky-600 hover:underline inline-block mt-0.5">
-              Click here to register &amp; start 7-day free trial &rarr;
+            <a href="#pricing" class="text-xs font-bold text-sky-600 hover:underline inline-block mt-0.5">
+              Click here to start free trial
             </a>
           </div>
 
           <!-- Call for Setup Button -->
           <div class="mt-4">
-            <a href="tel:+919909577877" class="w-full py-3 rounded-2xl bg-pgGreen hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-2 transition shadow-sm">
+            <a href="tel:+919800012345" class="w-full py-3 rounded-2xl bg-pgGreen hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-2 transition shadow-sm">
               <span>📞</span>
-              <span>Call for setup (+91 9909577877)</span>
+              <span>Call for setup (+91 98000 12345)</span>
             </a>
           </div>
 
@@ -331,7 +314,7 @@
             
             <div class="my-3">
               <span class="text-3xl font-black text-stone-900">₹0</span>
-              <span class="text-xs text-stone-500 font-medium">for 7 days</span>
+              <span class="text-xs text-stone-500 font-medium">for 2 days</span>
             </div>
 
             <ul class="space-y-2 text-xs text-stone-600 mt-4">
@@ -347,8 +330,8 @@
             </ul>
           </div>
 
-          <button type="button" onclick="window.location.href='/register?plan=free'" class="mt-6 w-full py-3 rounded-2xl bg-white border border-stone-300 hover:border-pgMaroon text-stone-800 font-bold text-xs flex items-center justify-center gap-1 transition shadow-sm cursor-pointer">
-            <span>Start 7-day free trial</span>
+          <button type="button" onclick="window.location.href='/dashboard/gamara-enterprises'" class="mt-6 w-full py-3 rounded-2xl bg-white border border-stone-300 hover:border-pgMaroon text-stone-800 font-bold text-xs flex items-center justify-center gap-1 transition shadow-sm">
+            <span>Start registration</span>
             <span>&rarr;</span>
           </button>
         </div>
@@ -378,13 +361,13 @@
             </ul>
           </div>
 
-          <button type="button" onclick="window.location.href='/register?plan=monthly'" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs flex items-center justify-center gap-1 transition shadow-md cursor-pointer">
-            <span>Choose Monthly Plan</span>
+          <button type="button" onclick="window.location.href='/dashboard/gamara-enterprises'" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs flex items-center justify-center gap-1 transition shadow-md">
+            <span>View current price</span>
             <span>&rarr;</span>
           </button>
         </div>
 
-        <!-- Card 3: Yearly Plan (₹1999) -->
+        <!-- Card 3: Yearly Plan (₹1499) -->
         <div class="rounded-3xl bg-gradient-to-b from-[#FFFDF2] to-[#FFF5D4] border-2 border-amber-400 p-6 flex flex-col justify-between shadow-md relative">
           <div>
             <div class="flex items-center space-x-1.5 mb-1">
@@ -416,8 +399,8 @@
             </ul>
           </div>
 
-          <button type="button" onclick="window.location.href='/register?plan=yearly'" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-black text-xs flex items-center justify-center gap-1 transition shadow-md cursor-pointer">
-            <span>Choose Yearly Offer</span>
+          <button type="button" onclick="window.location.href='/dashboard/gamara-enterprises'" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-black text-xs flex items-center justify-center gap-1 transition shadow-md">
+            <span>View yearly offer</span>
             <span>&rarr;</span>
           </button>
         </div>
@@ -448,14 +431,12 @@
         <p class="font-bold text-stone-800">PrintGoo</p>
         <p class="text-[11px]">&copy; 2026 PrintGoo. All rights reserved.</p>
       </div>
-      <div class="flex items-center space-x-4 sm:space-x-6 text-[11px] font-medium text-stone-600">
+      <div class="flex items-center space-x-6 text-[11px] font-medium text-stone-600">
         <a href="#features" class="hover:text-stone-900">Print shop software</a>
         <span>•</span>
         <a href="#pricing" class="hover:text-stone-900">QR workflow</a>
         <span>•</span>
-        <a href="/download/print-station" download class="text-blue-600 hover:underline font-bold">💻 PC App</a>
-        <span>•</span>
-        <a href="/admin" class="hover:text-stone-900 font-semibold">🔒 Admin</a>
+        <a href="#pricing" class="hover:text-stone-900">Payments & subscriptions</a>
       </div>
     </div>
   </footer>
@@ -467,48 +448,16 @@
       p.type = p.type === 'password' ? 'text' : 'password';
     }
 
-    async function handleLogin(e) {
+    function handleLogin(e) {
       e.preventDefault();
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value.trim();
-      const errBox = document.getElementById('loginErrorBox');
-      const btn = document.getElementById('btnLoginSubmit');
-
-      errBox.classList.add('hidden');
-      btn.disabled = true;
-      btn.innerHTML = '<span>Verifying...</span>';
-
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-
-        if (data.success && data.shop) {
-          const s = data.shop;
-          localStorage.setItem('printgoo_current_user', s.name);
-          localStorage.setItem('printgoo_current_slug', s.slug);
-          if (s.upiId) localStorage.setItem('printgoo_shop_upi', s.upiId);
-          if (s.address) localStorage.setItem('printgoo_city', s.address);
-          if (s.phone) localStorage.setItem('printgoo_mobile', s.phone);
-          if (s.subscription?.validUntil) localStorage.setItem('printgoo_trial_until', s.subscription.validUntil);
-
-          window.location.href = `/dashboard/${s.slug}`;
-        } else {
-          errBox.textContent = data.error || 'Login failed. Please check username and password.';
-          errBox.classList.remove('hidden');
-          btn.disabled = false;
-          btn.innerHTML = '<span>Login</span><span>&rarr;</span>';
-        }
-      } catch (err) {
-        console.error('Login error:', err);
-        errBox.textContent = 'Server connection error. Please try again.';
-        errBox.classList.remove('hidden');
-        btn.disabled = false;
-        btn.innerHTML = '<span>Login</span><span>&rarr;</span>';
-      }
+      const raw = document.getElementById('loginUsername').value.trim();
+      const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-xerox';
+      
+      // Save session in localStorage
+      localStorage.setItem('printgoo_current_user', raw);
+      localStorage.setItem('printgoo_current_slug', slug);
+      
+      window.location.href = `/dashboard/${slug}`;
     }
   </script>
 </body>

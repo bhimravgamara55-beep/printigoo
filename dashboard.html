@@ -196,6 +196,12 @@
             🔔
           </button>
 
+          <!-- Demo Video Button (Exact original UI style) -->
+          <button type="button" onclick="openDemoVideoModal()" class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-pgMaroon hover:bg-pgMaroonDark active:scale-95 text-white text-[11px] font-bold shadow-xs transition cursor-pointer" title="Watch Demo Video">
+            <span>🎬</span>
+            <span>Demo Video</span>
+          </button>
+
           <!-- Download PC App Button -->
           <button type="button" onclick="openDownloadModal()" class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[11px] font-bold shadow-xs transition cursor-pointer" title="Download PrintGoo on your PC">
             <span>💻</span>
@@ -575,7 +581,7 @@
       <!-- 2. SHOP PROFILE CARD -->
       <div class="bg-white rounded-3xl border border-stone-200/80 p-6 shadow-xs space-y-4">
         <div class="flex items-center space-x-2.5 pb-2 border-b border-stone-100">
-          <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs">/span>
+          <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs">🏢</span>
           <div>
             <h3 class="text-sm font-black text-stone-900">Shop profile</h3>
             <p class="text-[11px] text-stone-500">Details customers and PrintGoo use to identify this store.</p>
@@ -623,7 +629,7 @@
             <div class="flex items-center gap-2">
               <input type="text" id="setting_upiId" oninput="updateLiveUpiQr()" placeholder="e.g. 9909577877@paytm or yourname@okhdfcbank" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-stone-900 font-mono font-bold text-xs focus:outline-none focus:border-pgMaroon shadow-2xs" />
               <button type="button" onclick="testLiveUpiQr()" class="px-4 py-2.5 rounded-xl bg-pgMaroon hover:bg-pgMaroonDark text-white font-bold text-xs shrink-0 shadow-xs flex items-center gap-1.5 transition">
-                <span></span>
+                <span>🔍</span>
                 <span>Test QR</span>
               </button>
             </div>
@@ -828,7 +834,7 @@
           <!-- PLAN 2: YEARLY (₹1999) - HIGHLIGHTED -->
           <div class="bg-[#FFF48F] rounded-3xl border-2 border-pgRed p-6 flex flex-col justify-between shadow-sm relative">
             <span class="absolute -top-3 right-4 px-3 py-0.5 rounded-full bg-pgRed text-white text-[10px] font-black uppercase tracking-wider shadow">
-              BEST VALUE
+              â­ BEST VALUE
             </span>
 
             <div>
@@ -888,7 +894,7 @@
       <div class="bg-[#FFF48F] rounded-3xl border border-amber-300 p-6 shadow-xs space-y-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
-            <span class="w-7 h-7 rounded-full bg-pgRed text-white flex items-center justify-center text-xs">✨</span>
+            <span class="w-7 h-7 rounded-full bg-pgRed text-white flex items-center justify-center text-xs">âœ¨</span>
             <span class="text-[10px] font-black uppercase tracking-wider text-pgRed">PREMIUM UPGRADE</span>
           </div>
           <span class="px-3 py-1 rounded-full bg-stone-900 text-white text-[10px] font-black uppercase tracking-wider shadow-xs">
@@ -1007,7 +1013,7 @@
         <!-- Inner Razorpay Overview Box -->
         <div class="bg-white rounded-2xl border-2 border-stone-200/90 p-4 flex items-center justify-between shadow-xs">
           <div class="flex items-center space-x-3">
-            <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-black">⚡</span>
+            <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-black">âš¡</span>
             <div>
               <p class="font-black text-sm text-stone-900">Razorpay</p>
               <p class="text-[11px] text-stone-400">Cards, UPI and online payments</p>
@@ -1023,7 +1029,7 @@
       <div class="bg-white rounded-3xl border border-stone-200/80 p-6 md:p-8 shadow-xs space-y-5">
         <div class="flex items-center justify-between pb-3 border-b border-stone-100">
           <div class="flex items-center space-x-2.5">
-            <span class="w-7 h-7 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-black">⚡</span>
+            <span class="w-7 h-7 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-black">âš¡</span>
             <div>
               <h3 class="text-sm font-black text-stone-900">Razorpay setup</h3>
               <p class="text-[11px] text-stone-500">Connect this shop's own Razorpay account.</p>
@@ -1147,7 +1153,7 @@
               </div>
 
               <!-- URL Textbox -->
-              <input type="text" id="standee1UrlText" readonly value="" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-stone-50 border border-stone-200 text-stone-600 select-all" />
+              <input type="text" id="standee1UrlText" readonly value="https://printgo✅in/q/my-shop" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-stone-50 border border-stone-200 text-stone-600 select-all" />
 
               <div class="space-y-2">
                 <button type="button" onclick="downloadQrPng('direct')" class="w-full py-2.5 rounded-xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
@@ -1156,7 +1162,7 @@
                 </button>
 
                 <button type="button" onclick="openDirectPortal()" class="w-full py-2 rounded-xl bg-white border border-stone-300 hover:bg-stone-50 text-stone-800 font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
-                  <span></span>
+                  <span>â†—ï¸</span>
                   <span>Open customer page</span>
                 </button>
               </div>
@@ -1193,7 +1199,7 @@
               </div>
 
               <!-- URL Textbox -->
-              <input type="text" id="standee2UrlText" readonly value="" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-white border border-teal-200 text-teal-800 select-all" />
+              <input type="text" id="standee2UrlText" readonly value="https://printgo✅in/q/my-shop?box=1" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-white border border-teal-200 text-teal-800 select-all" />
 
               <div class="space-y-2">
                 <button type="button" onclick="downloadQrPng('uploadbox')" class="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
@@ -1202,7 +1208,7 @@
                 </button>
 
                 <button type="button" onclick="openDirectPortal()" class="w-full py-2 rounded-xl bg-white border border-teal-300 hover:bg-teal-50 text-teal-900 font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
-                  <span></span>
+                  <span>â†—ï¸</span>
                   <span>Open Upload Box</span>
                 </button>
               </div>
@@ -1228,7 +1234,7 @@
       <div class="bg-white rounded-3xl border border-stone-200/80 p-6 md:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-start space-x-3.5">
           <div class="w-10 h-10 rounded-2xl bg-blue-500 text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
-            💻
+            🪟
           </div>
           <div>
             <span class="text-[10px] font-black uppercase tracking-wider text-blue-600 block mb-0.5">WINDOWS APP</span>
@@ -1271,7 +1277,7 @@
                 <input type="text" id="setting_bwHardwareName" value="HP LaserJet Pro M404n" class="w-full px-3 py-2 rounded-xl border border-stone-200 bg-stone-50 text-stone-900 font-semibold focus:outline-none" />
                 <button type="button" onclick="choosePrinter('bw')" class="px-3 py-2 rounded-xl bg-white border border-stone-300 hover:bg-stone-50 font-bold text-stone-700 text-xs shrink-0 shadow-xs flex items-center gap-1">
                   <span>Choose</span>
-                  <span class="text-[10px]">▾</span>
+                  <span class="text-[10px]">â–¾</span>
                 </button>
               </div>
             </div>
@@ -1282,7 +1288,7 @@
                 <input type="text" id="setting_colorHardwareName" value="Epson / Canon IR C3530" class="w-full px-3 py-2 rounded-xl border border-stone-200 bg-stone-50 text-stone-900 font-semibold focus:outline-none" />
                 <button type="button" onclick="choosePrinter('color')" class="px-3 py-2 rounded-xl bg-white border border-stone-300 hover:bg-stone-50 font-bold text-stone-700 text-xs shrink-0 shadow-xs flex items-center gap-1">
                   <span>Choose</span>
-                  <span class="text-[10px]">▾</span>
+                  <span class="text-[10px]">â–¾</span>
                 </button>
               </div>
             </div>
@@ -1445,7 +1451,7 @@
         <div class="relative">
           <input type="text" placeholder="Select a customer message" readonly class="w-full pl-3 pr-8 py-2 rounded-xl border border-stone-200 bg-stone-50 text-[11px] text-stone-500 focus:outline-none" />
           <button type="button" class="absolute inset-y-0 right-1 my-auto w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs">
-            ➤
+            âž¤
           </button>
         </div>
       </div>
@@ -1534,7 +1540,7 @@
 
           <div class="pt-2">
             <button type="submit" id="btnSubmitSub" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black text-xs shadow-md flex items-center justify-center gap-2 transition">
-              <span>✅</span>
+              <span>âœ…</span>
               <span>Verify &amp; Activate My Account</span>
             </button>
           </div>
@@ -1578,7 +1584,7 @@
         <a href="/download/print-station" download class="block p-4 rounded-2xl bg-blue-50/70 border border-blue-200 hover:bg-blue-100/60 transition group cursor-pointer">
           <div class="flex items-start justify-between">
             <div class="flex items-center space-x-3">
-              <span class="text-2xl">💻</span>
+              <span class="text-2xl">🪟</span>
               <div>
                 <p class="text-xs font-black text-blue-900">Windows Print Station Setup</p>
                 <p class="text-[11px] text-blue-700 mt-0.5">Creates Desktop icon &amp; connects local printer</p>
@@ -1592,7 +1598,7 @@
         <button type="button" onclick="installPwaApp()" class="w-full text-left p-4 rounded-2xl bg-amber-50/70 border border-amber-200 hover:bg-amber-100/60 transition cursor-pointer">
           <div class="flex items-start justify-between">
             <div class="flex items-center space-x-3">
-              <span class="text-2xl">⚡</span>
+              <span class="text-2xl">âš¡</span>
               <div>
                 <p class="text-xs font-black text-amber-900">1-Click Chrome / Edge Desktop App</p>
                 <p class="text-[11px] text-amber-700 mt-0.5">Runs full-screen like native software without URL bar</p>
@@ -1636,7 +1642,7 @@
           deferredPrompt = null;
         });
       } else {
-        alert('To install PrintGoo directly on your PC:\n\n1. Look at the address bar in your browser (Google Chrome or Microsoft Edge).\n2. Click the "Install" icon (or menu ⋮ > "Install PrintGoo").\n3. PrintGoo will be placed on your Windows Desktop as an independent PC software!');
+        alert('To install PrintGoo directly on your PC:\n\n1. Look at the address bar in your browser (Google Chrome or Microsoft Edge).\n2. Click the "Install" icon (or menu â‹® > "Install PrintGoo").\n3. PrintGoo will be placed on your Windows Desktop as an independent PC software!');
       }
     }
 
@@ -1686,7 +1692,7 @@
       const parts = window.location.pathname.split('/').filter(Boolean);
       if (parts.length >= 2 && parts[0] === 'dashboard') return parts[1].toLowerCase();
       const p = new URLSearchParams(window.location.search);
-      return (p.get('shop') || 'gamara-enterprises').toLowerCase();
+      return (p.get('shop') || 'my-shop').toLowerCase();
     }
 
     const currentShopSlug = getShopSlug();
@@ -1831,15 +1837,14 @@
         if (el) el.textContent = sName.toUpperCase();
       });
 
-      // Update standee URLs dynamically based on actual live host origin
-      const baseOrigin = window.location.origin;
-      const directUrl = `${baseOrigin}/q/${currentShopSlug}`;
+      // Update standee URLs
+      const directUrl = `https://printgo✅in/q/${currentShopSlug}`;
       const standee1Url = document.getElementById('standee1UrlText');
       if (standee1Url) standee1Url.value = directUrl;
       const imgDirect = document.getElementById('qrPosterDirectImg');
       if (imgDirect) imgDirect.src = `https://quickchart.io/qr?text=${encodeURIComponent(directUrl)}&size=300&margin=2`;
 
-      const uploadBoxUrl = `${baseOrigin}/q/${currentShopSlug}?box=1`;
+      const uploadBoxUrl = `https://printgo✅in/q/${currentShopSlug}?box=1`;
       const standee2Url = document.getElementById('standee2UrlText');
       if (standee2Url) standee2Url.value = uploadBoxUrl;
       const imgBox = document.getElementById('qrPosterUploadBoxImg');
@@ -1886,8 +1891,7 @@
     }
 
     function downloadQrPng(type) {
-      const baseOrigin = window.location.origin;
-      const url = type === 'direct' ? `${baseOrigin}/q/${currentShopSlug}` : `${baseOrigin}/q/${currentShopSlug}?box=1`;
+      const url = type === 'direct' ? `https://printgo✅in/q/${currentShopSlug}` : `https://printgo✅in/q/${currentShopSlug}?box=1`;
       const qrApi = `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=800&margin=2`;
       window.open(qrApi, '_blank');
     }
@@ -2063,7 +2067,7 @@
         closeSubModal();
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>✅</span><span>Verify &amp; Activate My Account</span>';
+        btn.innerHTML = '<span>âœ…</span><span>Verify &amp; Activate My Account</span>';
       }
     }
 
@@ -2443,6 +2447,67 @@
     loadShop();
     loadJobs();
   </script>
+
+  <!-- DEMO VIDEO MODAL (Original UI Style) -->
+  <div id="demoVideoModal" class="hidden fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full border border-stone-200 shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-pgBg">
+        <div class="flex items-center space-x-2.5">
+          <span class="w-8 h-8 rounded-full bg-pgYellow text-pgMaroon flex items-center justify-center text-sm font-bold shadow-xs">🎬</span>
+          <div>
+            <h3 class="text-sm font-black text-stone-900">PrintGoo Live Walkthrough &amp; Demo</h3>
+            <p class="text-[11px] text-stone-500">Customer QR Scan ➔ File received on Live Desk ➔ Instant Print</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeDemoVideoModal()" class="w-7 h-7 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-600 font-bold flex items-center justify-center transition">✕</button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black flex items-center justify-center shadow-inner">
+          <video id="demoVideoPlayer" controls class="w-full h-full object-cover">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div class="p-3 rounded-2xl bg-pgBg border border-stone-200">
+            <p class="font-black text-pgMaroon mb-0.5">1. Customer QR</p>
+            <p class="text-[10px] text-stone-600">Customer scans shop QR and uploads PDF/Photos directly.</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-pgBg border border-stone-200">
+            <p class="font-black text-pgMaroon mb-0.5">2. Live Receiving</p>
+            <p class="text-[10px] text-stone-600">Files &amp; exact payment arrive in real-time with sound chime.</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-pgBg border border-stone-200">
+            <p class="font-black text-pgMaroon mb-0.5">3. Direct Print</p>
+            <p class="text-[10px] text-stone-600">Hardware prints instantly via auto-print or 1-click Print.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-stone-50 border-t border-stone-100 flex justify-end">
+        <button type="button" onclick="closeDemoVideoModal()" class="px-5 py-2 rounded-xl bg-pgMaroon hover:bg-pgMaroonDark text-white font-bold text-xs transition">
+          Close Demo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openDemoVideoModal() {
+      const modal = document.getElementById('demoVideoModal');
+      if (modal) modal.classList.remove('hidden');
+      const v = document.getElementById('demoVideoPlayer');
+      if (v) v.play().catch(() => {});
+    }
+    function closeDemoVideoModal() {
+      const modal = document.getElementById('demoVideoModal');
+      if (modal) modal.classList.add('hidden');
+      const v = document.getElementById('demoVideoPlayer');
+      if (v) v.pause();
+    }
+  </script>
+
 </body>
 </html>
 
