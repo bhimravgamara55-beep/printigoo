@@ -1159,7 +1159,7 @@
               </div>
 
               <!-- URL Textbox -->
-              <input type="text" id="standee1UrlText" readonly value="https://printgo✅in/q/my-shop" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-stone-50 border border-stone-200 text-stone-600 select-all" />
+              <input type="text" id="standee1UrlText" readonly value="https://printgoo.in/q/my-shop" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-stone-50 border border-stone-200 text-stone-600 select-all" />
 
               <div class="space-y-2">
                 <button type="button" onclick="downloadQrPng('direct')" class="w-full py-2.5 rounded-xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
@@ -1205,7 +1205,7 @@
               </div>
 
               <!-- URL Textbox -->
-              <input type="text" id="standee2UrlText" readonly value="https://printgo✅in/q/my-shop?box=1" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-white border border-teal-200 text-teal-800 select-all" />
+              <input type="text" id="standee2UrlText" readonly value="https://printgoo.in/q/my-shop?box=1" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-white border border-teal-200 text-teal-800 select-all" />
 
               <div class="space-y-2">
                 <button type="button" onclick="downloadQrPng('uploadbox')" class="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
@@ -1843,14 +1843,17 @@
         if (el) el.textContent = sName.toUpperCase();
       });
 
-      // Update standee URLs
-      const directUrl = `https://printgo✅in/q/${currentShopSlug}`;
+      // Update standee URLs (Clean standard HTTPS url without emojis so phones open directly)
+      const baseOrigin = (window.location && window.location.origin && window.location.origin.startsWith('http')) 
+        ? window.location.origin 
+        : 'https://printgoo.in';
+      const directUrl = `${baseOrigin}/q/${currentShopSlug}`;
       const standee1Url = document.getElementById('standee1UrlText');
       if (standee1Url) standee1Url.value = directUrl;
       const imgDirect = document.getElementById('qrPosterDirectImg');
       if (imgDirect) imgDirect.src = `https://quickchart.io/qr?text=${encodeURIComponent(directUrl)}&size=300&margin=2`;
 
-      const uploadBoxUrl = `https://printgo✅in/q/${currentShopSlug}?box=1`;
+      const uploadBoxUrl = `${baseOrigin}/q/${currentShopSlug}?box=1`;
       const standee2Url = document.getElementById('standee2UrlText');
       if (standee2Url) standee2Url.value = uploadBoxUrl;
       const imgBox = document.getElementById('qrPosterUploadBoxImg');
@@ -1897,7 +1900,10 @@
     }
 
     function downloadQrPng(type) {
-      const url = type === 'direct' ? `https://printgo✅in/q/${currentShopSlug}` : `https://printgo✅in/q/${currentShopSlug}?box=1`;
+      const baseOrigin = (window.location && window.location.origin && window.location.origin.startsWith('http')) 
+        ? window.location.origin 
+        : 'https://printgoo.in';
+      const url = type === 'direct' ? `${baseOrigin}/q/${currentShopSlug}` : `${baseOrigin}/q/${currentShopSlug}?box=1`;
       const qrApi = `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=800&margin=2`;
       window.open(qrApi, '_blank');
     }
