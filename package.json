@@ -1,26 +1,21 @@
 {
-  "name": "printgoo-web",
+  "name": "printgoo",
   "version": "1.0.0",
-  "private": true,
+  "description": "PrintGoo - Xerox Shop QR Scan-to-Print SaaS",
+  "main": "index.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "build": "node -e \"console.log('Build completed successfully')\"",
+    "start": "node index.js"
   },
   "dependencies": {
-    "lucide-react": "^0.383.0",
-    "next": "14.2.3",
-    "pdf-lib": "^1.17.9",
-    "pdfjs-dist": "^3.11.174",
-    "qrcode.react": "^3.1.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "socket.io-client": "^4.7.5"
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "pdf-lib": "^1.17.1",
+    "socket.io": "^4.7.5",
+    "uuid": "^9.0.1"
   },
-  "devDependencies": {
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3"
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

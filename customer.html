@@ -117,7 +117,7 @@
 
       <!-- Dropzone -->
       <div id="dropzoneBox" class="relative group cursor-pointer border-2 border-dashed border-stone-300 hover:border-pgMaroon rounded-2xl p-6 text-center bg-pgBg hover:bg-stone-50 transition">
-        <input type="file" id="portalFileInput" accept=".pdf,image/png,image/jpeg,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+        <input type="file" id="portalFileInput" multiple accept=".pdf,image/png,image/jpeg,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
 
         <!-- Placeholder state -->
         <div id="portalDropEmpty" class="space-y-2">
@@ -125,7 +125,7 @@
             📄
           </div>
           <div>
-            <p class="text-xs font-bold text-stone-800">Tap to select PDF or Photos</p>
+            <p class="text-xs font-bold text-stone-800">Tap to select PDF or Photos (Unlimited Selection)</p>
             <p class="text-[11px] text-stone-400">or drag & drop your document here</p>
           </div>
           <span class="inline-block px-3 py-1 rounded-xl bg-pgYellow text-pgMaroon text-xs font-bold border border-amber-300">
@@ -420,54 +420,74 @@
       return formatted;
     }
 
-    // File Inspector (Client PDF.js & Image)
-    async function processFile(file) {
-      selectedFile = file;
-      document.getElementById('previewName').textContent = file.name;
-      document.getElementById('previewSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+    // Multi-File Inspector (Unlimited Files / Photos / PDFs)
+    async function processFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+      selectedFiles = Array.from(fileList);
+      selectedFile = selectedFiles[0];
 
       document.getElementById('portalDropEmpty').classList.add('hidden');
       document.getElementById('portalDropPreview').classList.remove('hidden');
 
-      const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
       const icon = document.getElementById('previewIcon');
+      const nameEl = document.getElementById('previewName');
+      const sizeEl = document.getElementById('previewSize');
       const badge = document.getElementById('previewPagesBadge');
 
-      if (isPdf) {
-        icon.textContent = 'PDF';
-        icon.className = 'w-10 h-10 rounded-xl bg-red-100 text-red-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
-        badge.textContent = 'Inspecting PDF...';
+      let totalBytes = 0;
+      let totalPagesCount = 0;
+      badge.textContent = 'Calculating pages...';
 
-        try {
-          if (window.pdfjsLib) {
-            const buf = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-            detectedPages = pdf.numPages || 1;
-            badge.textContent = `${detectedPages} Page${detectedPages > 1 ? 's' : ''}`;
-          } else {
-            detectedPages = 1;
-            badge.textContent = '1 Page';
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        totalBytes += file.size;
+        const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+
+        if (isPdf) {
+          try {
+            if (window.pdfjsLib) {
+              const buf = await file.arrayBuffer();
+              const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+              totalPagesCount += (pdf.numPages || 1);
+            } else {
+              totalPagesCount += 1;
+            }
+          } catch (e) {
+            totalPagesCount += 1;
           }
-        } catch (e) {
-          detectedPages = 1;
-          badge.textContent = '1 Page';
+        } else {
+          // Each photo counts as 1 page
+          totalPagesCount += 1;
         }
+      }
+
+      detectedPages = Math.max(1, totalPagesCount);
+      const totalMb = (totalBytes / (1024 * 1024)).toFixed(2);
+      sizeEl.textContent = totalMb + ' MB';
+
+      if (selectedFiles.length === 1) {
+        nameEl.textContent = selectedFiles[0].name;
+        const isPdf = selectedFiles[0].name.toLowerCase().endsWith('.pdf');
+        icon.textContent = isPdf ? 'PDF' : 'IMG';
+        icon.className = isPdf ? 'w-10 h-10 rounded-xl bg-red-100 text-red-700 font-black text-xs flex items-center justify-center shrink-0 uppercase' : 'w-10 h-10 rounded-xl bg-sky-100 text-sky-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
+        badge.textContent = `${detectedPages} Page${detectedPages > 1 ? 's' : ''}`;
       } else {
-        icon.textContent = 'IMG';
-        icon.className = 'w-10 h-10 rounded-xl bg-sky-100 text-sky-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
-        detectedPages = 1;
-        badge.textContent = '1 Photo / Page';
+        nameEl.textContent = `${selectedFiles.length} Files Selected`;
+        icon.textContent = 'DOCS';
+        icon.className = 'w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 font-black text-xs flex items-center justify-center shrink-0 uppercase';
+        badge.textContent = `${detectedPages} Total Pages (${selectedFiles.length} Files)`;
       }
 
       calcTotal();
     }
 
     document.getElementById('portalFileInput').addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) processFile(e.target.files[0]);
+      if (e.target.files && e.target.files.length > 0) processFiles(e.target.files);
     });
 
     document.getElementById('btnRemoveUploadedFile').addEventListener('click', (e) => {
       e.stopPropagation();
+      selectedFiles = [];
       selectedFile = null;
       document.getElementById('portalFileInput').value = '';
       detectedPages = 1;
@@ -538,13 +558,18 @@
 
     // Submit Job
     async function uploadJob(paymentMode) {
-      if (!selectedFile) {
+      if (!selectedFiles || selectedFiles.length === 0) {
         alert('Please select a PDF document or image file first.');
         return null;
       }
 
       const fd = new FormData();
-      fd.append('file', selectedFile);
+      fd.append('file', selectedFiles[0]);
+      if (selectedFiles.length > 1) {
+        for (let i = 1; i < selectedFiles.length; i++) {
+          fd.append('additionalFiles', selectedFiles[i]);
+        }
+      }
       fd.append('clientPages', detectedPages);
       fd.append('copies', copies);
       fd.append('colorMode', colorMode);

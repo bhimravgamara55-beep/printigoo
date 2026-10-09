@@ -196,10 +196,16 @@
             🔔
           </button>
 
-          <!-- Demo Video Button (Exact original UI style) -->
+          <!-- Demo Video Button -->
           <button type="button" onclick="openDemoVideoModal()" class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-pgMaroon hover:bg-pgMaroonDark active:scale-95 text-white text-[11px] font-bold shadow-xs transition cursor-pointer" title="Watch Demo Video">
             <span>🎬</span>
             <span>Demo Video</span>
+          </button>
+
+          <!-- Smart Crop & 3-Filter Studio Button -->
+          <button type="button" onclick="openCropStudio()" class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-pgYellow hover:bg-amber-300 active:scale-95 text-pgMaroon border border-amber-300 text-[11px] font-bold shadow-xs transition cursor-pointer" title="Crop &amp; Filters: Original, Lighten, B&amp;W">
+            <span>✂️</span>
+            <span>Crop Studio</span>
           </button>
 
           <!-- Download PC App Button -->
@@ -2306,8 +2312,11 @@
                   Collect & Print
                 </button>
               ` : `
-                <button type="button" onclick="printJob('${job.id}', '${job.fileUrl}')" class="px-2.5 py-1 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-[10px] shadow-xs">
-                  🖨️ Print
+                <button type="button" onclick="printJob('${job.id}', '${job.fileUrl}')" class="px-2.5 py-1 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-[10px] shadow-xs" title="1-Click Direct Print">
+                  🖨️ Direct Print
+                </button>
+                <button type="button" onclick="openCropStudio('${job.id}', '${job.fileUrl}')" class="px-2 py-1 rounded-xl bg-pgYellow hover:bg-amber-300 text-pgMaroon border border-amber-300 font-bold text-[10px] shadow-xs transition" title="Crop &amp; Apply Filters (Original / Lighten / B&amp;W)">
+                  ✂️ Crop &amp; Fix
                 </button>
               `}
               <button type="button" onclick="markDone('${job.id}')" class="p-1 rounded-lg text-emerald-700 hover:bg-emerald-50 text-xs" title="Done">✓</button>
@@ -2505,6 +2514,318 @@
       if (modal) modal.classList.add('hidden');
       const v = document.getElementById('demoVideoPlayer');
       if (v) v.pause();
+    }
+  </script>
+
+
+  <!-- SMART CROP & 3-FILTER STUDIO MODAL (Original, Lighten, B&W) -->
+  <div id="cropStudioModal" class="hidden fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-3xl max-w-4xl w-full border border-stone-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      
+      <!-- Studio Header -->
+      <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-pgBg shrink-0">
+        <div class="flex items-center space-x-2.5">
+          <span class="w-8 h-8 rounded-full bg-pgYellow text-pgMaroon flex items-center justify-center text-sm font-bold shadow-xs">✂️</span>
+          <div>
+            <h3 class="text-sm font-black text-stone-900">Document Crop &amp; Filter Studio</h3>
+            <p class="text-[11px] text-stone-500">1. Adjust Crop Box ➔ 2. Select Filter (Original / Lighten / B&amp;W) ➔ 3. Direct Print</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCropStudio()" class="w-7 h-7 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-600 font-bold flex items-center justify-center transition">✕</button>
+      </div>
+
+      <!-- Studio Body -->
+      <div class="p-6 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left: Canvas Cropper (8 cols) -->
+        <div class="lg:col-span-8 space-y-3">
+          <div class="relative w-full aspect-[4/3] bg-stone-900 rounded-2xl overflow-hidden border border-stone-800 flex items-center justify-center select-none shadow-inner">
+            <canvas id="studioCanvas" class="max-w-full max-h-full object-contain cursor-crosshair"></canvas>
+            
+            <div id="canvasEmptyMsg" class="hidden text-center text-stone-400 p-6">
+              <p class="text-3xl mb-2">📸</p>
+              <p class="text-xs font-bold text-stone-200">No Photo Selected</p>
+              <p class="text-[11px] text-stone-400 mt-1">Select unlimited photos to crop and filter.</p>
+              <label class="mt-3 inline-block px-4 py-2 bg-pgMaroon hover:bg-pgMaroonDark text-white rounded-xl text-xs font-bold cursor-pointer shadow-xs">
+                Browse Photos (Unlimited)
+                <input type="file" multiple accept="image/*,.pdf" class="hidden" onchange="loadStudioFiles(this.files)">
+              </label>
+            </div>
+          </div>
+
+          <!-- Quick Canvas Toolbar -->
+          <div class="flex items-center justify-between text-xs pt-1">
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="rotateStudioImage(-90)" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold transition">
+                ↺ Rotate Left
+              </button>
+              <button type="button" onclick="rotateStudioImage(90)" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold transition">
+                ↻ Rotate Right
+              </button>
+              <button type="button" onclick="resetStudioCrop()" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold transition">
+                Reset Box
+              </button>
+            </div>
+
+            <!-- Page Navigation for Multi-Photos -->
+            <div id="studioPageNav" class="hidden flex items-center gap-2">
+              <button type="button" onclick="prevStudioPage()" class="px-2 py-1 rounded bg-stone-100 hover:bg-stone-200 font-bold text-xs">◀</button>
+              <span id="studioPageIndicator" class="text-xs font-bold text-stone-700">Page 1 of 1</span>
+              <button type="button" onclick="nextStudioPage()" class="px-2 py-1 rounded bg-stone-100 hover:bg-stone-200 font-bold text-xs">▶</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 3 Filters (Original, Lighten, B&W) & Preview (4 cols) -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="bg-pgBg rounded-2xl border border-stone-200 p-4 space-y-3">
+            <label class="block text-xs font-black uppercase tracking-wider text-pgMaroon">3 Document Filters</label>
+            
+            <div class="grid grid-cols-1 gap-2">
+              <!-- 1. Original -->
+              <button type="button" id="filterBtn_original" onclick="applyStudioFilter('original')" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-stone-200 text-stone-800 font-bold text-xs flex items-center justify-between shadow-2xs transition">
+                <span>Original</span>
+                <span class="text-[10px] text-stone-400">Natural</span>
+              </button>
+
+              <!-- 2. Lighten -->
+              <button type="button" id="filterBtn_lighten" onclick="applyStudioFilter('lighten')" class="w-full px-3.5 py-2.5 rounded-xl bg-pgMaroon text-white font-bold text-xs flex items-center justify-between shadow-xs transition">
+                <span>✨ Lighten</span>
+                <span class="text-[10px] text-amber-200">White Background</span>
+              </button>
+
+              <!-- 3. B&W -->
+              <button type="button" id="filterBtn_bw" onclick="applyStudioFilter('bw')" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-stone-200 text-stone-800 font-bold text-xs flex items-center justify-between shadow-2xs transition">
+                <span>⬛ B&amp;W</span>
+                <span class="text-[10px] text-stone-400">Xerox High-Contrast</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- A4 Output Preview Simulation -->
+          <div class="bg-pgBg rounded-2xl border border-stone-200 p-4 space-y-2">
+            <label class="block text-xs font-black uppercase tracking-wider text-stone-700">A4 Print Output</label>
+            <div class="w-full aspect-[1/1.414] bg-white rounded-xl border border-stone-300 shadow-sm p-2 flex items-center justify-center overflow-hidden">
+              <img id="simPreviewImg" class="max-w-full max-h-full object-contain" />
+            </div>
+            <p class="text-[10px] text-stone-500 text-center">Ready for Direct Hardware Print</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Studio Footer -->
+      <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 flex items-center justify-between shrink-0">
+        <label class="text-xs font-bold text-pgMaroon hover:underline cursor-pointer">
+          + Add More Photos
+          <input type="file" multiple accept="image/*" class="hidden" onchange="loadStudioFiles(this.files)">
+        </label>
+        
+        <div class="flex items-center space-x-2.5">
+          <button type="button" onclick="closeCropStudio()" class="px-4 py-2 rounded-xl bg-white hover:bg-stone-100 border border-stone-200 text-stone-700 font-bold text-xs transition">
+            Cancel
+          </button>
+          <button type="button" onclick="printStudioDirect()" class="px-6 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition active:scale-98 cursor-pointer flex items-center gap-1.5">
+            <span>🖨️</span>
+            <span>Print Now (A4)</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let studioImages = [];
+    let studioCurrentIndex = 0;
+    let studioFilter = 'lighten'; // 'original', 'lighten', 'bw'
+    let studioRotation = 0;
+    let studioCrop = { x: 0.05, y: 0.05, w: 0.9, h: 0.9 };
+
+    function openCropStudio(jobId, imageUrl) {
+      const modal = document.getElementById('cropStudioModal');
+      if (modal) modal.classList.remove('hidden');
+
+      if (imageUrl) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          studioImages = [img];
+          studioCurrentIndex = 0;
+          document.getElementById('canvasEmptyMsg').classList.add('hidden');
+          updateStudioPageNav();
+          drawStudioCanvas();
+        };
+        img.src = imageUrl;
+      } else {
+        if (studioImages.length === 0) {
+          document.getElementById('canvasEmptyMsg').classList.remove('hidden');
+        } else {
+          document.getElementById('canvasEmptyMsg').classList.add('hidden');
+          drawStudioCanvas();
+        }
+      }
+    }
+
+    function closeCropStudio() {
+      const modal = document.getElementById('cropStudioModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function loadStudioFiles(files) {
+      if (!files || files.length === 0) return;
+      const fileArr = Array.from(files);
+      let loaded = 0;
+
+      fileArr.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            studioImages.push(img);
+            loaded++;
+            if (loaded === fileArr.length) {
+              studioCurrentIndex = studioImages.length - fileArr.length;
+              document.getElementById('canvasEmptyMsg').classList.add('hidden');
+              updateStudioPageNav();
+              drawStudioCanvas();
+            }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function updateStudioPageNav() {
+      const nav = document.getElementById('studioPageNav');
+      const indicator = document.getElementById('studioPageIndicator');
+      if (studioImages.length > 1) {
+        nav.classList.remove('hidden');
+        indicator.textContent = `Page ${studioCurrentIndex + 1} of ${studioImages.length}`;
+      } else {
+        nav.classList.add('hidden');
+      }
+    }
+
+    function prevStudioPage() {
+      if (studioCurrentIndex > 0) {
+        studioCurrentIndex--;
+        updateStudioPageNav();
+        drawStudioCanvas();
+      }
+    }
+
+    function nextStudioPage() {
+      if (studioCurrentIndex < studioImages.length - 1) {
+        studioCurrentIndex++;
+        updateStudioPageNav();
+        drawStudioCanvas();
+      }
+    }
+
+    function rotateStudioImage(deg) {
+      studioRotation = (studioRotation + deg + 360) % 360;
+      drawStudioCanvas();
+    }
+
+    function resetStudioCrop() {
+      studioCrop = { x: 0.05, y: 0.05, w: 0.9, h: 0.9 };
+      drawStudioCanvas();
+    }
+
+    function applyStudioFilter(fKey) {
+      studioFilter = fKey;
+      ['original', 'lighten', 'bw'].forEach(f => {
+        const btn = document.getElementById('filterBtn_' + f);
+        if (btn) {
+          if (f === fKey) {
+            btn.className = 'w-full px-3.5 py-2.5 rounded-xl bg-pgMaroon text-white font-bold text-xs flex items-center justify-between shadow-xs transition';
+          } else {
+            btn.className = 'w-full px-3.5 py-2.5 rounded-xl bg-white border border-stone-200 text-stone-800 font-bold text-xs flex items-center justify-between shadow-2xs transition';
+          }
+        }
+      });
+      drawStudioCanvas();
+    }
+
+    function drawStudioCanvas() {
+      const canvas = document.getElementById('studioCanvas');
+      if (!canvas || studioImages.length === 0) return;
+      const ctx = canvas.getContext('2d');
+      const img = studioImages[studioCurrentIndex];
+      if (!img) return;
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((studioRotation * Math.PI) / 180);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      ctx.restore();
+
+      // Process 3 Filters: Original, Lighten, B&W
+      if (studioFilter === 'bw' || studioFilter === 'lighten') {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = imgData.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+          if (studioFilter === 'bw') {
+            const v = gray > 140 ? 255 : 0;
+            d[i] = v; d[i+1] = v; d[i+2] = v;
+          } else if (studioFilter === 'lighten') {
+            // Lighten: cleans document paper background while preserving text sharpness
+            const v = gray > 185 ? 255 : Math.max(0, gray * 0.85);
+            d[i] = v; d[i+1] = v; d[i+2] = v;
+          }
+        }
+        ctx.putImageData(imgData, 0, 0);
+      }
+
+      // Draw Crop Box Outline
+      const bx = studioCrop.x * canvas.width;
+      const by = studioCrop.y * canvas.height;
+      const bw = studioCrop.w * canvas.width;
+      const bh = studioCrop.h * canvas.height;
+
+      ctx.strokeStyle = '#78251B';
+      ctx.lineWidth = Math.max(3, canvas.width * 0.005);
+      ctx.strokeRect(bx, by, bw, bh);
+
+      // Shadow overlay outside crop
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.fillRect(0, 0, canvas.width, by);
+      ctx.fillRect(0, by + bh, canvas.width, canvas.height - (by + bh));
+      ctx.fillRect(0, by, bx, bh);
+      ctx.fillRect(bx + bw, by, canvas.width - (bx + bw), bh);
+
+      // Update A4 Simulation Preview
+      const sim = document.getElementById('simPreviewImg');
+      if (sim) sim.src = canvas.toDataURL('image/jpeg', 0.85);
+    }
+
+    function printStudioDirect() {
+      const canvas = document.getElementById('studioCanvas');
+      if (!canvas) return;
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <html>
+          <head>
+            <title>PrintGoo A4 Direct Print</title>
+            <style>
+              @page { size: A4; margin: 10mm; }
+              body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+              img { max-width: 95%; max-height: 95%; object-fit: contain; }
+            </style>
+          </head>
+          <body>
+            <img src="${canvas.toDataURL('image/jpeg', 0.95)}" />
+            <script>window.onload = function() { window.print(); window.close(); }<\/script>
+          </body>
+        </html>
+      `);
+      win.document.close();
     }
   </script>
 
