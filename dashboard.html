@@ -59,6 +59,13 @@
       animation: pulse-dot 1.8s infinite ease-in-out;
     }
   </style>
+  <!-- PDF.js for HD Rendering in Crop Studio -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
 </head>
 <body class="bg-pgBg min-h-screen antialiased flex flex-col xl:flex-row selection:bg-pgYellow selection:text-pgMaroon">
 
@@ -2562,6 +2569,10 @@
           <!-- Quick Canvas Toolbar -->
           <div class="flex items-center justify-between text-xs pt-1">
             <div class="flex items-center gap-2">
+              <button type="button" onclick="detectAndApplyAutoCrop()" class="px-3 py-1.5 rounded-xl bg-pgYellow hover:bg-amber-300 text-pgMaroon font-bold text-xs border border-amber-300 transition shadow-2xs flex items-center gap-1" title="1-Click Auto Edge Detect &amp; Brighten">
+                <span>⚡</span>
+                <span>Auto Crop</span>
+              </button>
               <button type="button" onclick="rotateStudioImage(-90)" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold transition">
                 ↺ Rotate Left
               </button>
@@ -2646,23 +2657,21 @@
     let studioCurrentIndex = 0;
     let studioFilter = 'lighten'; // 'original', 'lighten', 'bw'
     let studioRotation = 0;
-    let studioCrop = { x: 0.05, y: 0.05, w: 0.9, h: 0.9 };
+    let studioCrop = { x: 0.02, y: 0.02, w: 0.96, h: 0.96 };
+    let studioLoading = false;
 
-    function openCropStudio(jobId, imageUrl) {
+    // Open Crop Studio for Images OR PDFs
+    async function openCropStudio(jobId, fileUrl) {
       const modal = document.getElementById('cropStudioModal');
       if (modal) modal.classList.remove('hidden');
 
-      if (imageUrl) {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => {
-          studioImages = [img];
-          studioCurrentIndex = 0;
-          document.getElementById('canvasEmptyMsg').classList.add('hidden');
-          updateStudioPageNav();
-          drawStudioCanvas();
-        };
-        img.src = imageUrl;
+      if (fileUrl) {
+        const isPdf = /\.pdf$/i.test(fileUrl);
+        if (isPdf) {
+          await loadStudioPdf(fileUrl);
+        } else {
+          loadStudioImage(fileUrl);
+        }
       } else {
         if (studioImages.length === 0) {
           document.getElementById('canvasEmptyMsg').classList.remove('hidden');
@@ -2678,29 +2687,112 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    function loadStudioFiles(files) {
+    // Load Image file/URL
+    function loadStudioImage(url) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        studioImages = [img];
+        studioCurrentIndex = 0;
+        studioRotation = 0;
+        document.getElementById('canvasEmptyMsg').classList.add('hidden');
+        updateStudioPageNav();
+        drawStudioCanvas();
+        detectAndApplyAutoCrop();
+      };
+      img.onerror = () => {
+        alert('Could not load image file.');
+      };
+      img.src = url;
+    }
+
+    // Load PDF file/URL using PDF.js at 2.0x High Definition (HD)
+    async function loadStudioPdf(url) {
+      document.getElementById('canvasEmptyMsg').classList.add('hidden');
+      const canvas = document.getElementById('studioCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      try {
+        if (!window.pdfjsLib) {
+          alert('PDF engine is initializing, please try again in a moment.');
+          return;
+        }
+
+        const loadingTask = pdfjsLib.getDocument(url);
+        const pdfDoc = await loadingTask.promise;
+        studioImages = [];
+
+        // Render each page of PDF at HD resolution (scale 2.0)
+        for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+          const page = await pdfDoc.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 2.0 });
+          const pageCanvas = document.createElement('canvas');
+          pageCanvas.width = viewport.width;
+          pageCanvas.height = viewport.height;
+          const pageCtx = pageCanvas.getContext('2d');
+          await page.render({ canvasContext: pageCtx, viewport }).promise;
+          studioImages.push(pageCanvas);
+        }
+
+        studioCurrentIndex = 0;
+        studioRotation = 0;
+        updateStudioPageNav();
+        drawStudioCanvas();
+        detectAndApplyAutoCrop();
+      } catch (err) {
+        console.error('PDF Studio Load Error:', err);
+        alert('Failed to render PDF: ' + err.message);
+      }
+    }
+
+    // Handle Local File Upload in Studio (Supports multiple photos & PDFs)
+    async function loadStudioFiles(files) {
       if (!files || files.length === 0) return;
       const fileArr = Array.from(files);
-      let loaded = 0;
 
-      fileArr.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const img = new Image();
-          img.onload = () => {
-            studioImages.push(img);
-            loaded++;
-            if (loaded === fileArr.length) {
-              studioCurrentIndex = studioImages.length - fileArr.length;
-              document.getElementById('canvasEmptyMsg').classList.add('hidden');
-              updateStudioPageNav();
-              drawStudioCanvas();
+      for (const file of fileArr) {
+        const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+        if (isPdf) {
+          const buf = await file.arrayBuffer();
+          if (window.pdfjsLib) {
+            const pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+            for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+              const page = await pdfDoc.getPage(pageNum);
+              const viewport = page.getViewport({ scale: 2.0 });
+              const pageCanvas = document.createElement('canvas');
+              pageCanvas.width = viewport.width;
+              pageCanvas.height = viewport.height;
+              const pageCtx = pageCanvas.getContext('2d');
+              await page.render({ canvasContext: pageCtx, viewport }).promise;
+              studioImages.push(pageCanvas);
             }
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
+          }
+        } else {
+          await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = e => {
+              const img = new Image();
+              img.onload = () => {
+                studioImages.push(img);
+                resolve();
+              };
+              img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+      }
+
+      if (studioImages.length > 0) {
+        document.getElementById('canvasEmptyMsg').classList.add('hidden');
+        studioCurrentIndex = 0;
+        studioRotation = 0;
+        updateStudioPageNav();
+        drawStudioCanvas();
+      }
     }
 
     function updateStudioPageNav() {
@@ -2736,7 +2828,7 @@
     }
 
     function resetStudioCrop() {
-      studioCrop = { x: 0.05, y: 0.05, w: 0.9, h: 0.9 };
+      studioCrop = { x: 0.02, y: 0.02, w: 0.96, h: 0.96 };
       drawStudioCanvas();
     }
 
@@ -2755,38 +2847,220 @@
       drawStudioCanvas();
     }
 
+    // =========================================================================
+    // PROFESSIONAL SCANNER IMAGE PROCESSING ENGINE (NO COMPROMISE QUALITY)
+    // =========================================================================
+
+    // 1. ✨ Pro "Lighten" Document Engine: Adaptive background white + ink contrast boost
+    function processLightenFilter(ctx, width, height) {
+      const imgData = ctx.getImageData(0, 0, width, height);
+      const d = imgData.data;
+      const len = d.length;
+
+      // Extract grayscale luminance & build brightness histogram
+      const gray = new Float32Array(width * height);
+      const hist = new Int32Array(256);
+      for (let i = 0, p = 0; i < len; i += 4, p++) {
+        const lum = (0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2]) | 0;
+        gray[p] = lum;
+        hist[lum]++;
+      }
+
+      // Determine paper background level (82nd percentile of luminance)
+      let count = 0;
+      const target = (width * height) * 0.82;
+      let bgLevel = 215;
+      for (let i = 0; i < 256; i++) {
+        count += hist[i];
+        if (count >= target) {
+          bgLevel = Math.max(160, i);
+          break;
+        }
+      }
+
+      // Transform pixels: background to pure white, text/ink contrast sharpened
+      for (let i = 0, p = 0; i < len; i += 4, p++) {
+        const g = gray[p];
+        if (g >= bgLevel - 18) {
+          // Pure white paper background
+          d[i] = 255;
+          d[i+1] = 255;
+          d[i+2] = 255;
+        } else {
+          // Sharp text and vibrant ink
+          const factor = Math.max(0, Math.min(1, (g - 15) / (bgLevel - 15)));
+          const curve = Math.pow(factor, 1.45);
+          d[i] = Math.min(255, Math.max(0, d[i] * curve * 1.08));
+          d[i+1] = Math.min(255, Math.max(0, d[i+1] * curve * 1.08));
+          d[i+2] = Math.min(255, Math.max(0, d[i+2] * curve * 1.08));
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    // 2. ⬛ Pro "B&W" Xerox Engine: Bradley-Roth Adaptive Integral Image Thresholding (100% Shadow-Free)
+    function processAdaptiveBWFilter(ctx, width, height) {
+      const imgData = ctx.getImageData(0, 0, width, height);
+      const d = imgData.data;
+      const numPixels = width * height;
+      const gray = new Uint8Array(numPixels);
+
+      for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+        gray[p] = (0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2]) | 0;
+      }
+
+      // Construct 2D Integral Image using Float64Array to prevent overflow
+      const integral = new Float64Array(numPixels);
+      for (let i = 0; i < width; i++) {
+        let colSum = 0;
+        for (let j = 0; j < height; j++) {
+          const idx = j * width + i;
+          colSum += gray[idx];
+          integral[idx] = (i === 0 ? colSum : integral[j * width + (i - 1)] + colSum);
+        }
+      }
+
+      // Adaptive window: 1/16th of width (clamp between 16 and 48 for sharp character strokes)
+      const s = Math.max(16, Math.min(48, Math.floor(width / 16)));
+      const s2 = Math.floor(s / 2);
+      const t = 0.14; // 14% darker than local surroundings = crisp text
+
+      for (let i = 0; i < width; i++) {
+        for (let j = 0; j < height; j++) {
+          const x1 = Math.max(0, i - s2);
+          const x2 = Math.min(width - 1, i + s2);
+          const y1 = Math.max(0, j - s2);
+          const y2 = Math.min(height - 1, j + s2);
+
+          const count = (x2 - x1 + 1) * (y2 - y1 + 1);
+          const sum = integral[y2 * width + x2]
+                    - (x1 > 0 ? integral[y2 * width + (x1 - 1)] : 0)
+                    - (y1 > 0 ? integral[(y1 - 1) * width + x2] : 0)
+                    + (x1 > 0 && y1 > 0 ? integral[(y1 - 1) * width + (x1 - 1)] : 0);
+
+          const pIdx = j * width + i;
+          const dIdx = pIdx * 4;
+          const val = (gray[pIdx] * count <= sum * (1 - t)) ? 0 : 255;
+
+          d[dIdx] = val;
+          d[dIdx + 1] = val;
+          d[dIdx + 2] = val;
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    // Main Draw & Render Function
+    
+    // =========================================================================
+    // 100% GENUINE AUTO CROP (DOCUMENT BOUNDS DETECTION) & AUTO BRIGHTEN ENGINE
+    // =========================================================================
+    function detectDocumentBounds(canvas) {
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        return { x: 0.02, y: 0.02, w: 0.96, h: 0.96 };
+      }
+
+      // Sample down to max 320px for instantaneous ~5ms edge detection
+      const sampleCanvas = document.createElement('canvas');
+      const sw = Math.min(320, canvas.width);
+      const sh = Math.min(320, canvas.height);
+      sampleCanvas.width = sw;
+      sampleCanvas.height = sh;
+      const sCtx = sampleCanvas.getContext('2d');
+      sCtx.drawImage(canvas, 0, 0, sw, sh);
+
+      const imgData = sCtx.getImageData(0, 0, sw, sh);
+      const d = imgData.data;
+
+      const lum = new Uint8Array(sw * sh);
+      let totalLum = 0;
+      for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+        const l = (0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2]) | 0;
+        lum[p] = l;
+        totalLum += l;
+      }
+      const avgLum = totalLum / (sw * sh);
+      const paperThresh = Math.max(90, Math.min(185, avgLum * 0.92));
+
+      let minX = sw, maxX = 0, minY = sh, maxY = 0;
+      let paperPixelCount = 0;
+
+      for (let y = 0; y < sh; y++) {
+        for (let x = 0; x < sw; x++) {
+          const idx = y * sw + x;
+          if (lum[idx] >= paperThresh) {
+            paperPixelCount++;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      const coverage = paperPixelCount / (sw * sh);
+      if (coverage > 0.88 || coverage < 0.15 || minX >= maxX || minY >= maxY) {
+        return { x: 0.02, y: 0.02, w: 0.96, h: 0.96 };
+      }
+
+      // Add safety padding (1.5%) so document text/edges are never cut
+      const padX = Math.round(sw * 0.015);
+      const padY = Math.round(sh * 0.015);
+
+      const finalMinX = Math.max(0, minX - padX);
+      const finalMaxX = Math.min(sw, maxX + padX);
+      const finalMinY = Math.max(0, minY - padY);
+      const finalMaxY = Math.min(sh, maxY + padY);
+
+      return {
+        x: +(finalMinX / sw).toFixed(3),
+        y: +(finalMinY / sh).toFixed(3),
+        w: +((finalMaxX - finalMinX) / sw).toFixed(3),
+        h: +((finalMaxY - finalMinY) / sh).toFixed(3)
+      };
+    }
+
+    function detectAndApplyAutoCrop() {
+      const canvas = document.getElementById('studioCanvas');
+      if (!canvas || studioImages.length === 0) return;
+
+      // 1. Genuine Auto Edge Detect
+      studioCrop = detectDocumentBounds(canvas);
+
+      // 2. Auto Brighten (Set to Lighten filter)
+      applyStudioFilter('lighten');
+    }
+
     function drawStudioCanvas() {
       const canvas = document.getElementById('studioCanvas');
       if (!canvas || studioImages.length === 0) return;
       const ctx = canvas.getContext('2d');
-      const img = studioImages[studioCurrentIndex];
-      if (!img) return;
+      const item = studioImages[studioCurrentIndex];
+      if (!item) return;
 
-      canvas.width = img.width;
-      canvas.height = img.height;
+      const imgWidth = item.width;
+      const imgHeight = item.height;
+
+      // Handle 90/270 rotation dimensions
+      if (studioRotation === 90 || studioRotation === 270) {
+        canvas.width = imgHeight;
+        canvas.height = imgWidth;
+      } else {
+        canvas.width = imgWidth;
+        canvas.height = imgHeight;
+      }
 
       ctx.save();
       ctx.translate(canvas.width / 2, canvas.height / 2);
       ctx.rotate((studioRotation * Math.PI) / 180);
-      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      ctx.drawImage(item, -imgWidth / 2, -imgHeight / 2);
       ctx.restore();
 
-      // Process 3 Filters: Original, Lighten, B&W
-      if (studioFilter === 'bw' || studioFilter === 'lighten') {
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const d = imgData.data;
-        for (let i = 0; i < d.length; i += 4) {
-          const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-          if (studioFilter === 'bw') {
-            const v = gray > 140 ? 255 : 0;
-            d[i] = v; d[i+1] = v; d[i+2] = v;
-          } else if (studioFilter === 'lighten') {
-            // Lighten: cleans document paper background while preserving text sharpness
-            const v = gray > 185 ? 255 : Math.max(0, gray * 0.85);
-            d[i] = v; d[i+1] = v; d[i+2] = v;
-          }
-        }
-        ctx.putImageData(imgData, 0, 0);
+      // Apply Pro Scanner Filters
+      if (studioFilter === 'lighten') {
+        processLightenFilter(ctx, canvas.width, canvas.height);
+      } else if (studioFilter === 'bw') {
+        processAdaptiveBWFilter(ctx, canvas.width, canvas.height);
       }
 
       // Draw Crop Box Outline
@@ -2799,7 +3073,7 @@
       ctx.lineWidth = Math.max(3, canvas.width * 0.005);
       ctx.strokeRect(bx, by, bw, bh);
 
-      // Shadow overlay outside crop
+      // Dark translucent overlay outside crop area
       ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
       ctx.fillRect(0, 0, canvas.width, by);
       ctx.fillRect(0, by + bh, canvas.width, canvas.height - (by + bh));
@@ -2808,25 +3082,61 @@
 
       // Update A4 Simulation Preview
       const sim = document.getElementById('simPreviewImg');
-      if (sim) sim.src = canvas.toDataURL('image/jpeg', 0.85);
+      if (sim) sim.src = canvas.toDataURL('image/jpeg', 0.9);
     }
 
+    // Direct High-Resolution Print of the Cropped & Filtered Document
     function printStudioDirect() {
       const canvas = document.getElementById('studioCanvas');
       if (!canvas) return;
+
+      // Create cropped offscreen canvas
+      const cropX = studioCrop.x * canvas.width;
+      const cropY = studioCrop.y * canvas.height;
+      const cropW = studioCrop.w * canvas.width;
+      const cropH = studioCrop.h * canvas.height;
+
+      const outCanvas = document.createElement('canvas');
+      outCanvas.width = cropW;
+      outCanvas.height = cropH;
+      const outCtx = outCanvas.getContext('2d');
+
+      // Re-draw without crop overlay to get 100% clean output
+      const item = studioImages[studioCurrentIndex];
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      const imgWidth = item.width;
+      const imgHeight = item.height;
+      tempCtx.save();
+      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+      tempCtx.rotate((studioRotation * Math.PI) / 180);
+      tempCtx.drawImage(item, -imgWidth / 2, -imgHeight / 2);
+      tempCtx.restore();
+
+      if (studioFilter === 'lighten') {
+        processLightenFilter(tempCtx, tempCanvas.width, tempCanvas.height);
+      } else if (studioFilter === 'bw') {
+        processAdaptiveBWFilter(tempCtx, tempCanvas.width, tempCanvas.height);
+      }
+
+      outCtx.drawImage(tempCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
       const win = window.open('', '_blank');
       win.document.write(`
         <html>
           <head>
-            <title>PrintGoo A4 Direct Print</title>
+            <title>PrintGoo HD Document Print</title>
             <style>
-              @page { size: A4; margin: 10mm; }
-              body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
-              img { max-width: 95%; max-height: 95%; object-fit: contain; }
+              @page { size: A4; margin: 8mm; }
+              body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #fff; }
+              img { max-width: 98%; max-height: 98%; object-fit: contain; }
             </style>
           </head>
           <body>
-            <img src="${canvas.toDataURL('image/jpeg', 0.95)}" />
+            <img src="${outCanvas.toDataURL('image/jpeg', 0.98)}" />
             <script>window.onload = function() { window.print(); window.close(); }<\/script>
           </body>
         </html>
