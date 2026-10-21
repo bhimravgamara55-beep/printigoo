@@ -146,7 +146,7 @@
   </aside>
 
   <!-- 2. MAIN CENTER DASHBOARD AREA (SWITCHES ACROSS 7 TABS) -->
-  <main id="mainContentArea" class="flex-1 p-4 lg:p-6 space-y-5 overflow-y-auto max-w-5xl transition-all">
+  <main id="mainContentArea" class="flex-1 p-4 lg:p-6 space-y-5 overflow-y-auto w-full transition-all">
     
     <!-- TOP HEADER BAR (Always visible) -->
     <div>
@@ -1098,135 +1098,89 @@
     <!-- ========================================================= -->
     <div id="tabContent_shopqr" class="hidden space-y-5">
       
-      <!-- Big Golden Yellow Card with 2 Standee Posters -->
+      <!-- Big Golden Yellow Card with Official Standee Poster -->
       <div class="bg-[#FFDB4D] rounded-3xl p-6 md:p-8 shadow-xs">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           <!-- Left Column: Title & 3 Steps (5 Cols) -->
-          <div class="lg:col-span-4 flex flex-col justify-between space-y-6">
+          <div class="lg:col-span-5 flex flex-col justify-between space-y-6">
             <div>
               <span class="inline-block px-3 py-1 rounded-full bg-white/70 text-stone-800 text-[10px] font-black uppercase tracking-wider mb-2">
                 PRINTGOO SHOP QR
               </span>
               <h2 class="text-2xl md:text-3xl font-black text-stone-900 tracking-tight leading-tight">
-                Your two shop scanners, ready for the counter.
+                Your shop scanner QR, ready for the counter.
               </h2>
               <p class="text-xs text-stone-800 font-medium mt-2 leading-relaxed">
-                Keep the normal Shop QR for direct print orders, and place the new Upload Box QR beside it for private temporary chat and file sharing.
+                Place this official Shop QR at your counter for direct customer print orders. Customers scan the QR on their phone, upload files, pay online, and collect their prints instantly.
               </p>
             </div>
 
             <!-- 3 Bottom Numbered Pills -->
-            <div class="grid grid-cols-3 gap-2 pt-4">
-              <div class="bg-white/80 rounded-2xl p-2.5 text-center">
+            <div class="grid grid-cols-3 gap-2 pt-2">
+              <div class="bg-white/80 rounded-2xl p-2.5 text-center shadow-xs">
                 <span class="w-5 h-5 rounded-full bg-pgRed text-white text-[10px] font-black inline-flex items-center justify-center mb-1">1</span>
                 <p class="text-[10px] font-extrabold text-stone-900 leading-tight">Scan QR</p>
               </div>
 
-              <div class="bg-white/80 rounded-2xl p-2.5 text-center">
+              <div class="bg-white/80 rounded-2xl p-2.5 text-center shadow-xs">
                 <span class="w-5 h-5 rounded-full bg-pgRed text-white text-[10px] font-black inline-flex items-center justify-center mb-1">2</span>
                 <p class="text-[10px] font-extrabold text-stone-900 leading-tight">Upload files</p>
               </div>
 
-              <div class="bg-white/80 rounded-2xl p-2.5 text-center">
+              <div class="bg-white/80 rounded-2xl p-2.5 text-center shadow-xs">
                 <span class="w-5 h-5 rounded-full bg-pgRed text-white text-[10px] font-black inline-flex items-center justify-center mb-1">3</span>
-                <p class="text-[10px] font-extrabold text-stone-900 leading-tight">Print at shop</p>
+                <p class="text-[10px] font-extrabold text-stone-900 leading-tight">Auto-Print</p>
               </div>
             </div>
           </div>
 
-          <!-- Right Column: 2 Standee Previews (7 Cols) -->
-          <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Right Column: Official Standee Preview (7 Cols) -->
+          <div class="lg:col-span-7 flex justify-center">
             
-            <!-- STANDEE 1: SHOP QR (Yellow / Maroon) -->
-            <div class="bg-white rounded-3xl p-5 shadow-sm flex flex-col justify-between space-y-4">
+            <!-- STANDEE: SHOP QR (Yellow / Maroon) -->
+            <div class="bg-white rounded-3xl p-6 shadow-md flex flex-col justify-between space-y-4 max-w-sm w-full">
               <div class="text-center">
-                <span class="text-[9px] font-black uppercase tracking-wider text-stone-500">SHOP QR</span>
+                <span class="text-[9px] font-black uppercase tracking-wider text-stone-500">OFFICIAL COUNTER QR</span>
                 <h4 id="standee1ShopName" class="font-black text-xs text-stone-900 uppercase">PrintGoo Smart Print Desk</h4>
               </div>
 
               <!-- Poster Mockup Graphic -->
-              <div class="bg-[#FFE266] rounded-2xl border-2 border-stone-800 p-3.5 text-center space-y-2 shadow-inner">
-                <div class="bg-pgRed text-white py-0.5 px-2 rounded-md text-[8px] font-black uppercase tracking-wider">
+              <div class="bg-[#FFE266] rounded-2xl border-2 border-stone-800 p-4 text-center space-y-2.5 shadow-inner">
+                <div class="bg-pgRed text-white py-0.5 px-2.5 rounded-md text-[8px] font-black uppercase tracking-wider inline-block">
                   PRINTGOO • SHOP QR
                 </div>
                 <p id="standee1PosterName" class="font-black text-xs text-stone-900 uppercase">PRINTGOO SMART PRINT DESK</p>
                 <p class="text-[8px] font-extrabold uppercase tracking-widest text-stone-700">SCAN HERE TO PRINT</p>
                 
-                <div class="bg-white p-2.5 rounded-xl border border-stone-300 inline-block shadow-xs">
-                  <img id="qrPosterDirectImg" class="w-32 h-32 mx-auto" alt="Shop QR Code" />
+                <div class="bg-white p-3 rounded-2xl border border-stone-300 inline-block shadow-xs">
+                  <img id="qrPosterDirectImg" class="w-36 h-36 mx-auto" alt="Shop QR Code" />
                 </div>
 
-                <div class="flex items-center justify-center gap-1 text-[7px] font-bold text-stone-800">
-                  <span class="bg-white px-1 py-0.5 rounded">1 Snap QR</span>
-                  <span class="bg-white px-1 py-0.5 rounded">2 Choose file</span>
-                  <span class="bg-white px-1 py-0.5 rounded">3 Collect</span>
+                <div class="flex items-center justify-center gap-1.5 text-[7px] font-bold text-stone-800">
+                  <span class="bg-white px-1.5 py-0.5 rounded">1 Snap QR</span>
+                  <span class="bg-white px-1.5 py-0.5 rounded">2 Choose file</span>
+                  <span class="bg-white px-1.5 py-0.5 rounded">3 Collect</span>
                 </div>
               </div>
 
               <!-- URL Textbox -->
-              <input type="text" id="standee1UrlText" readonly value="https://printgoo.in/q/my-shop" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-stone-50 border border-stone-200 text-stone-600 select-all" />
+              <input type="text" id="standee1UrlText" readonly value="https://printgoo.in/q/my-shop" class="w-full text-center text-[10px] font-mono py-1.5 px-2 rounded-xl bg-stone-50 border border-stone-200 text-stone-600 select-all font-semibold" />
 
-              <div class="space-y-2">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button type="button" onclick="downloadQrPng('direct')" class="w-full py-2.5 rounded-xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
                   <span>📥</span>
-                  <span>Scanner download PNG</span>
+                  <span>Download Standee</span>
                 </button>
 
-                <button type="button" onclick="openDirectPortal()" class="w-full py-2 rounded-xl bg-white border border-stone-300 hover:bg-stone-50 text-stone-800 font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
+                <button type="button" onclick="openDirectPortal()" class="w-full py-2.5 rounded-xl bg-white border border-stone-300 hover:bg-stone-50 text-stone-800 font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
                   <span>↗</span>
-                  <span>Open customer page</span>
+                  <span>Customer Page</span>
                 </button>
               </div>
 
               <p class="text-[9px] text-stone-400 text-center leading-tight">
                 Ready to print and stick at the counter. This QR is permanent for this shop and stays the same for its lifetime.
-              </p>
-            </div>
-
-            <!-- STANDEE 2: UPLOAD BOX QR (Teal / Blue) -->
-            <div class="bg-[#EBF7F7] rounded-3xl p-5 shadow-sm flex flex-col justify-between space-y-4">
-              <div class="text-center">
-                <span class="text-[9px] font-black uppercase tracking-wider text-teal-700">UPLOAD BOX QR</span>
-                <h4 id="standee2ShopName" class="font-black text-xs text-stone-900 uppercase">PrintGoo Smart Print Desk</h4>
-              </div>
-
-              <!-- Poster Mockup Graphic -->
-              <div class="bg-[#A5E3E3] rounded-2xl border-2 border-stone-800 p-3.5 text-center space-y-2 shadow-inner">
-                <div class="bg-stone-900 text-white py-0.5 px-2 rounded-md text-[8px] font-black uppercase tracking-wider">
-                  PRINTGOO • UPLOAD BOX
-                </div>
-                <p id="standee2PosterName" class="font-black text-xs text-stone-900 uppercase">PRINTGOO SMART PRINT DESK</p>
-                <p class="text-[8px] font-extrabold uppercase tracking-widest text-stone-800">PRIVATE FILE &amp; CHAT DROP</p>
-                
-                <div class="bg-white p-2.5 rounded-xl border border-stone-300 inline-block shadow-xs">
-                  <img id="qrPosterUploadBoxImg" class="w-32 h-32 mx-auto" alt="Upload Box QR Code" />
-                </div>
-
-                <div class="flex items-center justify-center gap-1 text-[7px] font-bold text-stone-800">
-                  <span class="bg-white px-1 py-0.5 rounded">1 Scan QR</span>
-                  <span class="bg-white px-1 py-0.5 rounded">2 Drop files</span>
-                  <span class="bg-white px-1 py-0.5 rounded">3 Chat &amp; print</span>
-                </div>
-              </div>
-
-              <!-- URL Textbox -->
-              <input type="text" id="standee2UrlText" readonly value="https://printgoo.in/q/my-shop?box=1" class="w-full text-center text-[10px] font-mono py-1 px-2 rounded-xl bg-white border border-teal-200 text-teal-800 select-all" />
-
-              <div class="space-y-2">
-                <button type="button" onclick="downloadQrPng('uploadbox')" class="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
-                  <span>📥</span>
-                  <span>Upload Box scanner PNG</span>
-                </button>
-
-                <button type="button" onclick="openDirectPortal()" class="w-full py-2 rounded-xl bg-white border border-teal-300 hover:bg-teal-50 text-teal-900 font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
-                  <span>↗</span>
-                  <span>Open Upload Box</span>
-                </button>
-              </div>
-
-              <p class="text-[9px] text-teal-800/80 text-center leading-tight">
-                Customers enter their name, then get a private temporary chat for messages and files. This QR is permanent for this shop.
               </p>
             </div>
 
@@ -1401,74 +1355,7 @@
 
   </main>
 
-  <!-- 3. RIGHT SIDEBAR: PRINTGOO CHAT (PHONE FRAME WIDGET) -->
-  <aside id="rightPhoneChatAside" class="w-full xl:w-80 bg-pgBg border-l border-pgBorder p-4 flex flex-col justify-between shrink-0">
-    
-    <!-- Phone Mockup Container -->
-    <div class="w-full bg-white rounded-[32px] border-4 border-stone-900 shadow-xl p-4 flex flex-col justify-between min-h-[580px]">
-      
-      <div>
-        <!-- Phone Chat Header -->
-        <div class="flex items-center justify-between pb-3 border-b border-stone-100">
-          <div class="flex items-center space-x-2">
-            <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs">💬</span>
-            <span class="font-black text-sm text-stone-900">PrintGoo Chat</span>
-          </div>
 
-          <div class="flex items-center space-x-1.5">
-            <!-- QR Badge -->
-            <div class="w-6 h-6 rounded-full bg-stone-900 text-white text-[8px] font-black flex items-center justify-center">
-              QR
-            </div>
-            <!-- Live Badge -->
-            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 live-dot"></span>
-              Live
-            </span>
-          </div>
-        </div>
-
-        <!-- System Update Card (Lilac Gradient Box) -->
-        <div class="my-4 p-4 rounded-2xl bg-gradient-to-br from-indigo-50/80 to-purple-50/80 border border-indigo-100 shadow-xs space-y-2">
-          <div class="flex items-center space-x-1.5 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider">
-            <span>📥</span>
-            <span>SYSTEM UPDATE</span>
-          </div>
-          <p class="text-xs font-black text-stone-900 leading-snug">
-            PrintGoo Print Station v1.9.2 is ready
-          </p>
-          <p class="text-[10px] text-stone-500 leading-relaxed">
-            Background Auto-Print fix and latest PrintGoo desktop release
-          </p>
-          <button type="button" onclick="alert('PrintGoo Windows Station v1.9.2 active.')" class="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center space-x-1.5 shadow-xs transition">
-            <span>🔄</span>
-            <span>Update app</span>
-          </button>
-        </div>
-
-        <!-- Chat Activity Feed -->
-        <div id="phoneChatFeed" class="space-y-2 text-xs">
-          <div class="p-2.5 rounded-xl bg-stone-50 border border-stone-100">
-            <p class="text-[10px] font-bold text-stone-500">SYSTEM</p>
-            <p class="text-stone-800 font-semibold text-[11px]">Print station initialized and ready to receive customer documents.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bottom Chat Bar Input (Mockup) -->
-      <div class="pt-3 border-t border-stone-100">
-        <p class="text-[9px] text-stone-400 mb-1">Tap a customer message to reply</p>
-        <div class="relative">
-          <input type="text" placeholder="Select a customer message" readonly class="w-full pl-3 pr-8 py-2 rounded-xl border border-stone-200 bg-stone-50 text-[11px] text-stone-500 focus:outline-none" />
-          <button type="button" class="absolute inset-y-0 right-1 my-auto w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs">
-            ➤
-          </button>
-        </div>
-      </div>
-
-    </div>
-
-  </aside>
 
   <!-- ================= ADMIN SUBSCRIPTION PAYMENT MODAL ================= -->
   <div id="adminSubModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -1678,23 +1565,11 @@
         }
       });
 
-      // 3. Right Phone Chat Sidebar toggle (visible on Overview, expands full-width on Bills & reports)
-      const asideChat = document.getElementById('rightPhoneChatAside');
+      // Main dashboard area full-width layout
       const mainArea = document.getElementById('mainContentArea');
-      if (asideChat) {
-        if (tabKey === 'overview') {
-          asideChat.classList.remove('hidden');
-          if (mainArea) {
-            mainArea.classList.remove('max-w-none');
-            mainArea.classList.add('max-w-5xl');
-          }
-        } else {
-          asideChat.classList.add('hidden');
-          if (mainArea) {
-            mainArea.classList.remove('max-w-5xl');
-            mainArea.classList.add('max-w-none');
-          }
-        }
+      if (mainArea) {
+        mainArea.classList.remove('max-w-5xl');
+        mainArea.classList.add('w-full');
       }
     }
 
@@ -1919,7 +1794,7 @@
         if (bannerExpiry) bannerExpiry.textContent = `Trial active until ${d}. Full access to live customer QR ordering & all 7 dashboard features enabled.`;
       }
 
-      ['standee1ShopName', 'standee2ShopName', 'standee1PosterName', 'standee2PosterName'].forEach(id => {
+      ['standee1ShopName', 'standee1PosterName'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = sName.toUpperCase();
       });
@@ -1933,12 +1808,6 @@
       if (standee1Url) standee1Url.value = directUrl;
       const imgDirect = document.getElementById('qrPosterDirectImg');
       if (imgDirect) imgDirect.src = `https://quickchart.io/qr?text=${encodeURIComponent(directUrl)}&size=300&margin=2`;
-
-      const uploadBoxUrl = `${baseOrigin}/q/${currentShopSlug}?box=1`;
-      const standee2Url = document.getElementById('standee2UrlText');
-      if (standee2Url) standee2Url.value = uploadBoxUrl;
-      const imgBox = document.getElementById('qrPosterUploadBoxImg');
-      if (imgBox) imgBox.src = `https://quickchart.io/qr?text=${encodeURIComponent(uploadBoxUrl)}&size=300&margin=2`;
 
       // Update station status last seen time dynamically
       const lastSeenEl = document.getElementById('stationLastSeenLive');
@@ -1984,7 +1853,7 @@
       const baseOrigin = (window.location && window.location.origin && window.location.origin.startsWith('http')) 
         ? window.location.origin 
         : 'https://printgoo.in';
-      const url = type === 'direct' ? `${baseOrigin}/q/${currentShopSlug}` : `${baseOrigin}/q/${currentShopSlug}?box=1`;
+      const url = `${baseOrigin}/q/${currentShopSlug}`;
       const qrApi = `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=800&margin=2`;
       window.open(qrApi, '_blank');
     }
@@ -2549,17 +2418,7 @@
         jobsList.unshift(newJob);
         renderAll();
 
-        // Add to Chat Feed
-        const feed = document.getElementById('phoneChatFeed');
-        if (feed) {
-          const msg = document.createElement('div');
-          msg.className = 'p-2.5 rounded-xl bg-amber-50 border border-amber-200';
-          msg.innerHTML = `
-            <p class="text-[10px] font-bold text-amber-800">NEW PRINT JOB • ${newJob.token}</p>
-            <p class="text-stone-800 font-semibold text-[11px]">${newJob.fileName} (${newJob.pages}p × ${newJob.copies}c)</p>
-          `;
-          feed.prepend(msg);
-        }
+
 
         // If Paid Auto-Print is ON and payment is UPI, trigger zero-touch print and soundbox voice!
         if (autoPrintPaid && newJob.paymentMode === 'upi' && newJob.fileUrl) {
