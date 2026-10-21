@@ -325,7 +325,7 @@ exit
 });
 
 // Serve Master Admin Dashboard
-app.get('/gamara-admin', (req, res) => {
+app.get(['/admin', '/gamara-admin'], (req, res) => {
   const adminPath = path.join(WEB_DIR, 'admin.html');
   if (fs.existsSync(adminPath)) {
     return res.sendFile(adminPath);

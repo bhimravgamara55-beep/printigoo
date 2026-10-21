@@ -1680,14 +1680,14 @@
       try {
         window.speechSynthesis.cancel();
         const cleanToken = (token || '').replace('#', '');
-        const text = `PrintGoo par ${Math.round(amount)} rupaye prapt hue. Token ${cleanToken} print ho raha hai.`;
+        const text = `PrintGoo: ${Math.round(amount)} rupees received. Token ${cleanToken} is printing now.`;
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 1.0;
         utterance.pitch = 1.05;
 
-        // Choose Indian / Hindi / English voice if available in browser
+        // Choose English-India voice if available in browser
         const voices = window.speechSynthesis.getVoices();
-        const matchVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('gu') || v.lang.includes('en-IN') || v.lang.includes('en_IN'));
+        const matchVoice = voices.find(v => v.lang.includes('en-IN') || v.lang.includes('en_IN') || v.lang.includes('en-US') || v.lang.includes('en-GB'));
         if (matchVoice) utterance.voice = matchVoice;
 
         setTimeout(() => {
