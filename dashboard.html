@@ -1341,11 +1341,9 @@
                 <p class="text-[10px] text-stone-500 mt-0.5">Choose how long the EXE keeps customer files on this PC after receiving them.</p>
               </div>
               <div class="pt-2">
-                <select class="w-full px-3 py-1.5 rounded-xl border border-stone-200 bg-white font-semibold text-xs text-stone-800 focus:outline-none">
-                  <option selected>Keep for 24 hours</option>
-                  <option>Keep for 1 hour</option>
-                  <option>Keep for 30 minutes (Ephemeral)</option>
-                  <option>Keep for 7 days</option>
+                <select id="setting_stationRetention" class="w-full px-3 py-1.5 rounded-xl border border-stone-200 bg-white font-semibold text-xs text-stone-800 focus:outline-none">
+                  <option value="30m" selected>Keep for 30 minutes (Auto-clean)</option>
+                  <option value="1h">Keep for 1 hour</option>
                 </select>
               </div>
             </div>
@@ -1362,14 +1360,14 @@
         <div class="bg-white rounded-3xl border border-stone-200/80 p-6 shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div class="flex items-center space-x-2 pb-3 border-b border-stone-100">
-              <span class="text-base">🖥️</span>
+              <span class="text-base">🖥️ </span>
               <h3 class="text-sm font-black text-stone-900">Station status</h3>
             </div>
 
             <div class="divide-y divide-stone-100 text-xs pt-2">
               <div class="py-2.5 flex items-center justify-between">
                 <span class="text-stone-500 font-medium">Status</span>
-                <span class="font-bold text-emerald-700 flex items-center gap-1">
+                <span id="stationLiveStatusBadge" class="font-bold text-emerald-700 flex items-center gap-1">
                   <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
                   online
                 </span>
@@ -1377,12 +1375,12 @@
 
               <div class="py-2.5 flex items-center justify-between">
                 <span class="text-stone-500 font-medium">Machine</span>
-                <span class="font-bold text-stone-800">Browser • Win32</span>
+                <span id="stationMachineName" class="font-bold text-stone-800">Browser • Win32</span>
               </div>
 
               <div class="py-2.5 flex items-center justify-between">
                 <span class="text-stone-500 font-medium">App version</span>
-                <span class="font-bold text-stone-800 font-mono text-[11px]">web-receiver-3</span>
+                <span id="stationAppVersion" class="font-bold text-stone-800 font-mono text-[11px]">web-receiver-3</span>
               </div>
 
               <div class="py-2.5 flex items-center justify-between">
@@ -1761,23 +1759,100 @@
       }
     }
 
-    // Audio Chime
+    // Paytm-style Voice Soundbox & Audio Chime
+    let audioUnlocked = false;
+    document.addEventListener('click', () => { audioUnlocked = true; }, { once: true });
+    document.addEventListener('keydown', () => { audioUnlocked = true; }, { once: true });
+
     function playChime() {
       if (!audioChime) return;
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.6);
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        // Dual-tone Paytm/PhonePe style soundbox chime
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc1.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.12);
+        gain1.gain.setValueAtTime(0.35, ctx.currentTime);
+        gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(ctx.currentTime);
+        osc1.stop(ctx.currentTime + 0.25);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(783.99, ctx.currentTime + 0.15);
+        osc2.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.35);
+        gain2.gain.setValueAtTime(0.001, ctx.currentTime);
+        gain2.gain.setValueAtTime(0.4, ctx.currentTime + 0.15);
+        gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(ctx.currentTime + 0.15);
+        osc2.stop(ctx.currentTime + 0.55);
       } catch (e) {}
+    }
+
+    function speakSoundbox(amount, token) {
+      if (!audioChime || !('speechSynthesis' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const cleanToken = (token || '').replace('#', '');
+        const text = `PrintGoo par ${Math.round(amount)} rupaye prapt hue. Token ${cleanToken} print ho raha hai.`;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.05;
+
+        // Choose Indian / Hindi / English voice if available in browser
+        const voices = window.speechSynthesis.getVoices();
+        const matchVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('gu') || v.lang.includes('en-IN') || v.lang.includes('en_IN'));
+        if (matchVoice) utterance.voice = matchVoice;
+
+        setTimeout(() => {
+          try { window.speechSynthesis.speak(utterance); } catch (e) {}
+        }, 550);
+      } catch (e) {}
+    }
+
+    function triggerSilentIframePrint(url) {
+      if (!url) return;
+      try {
+        let printFrame = document.getElementById('silentPrintIframe');
+        if (!printFrame) {
+          printFrame = document.createElement('iframe');
+          printFrame.id = 'silentPrintIframe';
+          printFrame.style.position = 'fixed';
+          printFrame.style.right = '0';
+          printFrame.style.bottom = '0';
+          printFrame.style.width = '1px';
+          printFrame.style.height = '1px';
+          printFrame.style.opacity = '0.01';
+          printFrame.style.pointerEvents = 'none';
+          printFrame.style.border = '0';
+          document.body.appendChild(printFrame);
+        }
+        printFrame.src = url;
+        printFrame.onload = () => {
+          try {
+            setTimeout(() => {
+              printFrame.contentWindow.focus();
+              printFrame.contentWindow.print();
+            }, 600);
+          } catch (e) {
+            console.warn('Iframe print focus error, falling back to window.open:', e);
+            window.open(url, '_blank');
+          }
+        };
+      } catch (err) {
+        window.open(url, '_blank');
+      }
     }
 
     // Live UPI QR Preview generator
@@ -2404,7 +2479,13 @@
     async function printJob(jobId, url) {
       try {
         await fetch(`/api/jobs/${jobId}/print`, { method: 'POST' });
-        if (url) window.open(url, '_blank');
+        const job = jobsList.find(j => j.id === jobId);
+        if (socket && job) {
+          socket.emit('print:dispatch_request', { shopSlug: currentShopSlug, job });
+        }
+        if (url) {
+          triggerSilentIframePrint(url);
+        }
       } catch (e) {}
     }
 
@@ -2439,6 +2520,30 @@
         socket.emit('shop:join', { shopSlug: currentShopSlug });
       });
 
+      // Desktop Hardware Agent Telemetry Listener
+      socket.on('station:hardware_status', (data) => {
+        const badge = document.getElementById('stationLiveStatusBadge');
+        const machine = document.getElementById('stationMachineName');
+        const version = document.getElementById('stationAppVersion');
+        if (badge) {
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span> online (App Connected)`;
+        }
+        if (machine && data.machineName) {
+          machine.textContent = data.machineName;
+        }
+        if (version && data.stationId) {
+          version.textContent = `desktop-agent (${data.stationId})`;
+        }
+        if (data.defaultBwPrinter) {
+          const bwInput = document.getElementById('setting_bwHardwareName');
+          if (bwInput && !bwInput.value) bwInput.value = data.defaultBwPrinter;
+        }
+        if (data.defaultColorPrinter) {
+          const colInput = document.getElementById('setting_colorHardwareName');
+          if (colInput && !colInput.value) colInput.value = data.defaultColorPrinter;
+        }
+      });
+
       socket.on('job:new', (newJob) => {
         playChime();
         jobsList.unshift(newJob);
@@ -2446,17 +2551,33 @@
 
         // Add to Chat Feed
         const feed = document.getElementById('phoneChatFeed');
-        const msg = document.createElement('div');
-        msg.className = 'p-2.5 rounded-xl bg-amber-50 border border-amber-200';
-        msg.innerHTML = `
-          <p class="text-[10px] font-bold text-amber-800">NEW PRINT JOB • ${newJob.token}</p>
-          <p class="text-stone-800 font-semibold text-[11px]">${newJob.fileName} (${newJob.pages}p × ${newJob.copies}c)</p>
-        `;
-        feed.prepend(msg);
+        if (feed) {
+          const msg = document.createElement('div');
+          msg.className = 'p-2.5 rounded-xl bg-amber-50 border border-amber-200';
+          msg.innerHTML = `
+            <p class="text-[10px] font-bold text-amber-800">NEW PRINT JOB • ${newJob.token}</p>
+            <p class="text-stone-800 font-semibold text-[11px]">${newJob.fileName} (${newJob.pages}p × ${newJob.copies}c)</p>
+          `;
+          feed.prepend(msg);
+        }
 
-        // If Paid Auto-Print is ON and payment is UPI, trigger print automatically!
+        // If Paid Auto-Print is ON and payment is UPI, trigger zero-touch print and soundbox voice!
         if (autoPrintPaid && newJob.paymentMode === 'upi' && newJob.fileUrl) {
-          window.open(newJob.fileUrl, '_blank');
+          // 1. Paytm/PhonePe style voice announcement
+          speakSoundbox(newJob.totalAmount, newJob.token);
+          // 2. Dispatch silent print command to hardware agent & update status
+          fetch(`/api/jobs/${newJob.id}/print`, { method: 'POST' }).catch(() => {});
+          if (socket) {
+            socket.emit('print:dispatch_request', { shopSlug: currentShopSlug, job: newJob });
+          }
+          // 3. Trigger in-browser silent print via invisible iframe
+          triggerSilentIframePrint(newJob.fileUrl);
+        } else if (autoPrintCash && newJob.paymentMode === 'cash' && newJob.fileUrl) {
+          fetch(`/api/jobs/${newJob.id}/print`, { method: 'POST' }).catch(() => {});
+          if (socket) {
+            socket.emit('print:dispatch_request', { shopSlug: currentShopSlug, job: newJob });
+          }
+          triggerSilentIframePrint(newJob.fileUrl);
         }
       });
 

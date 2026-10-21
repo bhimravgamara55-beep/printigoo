@@ -838,6 +838,22 @@ app.post('/api/upload/:shop_slug', upload.single('file'), async (req, res) => {
     // Multi-tenant WebSocket Routing: Dispatch new job to the specific shop's room
     io.to(`shop_${slug}`).emit('job:new', job);
 
+    // If online UPI payment, auto-dispatch to silent hardware station immediately
+    if (job.paymentMode === 'upi') {
+      io.to(`station_${slug}`).emit('print:dispatch', {
+        jobId: job.id,
+        jobToken: job.token,
+        fileName: job.fileName,
+        downloadUrl: job.fileUrl,
+        specs: {
+          colorMode: job.colorMode,
+          copies: job.copies,
+          paperSize: job.paperSize,
+          duplex: job.duplex
+        }
+      });
+    }
+
     console.log(`[New Job Queued] Token ${token} for shop '${slug}' - ${job.fileName} (${totalPages}p x ${copies}c) = ₹${job.totalAmount}`);
 
     res.status(201).json({
@@ -915,6 +931,20 @@ app.post('/api/jobs/:jobId/print', (req, res) => {
   job.jobStatus = 'printing';
   io.to(`shop_${job.shopSlug}`).emit('job:updated', job);
   io.to(`job_${job.id}`).emit('job:updated', job);
+
+  // Dispatch silent print command to connected desktop print station
+  io.to(`station_${job.shopSlug}`).emit('print:dispatch', {
+    jobId: job.id,
+    jobToken: job.token,
+    fileName: job.fileName,
+    downloadUrl: job.fileUrl,
+    specs: {
+      colorMode: job.colorMode,
+      copies: job.copies,
+      paperSize: job.paperSize,
+      duplex: job.duplex
+    }
+  });
 
   res.json({ success: true, job });
 });
@@ -1026,6 +1056,54 @@ io.on('connection', (socket) => {
         status: shops[slug].status
       });
     }
+  });
+
+  // Desktop Hardware Agent (Print Station) joins station room
+  socket.on('register:station', (data) => {
+    const slug = (data.shopId || data.shopSlug || '').toLowerCase();
+    if (!slug) return;
+    socket.join(`station_${slug}`);
+    socket.stationData = data;
+    console.log(`[Station Registered] Station ${data.stationId || socket.id} joined station_${slug}`);
+
+    // Broadcast hardware online status to shop dashboard
+    io.to(`shop_${slug}`).emit('station:hardware_status', {
+      connected: true,
+      stationId: data.stationId,
+      machineName: data.machineName,
+      defaultBwPrinter: data.defaultBwPrinter,
+      defaultColorPrinter: data.defaultColorPrinter,
+      printersList: data.printersList || []
+    });
+  });
+
+  // Desktop Hardware Agent reports print result
+  socket.on('print:ack', ({ jobId, status, error }) => {
+    console.log(`[Print ACK] Job ${jobId}: ${status}`, error || '');
+    const job = jobs.get(jobId);
+    if (job) {
+      job.jobStatus = status === 'completed' ? 'completed' : 'failed';
+      io.to(`shop_${job.shopSlug}`).emit('job:updated', job);
+      io.to(`job_${job.id}`).emit('job:updated', job);
+    }
+  });
+
+  // Dashboard manually or auto-triggers print dispatch to station
+  socket.on('print:dispatch_request', ({ shopSlug, job }) => {
+    const slug = (shopSlug || socket.shopSlug || '').toLowerCase();
+    if (!slug || !job) return;
+    io.to(`station_${slug}`).emit('print:dispatch', {
+      jobId: job.id,
+      jobToken: job.token,
+      fileName: job.fileName,
+      downloadUrl: job.fileUrl,
+      specs: {
+        colorMode: job.colorMode,
+        copies: job.copies,
+        paperSize: job.paperSize,
+        duplex: job.duplex
+      }
+    });
   });
 
   socket.on('disconnect', () => {

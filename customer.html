@@ -278,12 +278,12 @@
       <div class="w-12 h-12 rounded-full bg-pgYellow mx-auto flex items-center justify-center text-2xl mb-2">
         🤖
       </div>
-      <span class="inline-block text-[10px] font-black uppercase tracking-wider text-pgMaroon bg-[#FFF5D6] px-3 py-1 rounded-full border border-amber-300 mb-1">
+      <span id="receiptBadgeHeader" class="inline-block text-[10px] font-black uppercase tracking-wider text-pgMaroon bg-[#FFF5D6] px-3 py-1 rounded-full border border-amber-300 mb-1">
         Order Received
       </span>
       <h3 class="text-xs text-stone-500 uppercase font-bold mt-1">Your Print Token Number</h3>
       <div id="receiptTokenVal" class="text-5xl font-black font-mono text-pgMaroon my-2">#---</div>
-      <p class="text-xs text-stone-500">Please quote this token at the Xerox counter</p>
+      <p id="receiptTokenSubtext" class="text-xs text-stone-500">Please quote this token at the Xerox counter</p>
 
       <div class="my-4 p-3.5 rounded-2xl bg-pgBg border border-stone-200 text-left space-y-2 text-xs">
         <div class="flex justify-between">
@@ -651,14 +651,41 @@
     function showReceipt(job) {
       document.getElementById('receiptTokenVal').textContent = job.token;
       document.getElementById('receiptDocName').textContent = job.fileName;
-      document.getElementById('receiptDocBill').textContent = `₹${job.totalAmount.toFixed(2)}`;
+      document.getElementById('receiptDocBill').textContent = `₹${(job.totalAmount || 0).toFixed(2)}`;
 
-      if (job.paymentStatus === 'paid') {
-        document.getElementById('receiptDocPayment').textContent = '✓ Paid via UPI';
-        document.getElementById('receiptDocPayment').className = 'font-bold text-emerald-700';
+      const payElem = document.getElementById('receiptDocPayment');
+      const badgeHeader = document.getElementById('receiptBadgeHeader');
+      const subText = document.getElementById('receiptTokenSubtext');
+      const liveText = document.getElementById('receiptStatusLiveText');
+
+      if (job.paymentStatus === 'paid' || job.paymentMode === 'upi') {
+        payElem.textContent = '✓ Paid via UPI (Online)';
+        payElem.className = 'font-bold text-emerald-700';
+        if (badgeHeader) {
+          badgeHeader.textContent = '⚡ ONLINE PAID • AUTO-PRINTING';
+          badgeHeader.className = 'inline-block text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300 mb-1 animate-pulse';
+        }
+        if (subText) {
+          subText.textContent = '🖨️ Auto-printing triggered! Collect directly from printer tray with this token.';
+        }
+        if (liveText) {
+          liveText.textContent = '🖨️ Printing automatically on Xerox machine...';
+          liveText.className = 'text-[11px] font-bold text-emerald-700';
+        }
       } else {
-        document.getElementById('receiptDocPayment').textContent = 'Cash Pending at Counter';
-        document.getElementById('receiptDocPayment').className = 'font-bold text-amber-700';
+        payElem.textContent = 'Cash Pending at Counter';
+        payElem.className = 'font-bold text-amber-700';
+        if (badgeHeader) {
+          badgeHeader.textContent = 'Order Received';
+          badgeHeader.className = 'inline-block text-[10px] font-black uppercase tracking-wider text-pgMaroon bg-[#FFF5D6] px-3 py-1 rounded-full border border-amber-300 mb-1';
+        }
+        if (subText) {
+          subText.textContent = 'Please quote this token at the Xerox counter to pay and print.';
+        }
+        if (liveText) {
+          liveText.textContent = 'Waiting for counter print release...';
+          liveText.className = 'text-[11px] font-bold text-stone-700';
+        }
       }
 
       document.getElementById('receiptModal').classList.remove('hidden');
@@ -692,12 +719,21 @@
         if (activeJob && activeJob.id === updated.id) {
           activeJob = updated;
           const liveText = document.getElementById('receiptStatusLiveText');
+          const badgeHeader = document.getElementById('receiptBadgeHeader');
           if (updated.jobStatus === 'printing') {
-            liveText.textContent = '🖨️ Printing right now on Xerox machine!';
-            liveText.className = 'text-[11px] font-bold text-indigo-700';
+            if (liveText) {
+              liveText.textContent = '🖨️ Printing right now on Xerox machine!';
+              liveText.className = 'text-[11px] font-bold text-indigo-700';
+            }
           } else if (updated.jobStatus === 'completed') {
-            liveText.textContent = '✅ Finished! Please collect your prints from counter.';
-            liveText.className = 'text-[11px] font-bold text-emerald-700';
+            if (liveText) {
+              liveText.textContent = '✅ Print Complete! Collect your pages from printer tray.';
+              liveText.className = 'text-[11px] font-bold text-emerald-700';
+            }
+            if (badgeHeader) {
+              badgeHeader.textContent = '✅ PRINT COMPLETED';
+              badgeHeader.className = 'inline-block text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300 mb-1';
+            }
           }
         }
       });
