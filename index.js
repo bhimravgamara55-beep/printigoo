@@ -67,10 +67,12 @@ const upload = multer({
 // ---------------------------------------------------------------------
 const DATA_DIR = path.join(__dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+  try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch (e) {}
 }
 const SHOPS_FILE = path.join(DATA_DIR, 'shops.json');
+const ROOT_SHOPS_FILE = path.join(__dirname, 'shops.json');
 const SUBS_FILE = path.join(DATA_DIR, 'subscriptions.json');
+const ROOT_SUBS_FILE = path.join(__dirname, 'subscriptions.json');
 
 const DEFAULT_SHOPS = {
   'gamara-enterprises': {
@@ -103,10 +105,11 @@ const DEFAULT_SHOPS = {
 
 function loadShops() {
   try {
-    if (fs.existsSync(SHOPS_FILE)) {
-      const raw = fs.readFileSync(SHOPS_FILE, 'utf8');
+    const fileToRead = fs.existsSync(SHOPS_FILE) ? SHOPS_FILE : (fs.existsSync(ROOT_SHOPS_FILE) ? ROOT_SHOPS_FILE : null);
+    if (fileToRead) {
+      const raw = fs.readFileSync(fileToRead, 'utf8');
       const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') {
+      if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
         return parsed;
       }
     }
@@ -119,7 +122,9 @@ function loadShops() {
 
 function saveShops(data) {
   try {
-    fs.writeFileSync(SHOPS_FILE, JSON.stringify(data, null, 2), 'utf8');
+    const jsonStr = JSON.stringify(data, null, 2);
+    try { fs.writeFileSync(SHOPS_FILE, jsonStr, 'utf8'); } catch (e) {}
+    try { fs.writeFileSync(ROOT_SHOPS_FILE, jsonStr, 'utf8'); } catch (e) {}
   } catch (err) {
     console.error('[Storage] Error writing shops.json:', err.message);
   }
@@ -127,9 +132,11 @@ function saveShops(data) {
 
 function loadSubscriptions() {
   try {
-    if (fs.existsSync(SUBS_FILE)) {
-      const raw = fs.readFileSync(SUBS_FILE, 'utf8');
-      return JSON.parse(raw);
+    const fileToRead = fs.existsSync(SUBS_FILE) ? SUBS_FILE : (fs.existsSync(ROOT_SUBS_FILE) ? ROOT_SUBS_FILE : null);
+    if (fileToRead) {
+      const raw = fs.readFileSync(fileToRead, 'utf8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (err) {
     console.error('[Storage] Error reading subscriptions.json:', err.message);
@@ -139,7 +146,9 @@ function loadSubscriptions() {
 
 function saveSubscriptions(arr) {
   try {
-    fs.writeFileSync(SUBS_FILE, JSON.stringify(arr, null, 2), 'utf8');
+    const jsonStr = JSON.stringify(arr, null, 2);
+    try { fs.writeFileSync(SUBS_FILE, jsonStr, 'utf8'); } catch (e) {}
+    try { fs.writeFileSync(ROOT_SUBS_FILE, jsonStr, 'utf8'); } catch (e) {}
   } catch (err) {
     console.error('[Storage] Error writing subscriptions.json:', err.message);
   }
@@ -404,33 +413,36 @@ app.get('/api/shops/:shop_slug', (req, res) => {
   const slug = req.params.shop_slug.toLowerCase();
   let shop = shops[slug];
 
-  // Auto-generate if new slug is queried
+  // Return clean preview without polluting master shops database
   if (!shop) {
     const formattedName = slug
       .split('-')
       .map(w => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ') + ' Xerox Center';
 
-    shop = {
-      name: formattedName,
-      slug: slug,
-      ownerName: 'Station Operator',
-      address: 'Main Market Counter',
-      phone: '+91 99095 77877',
-      upiId: 'bmgamara@ybl',
-      status: 'online',
-      pricing: {
-        bwSingle: 2.0,
-        bwDouble: 3.0,
-        colorSingle: 10.0,
-        colorDouble: 15.0,
-        legalMarkup: 1.5
+    return res.json({
+      success: true,
+      isRegistered: false,
+      shop: {
+        name: formattedName,
+        slug: slug,
+        ownerName: 'Operator',
+        address: 'Main Market Counter',
+        phone: '+91 99095 77877',
+        upiId: 'bmgamara@ybl',
+        status: 'online',
+        pricing: {
+          bwSingle: 2.0,
+          bwDouble: 3.0,
+          colorSingle: 10.0,
+          colorDouble: 15.0,
+          legalMarkup: 1.5
+        }
       }
-    };
-    shops[slug] = shop;
+    });
   }
 
-  res.json({ success: true, shop });
+  res.json({ success: true, isRegistered: true, shop });
 });
 
 // ---------------------------------------------------------------------
@@ -448,9 +460,10 @@ app.post('/api/register', (req, res) => {
   const cleanUser = username.trim().toLowerCase();
   const slug = cleanUser.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'shop';
 
-  // Check if username or slug already exists
-  if (shops[slug] || Object.values(shops).some(s => s.username && s.username.toLowerCase() === cleanUser)) {
-    return res.status(400).json({ success: false, error: 'This Username or shop name is already registered! Please choose another Username.' });
+  // Check if real registered shop with password exists
+  const existing = shops[slug] || Object.values(shops).find(s => s.username && s.username.toLowerCase() === cleanUser);
+  if (existing && existing.password) {
+    return res.status(400).json({ success: false, error: 'This Username or shop name is already registered! Please choose another Username or login.' });
   }
 
   const now = new Date();
@@ -501,22 +514,24 @@ app.post('/api/login', (req, res) => {
 
   const q = username.trim().toLowerCase();
   const p = password.trim();
+  const cleanPhone = q.replace(/[^0-9]/g, '');
 
-  // Find shop by username, slug, or mobile phone
+  // Find shop by username, slug, exact name, or phone number
   const shop = Object.values(shops).find(s => 
     (s.username && s.username.toLowerCase() === q) || 
     (s.slug && s.slug.toLowerCase() === q) || 
-    (s.phone && s.phone.replace(/[^0-9]/g, '') === q.replace(/[^0-9]/g, ''))
+    (s.name && s.name.toLowerCase() === q) ||
+    (cleanPhone.length >= 10 && s.phone && s.phone.replace(/[^0-9]/g, '').includes(cleanPhone))
   );
 
-  if (!shop) {
+  if (!shop || !shop.password) {
     return res.status(404).json({
       success: false,
       error: 'This shop is not registered! Please register for a 7-Day Free Trial.'
     });
   }
 
-  if (shop.password && shop.password !== p) {
+  if (shop.password !== p) {
     return res.status(401).json({
       success: false,
       error: 'Incorrect password! Please enter the correct password.'
@@ -571,7 +586,10 @@ app.get('/api/admin/shops', (req, res) => {
     if (s.subscription && s.subscription.validUntil) {
       const ms = new Date(s.subscription.validUntil) - Date.now();
       daysLeft = Math.ceil(ms / (1000 * 60 * 60 * 24));
+    } else {
+      daysLeft = 7;
     }
+    const plan = s.subscription?.plan || '7-Day Free Trial';
     return {
       name: s.name,
       slug: s.slug,
@@ -581,9 +599,14 @@ app.get('/api/admin/shops', (req, res) => {
       whatsapp: s.whatsapp,
       upiId: s.upiId,
       username: s.username,
-      status: s.status,
-      createdAt: s.createdAt,
-      subscription: s.subscription,
+      status: s.status || 'online',
+      createdAt: s.createdAt || new Date().toISOString(),
+      subscription: {
+        plan: plan,
+        amount: s.subscription?.amount || 0,
+        status: s.subscription?.status || 'active',
+        validUntil: s.subscription?.validUntil || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      },
       daysRemaining: daysLeft
     };
   });

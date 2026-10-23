@@ -238,7 +238,7 @@
   </div>
 
   <script>
-    let adminPin = sessionStorage.getItem('printgoo_admin_pin') || '';
+    let adminPin = localStorage.getItem('printgoo_admin_pin') || sessionStorage.getItem('printgoo_admin_pin') || '';
     let allShopsData = [];
     let currentFilterCategory = 'all';
 
@@ -263,6 +263,7 @@
 
         if (data.success) {
           adminPin = pin;
+          localStorage.setItem('printgoo_admin_pin', pin);
           sessionStorage.setItem('printgoo_admin_pin', pin);
           unlockDashboard();
         } else {
@@ -282,6 +283,7 @@
     }
 
     function adminLogout() {
+      localStorage.removeItem('printgoo_admin_pin');
       sessionStorage.removeItem('printgoo_admin_pin');
       window.location.reload();
     }
@@ -303,7 +305,7 @@
 
     async function fetchAdminData() {
       try {
-        const res = await fetch('/api/admin/shops', {
+        const res = await fetch(`/api/admin/shops?pin=${encodeURIComponent(adminPin || '')}`, {
           headers: { 'x-admin-pin': adminPin }
         });
         const d = await res.json();
@@ -527,7 +529,7 @@
             'Content-Type': 'application/json',
             'x-admin-pin': adminPin
           },
-          body: JSON.stringify({ slug, action })
+          body: JSON.stringify({ slug, action, pin: adminPin })
         });
         const d = await res.json();
         if (d.success) {
@@ -550,7 +552,7 @@
             'Content-Type': 'application/json',
             'x-admin-pin': adminPin
           },
-          body: JSON.stringify({ utrIndex, slug })
+          body: JSON.stringify({ utrIndex, slug, pin: adminPin })
         });
         const d = await res.json();
         if (d.success) {

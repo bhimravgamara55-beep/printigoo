@@ -1,0 +1,28 @@
+﻿{
+    "gamara-enterprises":  {
+                               "username":  "gamara",
+                               "pricing":  {
+                                               "colorDouble":  15,
+                                               "legalMarkup":  1.5,
+                                               "colorSingle":  10,
+                                               "bwDouble":  3,
+                                               "bwSingle":  2
+                                           },
+                               "name":  "GAMARA ENTERPRISES",
+                               "whatsapp":  "9909577877",
+                               "password":  "password123",
+                               "subscription":  {
+                                                    "amount":  1999,
+                                                    "plan":  "Yearly Pro",
+                                                    "status":  "active",
+                                                    "validUntil":  "2027-10-23T08:13:07.5049435Z"
+                                                },
+                               "slug":  "gamara-enterprises",
+                               "ownerName":  "Bhimrav Gamara",
+                               "upiId":  "bmgamara@ybl",
+                               "status":  "online",
+                               "createdAt":  "2026-10-23T08:13:07.4867487Z",
+                               "phone":  "9909577877",
+                               "address":  "Radhanpur, Gujarat"
+                           }
+}
