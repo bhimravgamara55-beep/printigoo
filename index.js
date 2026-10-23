@@ -291,35 +291,75 @@ app.get('/register', (req, res) => {
   res.sendFile(path.join(WEB_DIR, 'home.html'));
 });
 
-// Serve Windows Print Station Setup Downloader (.bat script)
+// Serve Windows Zero-Click Auto-Print Station Setup (.bat script)
 app.get('/download/print-station', (req, res) => {
+  const rawSlug = (req.query.slug || '').toString().trim().toLowerCase();
+  const slug = rawSlug.replace(/[^a-z0-9_-]/g, '');
+  const targetUrl = slug ? `https://www.printgoo.in/dashboard/${slug}` : 'https://www.printgoo.in';
+  const cleanName = slug ? slug.toUpperCase() : 'DESK';
+  const shortcutName = `PrintGoo Auto-Print (${cleanName})`;
+
   const batScript = `@echo off
-title PrintGoo Windows Print Station Installer
+title PrintGoo Zero-Click Auto-Print Installer
 echo ========================================================
-echo       PrintGoo Smart Print Station - Windows Setup
+echo       PrintGoo Smart Auto-Print Station Setup
 echo ========================================================
 echo.
-echo Installing PrintGoo Desktop App on your Windows PC...
+echo Installing PrintGoo Auto-Print on your Windows Desktop...
 echo.
 
+set "TARGET_URL=${targetUrl}"
+set "SHORTCUT_NAME=${shortcutName}"
+
+:: Search for Google Chrome or Microsoft Edge
+set "BROWSER_EXE="
+if exist "%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe" (
+    set "BROWSER_EXE=%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe"
+) else if exist "%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe" (
+    set "BROWSER_EXE=%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe"
+) else if exist "%LocalAppData%\\Google\\Chrome\\Application\\chrome.exe" (
+    set "BROWSER_EXE=%LocalAppData%\\Google\\Chrome\\Application\\chrome.exe"
+) else if exist "%ProgramFiles(x86)%\\Microsoft\\Edge\\Application\\msedge.exe" (
+    set "BROWSER_EXE=%ProgramFiles(x86)%\\Microsoft\\Edge\\Application\\msedge.exe"
+) else if exist "%ProgramFiles%\\Microsoft\\Edge\\Application\\msedge.exe" (
+    set "BROWSER_EXE=%ProgramFiles%\\Microsoft\\Edge\\Application\\msedge.exe"
+)
+
+:: Create Desktop Shortcut with --kiosk-printing and --app mode
 set SCRIPT="%TEMP%\\CreatePrintGooShortcut.vbs"
 echo Set oWS = WScript.CreateObject("WScript.Shell") > %SCRIPT%
-echo sLinkFile = oWS.SpecialFolders("Desktop") ^& "\\PrintGoo Station.lnk" >> %SCRIPT%
+echo sLinkFile = oWS.SpecialFolders("Desktop") ^& "\\%SHORTCUT_NAME%.lnk" >> %SCRIPT%
 echo Set oLink = oWS.CreateShortcut(sLinkFile) >> %SCRIPT%
-echo oLink.TargetPath = "https://www.printgoo.in" >> %SCRIPT%
-echo oLink.Description = "PrintGoo Smart Print Desk" >> %SCRIPT%
+if defined BROWSER_EXE (
+    echo oLink.TargetPath = "%BROWSER_EXE%" >> %SCRIPT%
+    echo oLink.Arguments = "--kiosk-printing --app=""%TARGET_URL%""" >> %SCRIPT%
+) else (
+    echo oLink.TargetPath = "%TARGET_URL%" >> %SCRIPT%
+)
+echo oLink.Description = "PrintGoo Zero-Click Auto-Print Station" >> %SCRIPT%
 echo oLink.Save >> %SCRIPT%
 cscript /nologo %SCRIPT%
 del %SCRIPT%
 
 echo.
-echo [SUCCESS] PrintGoo Desktop Shortcut created on your Desktop!
-echo Launching PrintGoo Station...
-start "" "msedge.exe" --app="https://www.printgoo.in" || start "" "chrome.exe" --app="https://www.printgoo.in" || start "" "https://www.printgoo.in"
+echo ========================================================
+echo  [SUCCESS] "%SHORTCUT_NAME%" created on Desktop!
+echo.
+echo  Whenever a customer pays via UPI, print will now come
+echo  out automatically without any clicks!
+echo ========================================================
+echo.
+echo Launching PrintGoo Auto-Print Station...
+if defined BROWSER_EXE (
+    start "" "%BROWSER_EXE%" --kiosk-printing --app="%TARGET_URL%"
+) else (
+    start "" "%TARGET_URL%"
+)
+timeout /t 3 >nul
 exit
 `;
 
-  res.setHeader('Content-Disposition', 'attachment; filename="PrintGoo-Print-Station-Setup.bat"');
+  res.setHeader('Content-Disposition', `attachment; filename="PrintGoo-AutoPrint-${cleanName}.bat"`);
   res.setHeader('Content-Type', 'application/x-bat');
   res.send(batScript);
 });

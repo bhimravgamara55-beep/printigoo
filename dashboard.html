@@ -1203,19 +1203,19 @@
             🪟
           </div>
           <div>
-            <span class="text-[10px] font-black uppercase tracking-wider text-blue-600 block mb-0.5">WINDOWS APP</span>
-            <h2 class="text-xl md:text-2xl font-black text-stone-900 tracking-tight">Download PrintGoo Print Station</h2>
-            <p class="text-xs text-stone-500 mt-1 max-w-xl">
-              Install the PrintGoo Windows app for silent/native printer control, local file retention and the fastest receiver experience.
+            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-600 block mb-0.5">WINDOWS ZERO-CLICK AUTO-PRINT</span>
+            <h2 class="text-xl md:text-2xl font-black text-stone-900 tracking-tight">PrintGoo Auto-Print Station</h2>
+            <p class="text-xs text-stone-600 mt-1 max-w-xl font-medium">
+              1-Click Setup: Prints immediately upon online payment without clicking or popups. Supports HP, Canon, Epson &amp; Brother printers.
             </p>
-            <p class="text-[11px] text-stone-400 mt-1">Background Auto-Print fix and latest PrintGoo desktop release</p>
-            <div class="mt-2">
-              <span class="px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200 text-[10px] font-bold">Latest v1.9.2</span>
+            <div class="mt-2 flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-bold">Zero-Click Ready</span>
+              <span class="text-[10px] text-stone-400">Windows 10 / 11 Compatible</span>
             </div>
           </div>
         </div>
 
-        <button type="button" onclick="window.location.href='/download/print-station'" class="py-3 px-6 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 shrink-0 transition cursor-pointer">
+        <button type="button" onclick="downloadWindowsApp()" class="py-3 px-6 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 shrink-0 transition cursor-pointer">
           <span>📥</span>
           <span>Download Windows App</span>
         </button>
@@ -1478,7 +1478,7 @@
       <!-- Options -->
       <div class="space-y-3">
         <!-- Option 1: Direct Windows Setup Script -->
-        <a href="/download/print-station" download class="block p-4 rounded-2xl bg-blue-50/70 border border-blue-200 hover:bg-blue-100/60 transition group cursor-pointer">
+        <a href="#" onclick="downloadWindowsApp(); return false;" class="block p-4 rounded-2xl bg-blue-50/70 border border-blue-200 hover:bg-blue-100/60 transition group cursor-pointer">
           <div class="flex items-start justify-between">
             <div class="flex items-center space-x-3">
               <span class="text-2xl">🪟</span>
@@ -1527,6 +1527,11 @@
     function closeDownloadModal() {
       const modal = document.getElementById('downloadAppModal');
       if (modal) modal.classList.add('hidden');
+    }
+
+    function downloadWindowsApp() {
+      const slug = currentShopSlug || '';
+      window.location.href = `/download/print-station?slug=${encodeURIComponent(slug)}`;
     }
 
     function installPwaApp() {
