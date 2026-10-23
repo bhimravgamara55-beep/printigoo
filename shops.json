@@ -1,28 +1,55 @@
-﻿{
-    "gamara-enterprises":  {
-                               "username":  "gamara",
-                               "pricing":  {
-                                               "colorDouble":  15,
-                                               "legalMarkup":  1.5,
-                                               "colorSingle":  10,
-                                               "bwDouble":  3,
-                                               "bwSingle":  2
-                                           },
-                               "name":  "GAMARA ENTERPRISES",
-                               "whatsapp":  "9909577877",
-                               "password":  "password123",
-                               "subscription":  {
-                                                    "amount":  1999,
-                                                    "plan":  "Yearly Pro",
-                                                    "status":  "active",
-                                                    "validUntil":  "2027-10-23T08:13:07.5049435Z"
-                                                },
-                               "slug":  "gamara-enterprises",
-                               "ownerName":  "Bhimrav Gamara",
-                               "upiId":  "bmgamara@ybl",
-                               "status":  "online",
-                               "createdAt":  "2026-10-23T08:13:07.4867487Z",
-                               "phone":  "9909577877",
-                               "address":  "Radhanpur, Gujarat"
-                           }
+{
+  "gamara-enterprises": {
+    "name": "GAMARA ENTERPRISES",
+    "slug": "gamara-enterprises",
+    "ownerName": "Bhimrav Gamara",
+    "address": "Radhanpur, Gujarat",
+    "phone": "9909577877",
+    "whatsapp": "9909577877",
+    "upiId": "bmgamara@ybl",
+    "username": "gamara",
+    "password": "password123",
+    "status": "online",
+    "createdAt": "2026-10-23T08:13:07.486Z",
+    "pricing": {
+      "bwSingle": 2.0,
+      "bwDouble": 3.0,
+      "colorSingle": 10.0,
+      "colorDouble": 15.0,
+      "legalMarkup": 1.5
+    },
+    "subscription": {
+      "plan": "Yearly Pro",
+      "amount": 1999,
+      "status": "active",
+      "validUntil": "2027-10-23T08:13:07.504Z"
+    }
+  },
+  "nagaldham": {
+    "name": "nagaldham",
+    "slug": "nagaldham",
+    "ownerName": "Nagaldham Xerox",
+    "address": "Radhanpur, Gujarat",
+    "phone": "9909577877",
+    "whatsapp": "9909577877",
+    "upiId": "bmgamara@ybl",
+    "username": "nagaldham",
+    "password": "password123",
+    "status": "online",
+    "createdAt": "2026-10-23T08:00:00.000Z",
+    "pricing": {
+      "bwSingle": 2.0,
+      "bwDouble": 3.0,
+      "colorSingle": 10.0,
+      "colorDouble": 15.0,
+      "legalMarkup": 1.5
+    },
+    "subscription": {
+      "plan": "7-Day Free Trial",
+      "amount": 0,
+      "status": "active",
+      "paidAt": "2026-10-23T08:00:00.000Z",
+      "validUntil": "2026-10-30T23:59:59.000Z"
+    }
+  }
 }

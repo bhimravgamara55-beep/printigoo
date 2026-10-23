@@ -156,6 +156,12 @@
             <button onclick="fetchAdminData()" class="p-2 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-bold" title="Refresh">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.033 8.033 0 01-15.357-2m15.357 2H15"/></svg>
             </button>
+            <button onclick="downloadBackup()" class="px-3 py-2 rounded-xl bg-pgMaroon text-white hover:bg-stone-800 text-xs font-bold shadow-xs flex items-center gap-1.5" title="Download entire shops database">
+              <span>📥 Backup</span>
+            </button>
+            <button onclick="triggerRestore()" class="px-3 py-2 rounded-xl bg-white border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-bold shadow-xs flex items-center gap-1.5" title="Upload and merge shops backup">
+              <span>📤 Restore</span>
+            </button>
           </div>
         </div>
 
@@ -564,6 +570,46 @@
       } catch (e) {
         alert('Server error.');
       }
+    }
+
+    function downloadBackup() {
+      window.open(`/api/admin/backup?pin=${encodeURIComponent(adminPin || '')}`, '_blank');
+    }
+
+    function triggerRestore() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const backupData = JSON.parse(text);
+          if (!backupData || !backupData.shops) {
+            alert('Invalid backup file format.');
+            return;
+          }
+          const res = await fetch(`/api/admin/restore?pin=${encodeURIComponent(adminPin || '')}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-pin': adminPin
+            },
+            body: JSON.stringify({ backupData, pin: adminPin })
+          });
+          const d = await res.json();
+          if (d.success) {
+            alert(`Successfully restored and synced ${d.count} shop(s)!`);
+            fetchAdminData();
+          } else {
+            alert(d.error || 'Restore failed.');
+          }
+        } catch(err) {
+          alert('Error parsing backup file: ' + err.message);
+        }
+      };
+      input.click();
     }
   </script>
 
