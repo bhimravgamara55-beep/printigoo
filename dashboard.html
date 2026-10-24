@@ -203,12 +203,6 @@
             🔔
           </button>
 
-          <!-- Demo Video Button -->
-          <button type="button" onclick="openDemoVideoModal()" class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-pgMaroon hover:bg-pgMaroonDark active:scale-95 text-white text-[11px] font-bold shadow-xs transition cursor-pointer" title="Watch Demo Video">
-            <span>🎬</span>
-            <span>Demo Video</span>
-          </button>
-
           <!-- Smart Crop & 3-Filter Studio Button -->
           <button type="button" onclick="openCropStudio()" class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-pgYellow hover:bg-amber-300 active:scale-95 text-pgMaroon border border-amber-300 text-[11px] font-bold shadow-xs transition cursor-pointer" title="Crop &amp; Filters: Original, Lighten, B&amp;W">
             <span>✂️</span>
@@ -279,13 +273,13 @@
               </div>
               <div>
                 <p class="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">B&W PRINTER</p>
-                <p id="bwPrinterName" class="text-xs font-bold text-stone-800">HP LaserJet Pro M404n</p>
+                <p id="bwPrinterName" class="text-xs font-bold text-stone-800">Windows Default Printer</p>
               </div>
             </div>
-            <button type="button" onclick="choosePrinter('bw')" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-[10px] font-bold flex items-center gap-1 hover:bg-amber-100">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-              <span>Choose printer</span>
-            </button>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[10px] font-bold flex items-center gap-1 shadow-xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>Auto Ready</span>
+            </span>
           </div>
 
           <!-- Colour Printer Box -->
@@ -296,13 +290,13 @@
               </div>
               <div>
                 <p class="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">COLOUR PRINTER</p>
-                <p id="colorPrinterName" class="text-xs font-bold text-stone-800">Canon iR-ADV C3530</p>
+                <p id="colorPrinterName" class="text-xs font-bold text-stone-800">Color Laser / Inkjet</p>
               </div>
             </div>
-            <button type="button" onclick="choosePrinter('color')" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-[10px] font-bold flex items-center gap-1 hover:bg-amber-100">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-              <span>Choose printer</span>
-            </button>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[10px] font-bold flex items-center gap-1 shadow-xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>Auto Ready</span>
+            </span>
           </div>
 
         </div>
@@ -2464,68 +2458,21 @@
       });
     } catch (e) {}
 
+    // Fast Cash Approval & Print via Spacebar or Enter
+    document.addEventListener('keydown', (e) => {
+      const activeTag = (document.activeElement?.tagName || '').toLowerCase();
+      if (['input', 'textarea', 'select'].includes(activeTag)) return;
+      if (e.code === 'Space' || e.key === 'Enter') {
+        const pendingCash = jobsList.find(j => (j.paymentStatus === 'pending' || j.jobStatus === 'waiting_cash') && j.jobStatus !== 'completed');
+        if (pendingCash) {
+          e.preventDefault();
+          approveJob(pendingCash.id);
+        }
+      }
+    });
+
     loadShop();
     loadJobs();
-  </script>
-
-  <!-- DEMO VIDEO MODAL (Original UI Style) -->
-  <div id="demoVideoModal" class="hidden fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-2xl w-full border border-stone-200 shadow-2xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-pgBg">
-        <div class="flex items-center space-x-2.5">
-          <span class="w-8 h-8 rounded-full bg-pgYellow text-pgMaroon flex items-center justify-center text-sm font-bold shadow-xs">🎬</span>
-          <div>
-            <h3 class="text-sm font-black text-stone-900">PrintGoo Live Walkthrough &amp; Demo</h3>
-            <p class="text-[11px] text-stone-500">Customer QR Scan ➔ File received on Live Desk ➔ Instant Print</p>
-          </div>
-        </div>
-        <button type="button" onclick="closeDemoVideoModal()" class="w-7 h-7 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-600 font-bold flex items-center justify-center transition">✕</button>
-      </div>
-
-      <div class="p-6 space-y-4">
-        <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black flex items-center justify-center shadow-inner">
-          <video id="demoVideoPlayer" controls class="w-full h-full object-cover">
-            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <div class="p-3 rounded-2xl bg-pgBg border border-stone-200">
-            <p class="font-black text-pgMaroon mb-0.5">1. Customer QR</p>
-            <p class="text-[10px] text-stone-600">Customer scans shop QR and uploads PDF/Photos directly.</p>
-          </div>
-          <div class="p-3 rounded-2xl bg-pgBg border border-stone-200">
-            <p class="font-black text-pgMaroon mb-0.5">2. Live Receiving</p>
-            <p class="text-[10px] text-stone-600">Files &amp; exact payment arrive in real-time with sound chime.</p>
-          </div>
-          <div class="p-3 rounded-2xl bg-pgBg border border-stone-200">
-            <p class="font-black text-pgMaroon mb-0.5">3. Direct Print</p>
-            <p class="text-[10px] text-stone-600">Hardware prints instantly via auto-print or 1-click Print.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="px-6 py-3.5 bg-stone-50 border-t border-stone-100 flex justify-end">
-        <button type="button" onclick="closeDemoVideoModal()" class="px-5 py-2 rounded-xl bg-pgMaroon hover:bg-pgMaroonDark text-white font-bold text-xs transition">
-          Close Demo
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function openDemoVideoModal() {
-      const modal = document.getElementById('demoVideoModal');
-      if (modal) modal.classList.remove('hidden');
-      const v = document.getElementById('demoVideoPlayer');
-      if (v) v.play().catch(() => {});
-    }
-    function closeDemoVideoModal() {
-      const modal = document.getElementById('demoVideoModal');
-      if (modal) modal.classList.add('hidden');
-      const v = document.getElementById('demoVideoPlayer');
-      if (v) v.pause();
-    }
   </script>
 
 
