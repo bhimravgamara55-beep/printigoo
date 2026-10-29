@@ -462,22 +462,6 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Instant Auto-Redirect: If shopkeeper is already logged in, take directly to their Dashboard!
-    (function checkExistingSession() {
-      try {
-        const savedSlug = localStorage.getItem('printgoo_current_slug');
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('logout')) {
-          localStorage.removeItem('printgoo_current_slug');
-          localStorage.removeItem('printgoo_current_user');
-          return;
-        }
-        if (savedSlug && savedSlug !== 'undefined' && savedSlug !== 'null' && savedSlug.trim() !== '') {
-          window.location.replace('/dashboard/' + encodeURIComponent(savedSlug.trim()));
-        }
-      } catch (e) {}
-    })();
-
     function togglePassVisibility() {
       const p = document.getElementById('loginPassword');
       p.type = p.type === 'password' ? 'text' : 'password';

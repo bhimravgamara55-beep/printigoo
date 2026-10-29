@@ -902,33 +902,39 @@ app.post('/api/shops/:shop_slug/status', (req, res) => {
   res.json({ success: true, shop: shops[slug] });
 });
 
-// Customer File Upload & Job Creation
-app.post('/api/upload/:shop_slug', upload.single('file'), async (req, res) => {
+// Customer File Upload & Job Creation (Supports Single, Multi-file & Counter Xerox Token)
+app.post('/api/upload/:shop_slug', upload.any(), async (req, res) => {
   const slug = req.params.shop_slug.toLowerCase();
   const shop = shops[slug];
 
-  if (!req.file) {
-    return res.status(400).json({ error: 'Please choose a document to upload.' });
+  const files = req.files || [];
+  const primaryFile = files.find(f => f.fieldname === 'file') || files[0] || null;
+  const isCounterToken = req.body.isCounterToken === 'true' || (!primaryFile && req.body.paymentMode === 'cash');
+
+  if (!primaryFile && !isCounterToken) {
+    return res.status(400).json({ error: 'Please choose a document to upload or select Counter Xerox.' });
   }
 
-  const uploadedFilePath = req.file.path;
+  const uploadedFilePath = primaryFile ? primaryFile.path : null;
 
   try {
     let totalPages = 1;
-    const isPdf = req.file.mimetype === 'application/pdf' || req.file.originalname.toLowerCase().endsWith('.pdf');
+    if (primaryFile) {
+      const isPdf = primaryFile.mimetype === 'application/pdf' || primaryFile.originalname.toLowerCase().endsWith('.pdf');
 
-    if (isPdf && PDFDocument) {
-      try {
-        const fileBytes = fs.readFileSync(uploadedFilePath);
-        const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
-        totalPages = pdfDoc.getPageCount() || 1;
-      } catch (pdfErr) {
-        // If password protected or inspect error, fallback to page count sent by client or 1
-        console.warn('[PDF Inspection Warning]', pdfErr.message);
+      if (isPdf && PDFDocument) {
+        try {
+          const fileBytes = fs.readFileSync(uploadedFilePath);
+          const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
+          totalPages = pdfDoc.getPageCount() || 1;
+        } catch (pdfErr) {
+          console.warn('[PDF Inspection Warning]', pdfErr.message);
+          totalPages = parseInt(req.body.clientPages, 10) || 1;
+        }
+      } else {
         totalPages = parseInt(req.body.clientPages, 10) || 1;
       }
     } else {
-      // For images or fallback
       totalPages = parseInt(req.body.clientPages, 10) || 1;
     }
 
@@ -957,15 +963,19 @@ app.post('/api/upload/:shop_slug', upload.single('file'), async (req, res) => {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + RETENTION_MS);
 
+    const docDisplayName = primaryFile 
+      ? (files.length > 1 ? `${primaryFile.originalname} (+${files.length - 1} files)` : primaryFile.originalname)
+      : (req.body.counterDocType || 'Physical Paper / Counter Xerox');
+
     const job = {
       id: jobId,
       token,
       shopSlug: slug,
-      fileName: req.file.originalname,
-      storedFileName: req.file.filename,
+      fileName: docDisplayName,
+      storedFileName: primaryFile ? primaryFile.filename : 'counter_token',
       filePath: uploadedFilePath,
-      fileSize: req.file.size,
-      mimetype: req.file.mimetype,
+      fileSize: primaryFile ? primaryFile.size : 0,
+      mimetype: primaryFile ? primaryFile.mimetype : 'text/plain',
       pages: totalPages,
       copies,
       colorMode,
@@ -978,7 +988,7 @@ app.post('/api/upload/:shop_slug', upload.single('file'), async (req, res) => {
       sheetsPerCopy: calculation.sheetsPerCopy,
       createdAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),
-      fileUrl: `/api/files/${req.file.filename}`
+      fileUrl: primaryFile ? `/api/files/${primaryFile.filename}` : null
     };
 
     // Store in-memory
@@ -988,7 +998,7 @@ app.post('/api/upload/:shop_slug', upload.single('file'), async (req, res) => {
     io.to(`shop_${slug}`).emit('job:new', job);
 
     // If online UPI payment, auto-dispatch to silent hardware station immediately
-    if (job.paymentMode === 'upi') {
+    if (job.paymentMode === 'upi' && job.fileUrl) {
       io.to(`station_${slug}`).emit('print:dispatch', {
         jobId: job.id,
         jobToken: job.token,

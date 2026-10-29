@@ -159,7 +159,7 @@
                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </span>
-                <input type="text" id="loginUsername" placeholder="Username / Shop ID" value="gamara" required class="w-full pl-10 pr-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
+                <input type="text" id="loginUsername" placeholder="Username / Shop ID" value="" required class="w-full pl-10 pr-4 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
               </div>
             </div>
 
@@ -169,7 +169,7 @@
                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </span>
-                <input type="password" id="loginPassword" placeholder="Password" value="123456" required class="w-full pl-10 pr-10 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
+                <input type="password" id="loginPassword" placeholder="Password" value="" required class="w-full pl-10 pr-10 py-3 rounded-2xl border border-stone-300 focus:outline-none focus:border-pgMaroon text-xs text-stone-900 font-semibold bg-stone-50/50" />
                 <button type="button" onclick="togglePassVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600">
                   👁️
                 </button>
@@ -195,9 +195,9 @@
 
           <!-- Call for Setup Button -->
           <div class="mt-4">
-            <a href="tel:+919800012345" class="w-full py-3 rounded-2xl bg-pgGreen hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-2 transition shadow-sm">
+            <a href="tel:+919909577877" class="w-full py-3 rounded-2xl bg-pgGreen hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-2 transition shadow-sm">
               <span>📞</span>
-              <span>Call for setup (+91 98000 12345)</span>
+              <span>Call for setup (+91 9909577877)</span>
             </a>
           </div>
 
@@ -363,8 +363,8 @@
             </ul>
           </div>
 
-          <button type="button" onclick="window.location.href='/dashboard/gamara-enterprises'" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs flex items-center justify-center gap-1 transition shadow-md">
-            <span>View current price</span>
+          <button type="button" onclick="window.location.href='#pricing'" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-bold text-xs flex items-center justify-center gap-1 transition shadow-md">
+            <span>Get Started</span>
             <span>&rarr;</span>
           </button>
         </div>
@@ -401,8 +401,8 @@
             </ul>
           </div>
 
-          <button type="button" onclick="window.location.href='/dashboard/gamara-enterprises'" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-black text-xs flex items-center justify-center gap-1 transition shadow-md">
-            <span>View yearly offer</span>
+          <button type="button" onclick="window.location.href='#pricing'" class="mt-6 w-full py-3.5 rounded-2xl bg-pgRed hover:bg-pgRedHover text-white font-black text-xs flex items-center justify-center gap-1 transition shadow-md">
+            <span>Get Started</span>
             <span>&rarr;</span>
           </button>
         </div>
@@ -445,22 +445,6 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Instant Auto-Redirect: If shopkeeper is already logged in, take directly to their Dashboard!
-    (function checkExistingSession() {
-      try {
-        const savedSlug = localStorage.getItem('printgoo_current_slug');
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('logout')) {
-          localStorage.removeItem('printgoo_current_slug');
-          localStorage.removeItem('printgoo_current_user');
-          return;
-        }
-        if (savedSlug && savedSlug !== 'undefined' && savedSlug !== 'null' && savedSlug.trim() !== '') {
-          window.location.replace('/dashboard/' + encodeURIComponent(savedSlug.trim()));
-        }
-      } catch (e) {}
-    })();
-
     function togglePassVisibility() {
       const p = document.getElementById('loginPassword');
       p.type = p.type === 'password' ? 'text' : 'password';

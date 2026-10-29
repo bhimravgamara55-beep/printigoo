@@ -280,6 +280,32 @@
 
   </main>
 
+  <!-- COUNTER XEROX / NO FILE CHOOSER MODAL -->
+  <div id="counterChooserModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-stone-200">
+      <div class="w-14 h-14 rounded-full bg-pgYellow text-pgMaroon mx-auto flex items-center justify-center text-2xl mb-3 shadow-inner">
+        📄
+      </div>
+      <h3 class="text-base font-black text-stone-900">How would you like to print?</h3>
+      <p class="text-xs text-stone-500 mt-1 mb-5 leading-relaxed">
+        You haven't selected a file yet. Please choose how you want to proceed:
+      </p>
+      <div class="space-y-2.5">
+        <button type="button" onclick="chooseUploadFileAction()" class="w-full py-3.5 px-4 rounded-2xl bg-pgMaroon hover:bg-pgMaroonDark text-white font-bold text-xs shadow-md flex items-center justify-center gap-2">
+          <span>📁</span>
+          <span>Upload PDF or Photo from Phone</span>
+        </button>
+        <button type="button" onclick="generateCounterPaperToken()" class="w-full py-3.5 px-4 rounded-2xl bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 text-pgMaroon font-black text-xs shadow-xs flex items-center justify-center gap-2">
+          <span>⚡</span>
+          <span>Get Token for Physical Paper / Xerox</span>
+        </button>
+        <button type="button" onclick="document.getElementById('counterChooserModal').classList.add('hidden')" class="w-full py-2 text-xs font-semibold text-stone-400">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- RECEIPT / STATUS MODAL -->
   <div id="receiptModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-stone-200">
@@ -570,10 +596,75 @@
       }
     });
 
+    // Audio Chime for Customer Token Receipt
+    function playCustomerTokenChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.18); // A5
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.35);
+      } catch (e) {}
+    }
+
+    function chooseUploadFileAction() {
+      document.getElementById('counterChooserModal').classList.add('hidden');
+      const dropEmpty = document.getElementById('portalDropEmpty');
+      if (dropEmpty) {
+        dropEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      document.getElementById('portalFileInput').click();
+    }
+
+    async function generateCounterPaperToken() {
+      document.getElementById('counterChooserModal').classList.add('hidden');
+      const btn = document.getElementById('btnActionCash');
+      btn.disabled = true;
+      btn.textContent = 'Generating Token...';
+
+      try {
+        const fd = new FormData();
+        fd.append('isCounterToken', 'true');
+        fd.append('counterDocType', `Physical Paper Xerox (${detectedPages}p x ${copies}c)`);
+        fd.append('clientPages', detectedPages);
+        fd.append('copies', copies);
+        fd.append('colorMode', colorMode);
+        fd.append('duplex', duplex);
+        fd.append('paperSize', paperSize);
+        fd.append('paymentMode', 'cash');
+
+        const res = await fetch(`/api/upload/${currentShopSlug}`, {
+          method: 'POST',
+          body: fd
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Token error');
+
+        activeJob = data.job;
+        if (socket) socket.emit('job:watch', { jobId: activeJob.id });
+        showReceipt(activeJob);
+      } catch (err) {
+        alert('Could not generate token: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💵 Pay at Counter (Cash)';
+      }
+    }
+
     // Submit Job
     async function uploadJob(paymentMode) {
       if (!selectedFiles || selectedFiles.length === 0) {
-        alert('Please select a PDF document or image file first.');
         return null;
       }
 
@@ -603,28 +694,40 @@
         if (socket) socket.emit('job:watch', { jobId: activeJob.id });
         return activeJob;
       } catch (err) {
-        alert('Error: ' + err.message);
+        alert('Upload Error: ' + err.message);
         return null;
       }
     }
 
     // Cash Action
     document.getElementById('btnActionCash').addEventListener('click', async () => {
+      // If customer has NOT selected a file yet, show the chooser modal
+      if (!selectedFiles || selectedFiles.length === 0) {
+        document.getElementById('counterChooserModal').classList.remove('hidden');
+        return;
+      }
+
       const btn = document.getElementById('btnActionCash');
       btn.disabled = true;
       btn.textContent = 'Queueing Print...';
 
-      const job = await uploadJob('cash');
-      btn.disabled = false;
-      btn.textContent = '💵 Pay at Counter (Cash)';
-
-      if (job) showReceipt(job);
+      try {
+        const job = await uploadJob('cash');
+        if (job) showReceipt(job);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💵 Pay at Counter (Cash)';
+      }
     });
 
-    // UPI Action
+    // UPI Action (Fast PhonePe / GPay Launch)
     document.getElementById('btnActionUpi').addEventListener('click', () => {
-      if (!selectedFile) {
-        alert('Please select a file first.');
+      if (!selectedFiles || selectedFiles.length === 0) {
+        const dropEmpty = document.getElementById('portalDropEmpty');
+        if (dropEmpty) {
+          dropEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        document.getElementById('portalFileInput').click();
         return;
       }
 
@@ -647,6 +750,14 @@
       document.getElementById('portalUpiQrImage').src = qr;
 
       document.getElementById('customerUpiModal').classList.remove('hidden');
+
+      // Fast Mobile Launch: If customer is on phone, trigger UPI intent directly for 1-tap PhonePe / GPay!
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile) {
+        try {
+          window.location.href = uri;
+        } catch (e) {}
+      }
     });
 
     document.getElementById('btnConfirmUpiCustomerPaid').addEventListener('click', async () => {
@@ -655,14 +766,17 @@
       btn.disabled = true;
       btn.textContent = 'Submitting Paid Order...';
 
-      const job = await uploadJob('upi');
-      btn.disabled = false;
-      btn.textContent = '⚡ Pay via UPI (GPay / PhonePe / Paytm)';
-
-      if (job) showReceipt(job);
+      try {
+        const job = await uploadJob('upi');
+        if (job) showReceipt(job);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⚡ Pay via UPI (GPay / PhonePe / Paytm)';
+      }
     });
 
     function showReceipt(job) {
+      playCustomerTokenChime();
       document.getElementById('receiptTokenVal').textContent = job.token;
       document.getElementById('receiptDocName').textContent = job.fileName;
       document.getElementById('receiptDocBill').textContent = `₹${(job.totalAmount || 0).toFixed(2)}`;
