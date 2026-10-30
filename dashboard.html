@@ -2486,6 +2486,9 @@
       socket.on('job:updated', (updated) => {
         updateJob(updated);
       });
+      socket.on('job:update', (updated) => {
+        updateJob(updated);
+      });
     } catch (e) {}
 
     // Fast Cash Approval & Print via Spacebar or Enter
@@ -2685,18 +2688,23 @@
           <!-- Quick Canvas Toolbar -->
           <div class="flex items-center justify-between text-xs pt-1">
             <div class="flex items-center gap-2">
-              <button type="button" onclick="detectAndApplyAutoCrop()" class="px-3 py-1.5 rounded-xl bg-pgYellow hover:bg-amber-300 text-pgMaroon font-bold text-xs border border-amber-300 transition shadow-2xs flex items-center gap-1" title="1-Click Auto Edge Detect &amp; Brighten">
-                <span>⚡</span>
-                <span>Auto Crop</span>
-              </button>
+              <!-- Segmented Auto Crop vs No Crop toggle -->
+              <div class="inline-flex rounded-xl p-0.5 bg-stone-100 border border-stone-300">
+                <button type="button" id="btnStudioCropAuto" onclick="setStudioCropMode('auto')" class="px-3 py-1.5 rounded-lg bg-pgMaroon text-white font-bold text-xs flex items-center gap-1 shadow-xs transition cursor-pointer">
+                  <span>⚡</span>
+                  <span>Auto Crop (Adobe Scan)</span>
+                </button>
+                <button type="button" id="btnStudioCropNone" onclick="setStudioCropMode('none')" class="px-3 py-1.5 rounded-lg text-stone-600 hover:text-stone-900 font-bold text-xs flex items-center gap-1 transition cursor-pointer">
+                  <span>🖼️</span>
+                  <span>No Crop</span>
+                </button>
+              </div>
+
               <button type="button" onclick="rotateStudioImage(-90)" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold transition">
                 ↺ Rotate Left
               </button>
               <button type="button" onclick="rotateStudioImage(90)" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold transition">
                 ↻ Rotate Right
-              </button>
-              <button type="button" onclick="resetStudioCrop()" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold transition">
-                Reset Box
               </button>
             </div>
 
@@ -2780,6 +2788,7 @@
     async function openCropStudio(jobId, fileUrl) {
       const modal = document.getElementById('cropStudioModal');
       if (modal) modal.classList.remove('hidden');
+      studioCropMode = 'auto'; // Adobe Scan Auto Crop by default
 
       if (fileUrl) {
         const isPdf = /\.pdf$/i.test(fileUrl);
@@ -3161,11 +3170,27 @@
       };
     }
 
-    function detectAndApplyAutoCrop() {
-      if (studioImages.length === 0) return;
-      studioCrop = { autoNeeded: true };
-      studioFilter = 'lighten';
+    let studioCropMode = 'auto'; // Default: Auto Crop (Adobe Scan type)
+
+    function setStudioCropMode(mode) {
+      studioCropMode = mode;
+      const btnAuto = document.getElementById('btnStudioCropAuto');
+      const btnNone = document.getElementById('btnStudioCropNone');
+
+      if (mode === 'auto') {
+        if (btnAuto) btnAuto.className = 'px-3 py-1.5 rounded-lg bg-pgMaroon text-white font-bold text-xs flex items-center gap-1 shadow-xs transition cursor-pointer';
+        if (btnNone) btnNone.className = 'px-3 py-1.5 rounded-lg text-stone-600 hover:text-stone-900 font-bold text-xs flex items-center gap-1 transition cursor-pointer';
+        studioCrop = { autoNeeded: true };
+      } else {
+        if (btnAuto) btnAuto.className = 'px-3 py-1.5 rounded-lg text-stone-600 hover:text-stone-900 font-bold text-xs flex items-center gap-1 transition cursor-pointer';
+        if (btnNone) btnNone.className = 'px-3 py-1.5 rounded-lg bg-pgMaroon text-white font-bold text-xs flex items-center gap-1 shadow-xs transition cursor-pointer';
+        studioCrop = { x: 0, y: 0, w: 1, h: 1 };
+      }
       drawStudioCanvas();
+    }
+
+    function detectAndApplyAutoCrop() {
+      setStudioCropMode('auto');
     }
 
     // Main Draw Function: DIRECTLY CROPS & ENHANCES WITH ZERO MANUAL WORK
@@ -3193,8 +3218,10 @@
       rotCtx.rotate((studioRotation * Math.PI) / 180);
       rotCtx.drawImage(item, -rawW / 2, -rawH / 2);
 
-      // 2. 100% Genuine Auto Crop bounds detection (4 corners zero-loss)
-      if (!studioCrop || studioCrop.autoNeeded || studioCrop.w === undefined) {
+      // 2. Crop bounds handling: Auto Crop vs No Crop
+      if (studioCropMode === 'none') {
+        studioCrop = { x: 0, y: 0, w: 1, h: 1 };
+      } else if (!studioCrop || studioCrop.autoNeeded || studioCrop.w === undefined) {
         studioCrop = detectDocumentBounds(rotCanvas);
       }
 
@@ -3228,57 +3255,65 @@
     }
 
     function printStudioDirect() {
-      const canvas = document.getElementById('studioCanvas');
-      if (!canvas) return;
+      if (!studioImages || studioImages.length === 0) return;
 
-      // Create cropped offscreen canvas
-      const cropX = studioCrop.x * canvas.width;
-      const cropY = studioCrop.y * canvas.height;
-      const cropW = studioCrop.w * canvas.width;
-      const cropH = studioCrop.h * canvas.height;
+      const renderedPages = [];
+      const totalToPrint = studioImages.length;
 
-      const outCanvas = document.createElement('canvas');
-      outCanvas.width = cropW;
-      outCanvas.height = cropH;
-      const outCtx = outCanvas.getContext('2d');
+      for (let idx = 0; idx < totalToPrint; idx++) {
+        const item = studioImages[idx];
+        const rawW = item.width || 1200;
+        const rawH = item.height || 1600;
 
-      // Re-draw without crop overlay to get 100% clean output
-      const item = studioImages[studioCurrentIndex];
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      const tempCtx = tempCanvas.getContext('2d');
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = rawW;
+        tempCanvas.height = rawH;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.fillStyle = '#FFFFFF';
+        tempCtx.fillRect(0, 0, rawW, rawH);
 
-      const imgWidth = item.width;
-      const imgHeight = item.height;
-      tempCtx.save();
-      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
-      tempCtx.rotate((studioRotation * Math.PI) / 180);
-      tempCtx.drawImage(item, -imgWidth / 2, -imgHeight / 2);
-      tempCtx.restore();
+        // For the currently active page in editor, apply rotation if rotated
+        if (idx === studioCurrentIndex && studioRotation !== 0) {
+          tempCtx.save();
+          tempCtx.translate(rawW / 2, rawH / 2);
+          tempCtx.rotate((studioRotation * Math.PI) / 180);
+          tempCtx.drawImage(item, -rawW / 2, -rawH / 2);
+          tempCtx.restore();
+        } else {
+          tempCtx.drawImage(item, 0, 0, rawW, rawH);
+        }
 
-      if (studioFilter === 'lighten') {
-        processLightenFilter(tempCtx, tempCanvas.width, tempCanvas.height);
-      } else if (studioFilter === 'bw') {
-        processAdaptiveBWFilter(tempCtx, tempCanvas.width, tempCanvas.height);
+        // Apply selected filter (Lighten / B&W) to every page
+        if (studioFilter === 'lighten') {
+          processLightenFilter(tempCtx, rawW, rawH);
+        } else if (studioFilter === 'bw') {
+          processAdaptiveBWFilter(tempCtx, rawW, rawH);
+        }
+
+        renderedPages.push(tempCanvas.toDataURL('image/jpeg', 0.95));
       }
-
-      outCtx.drawImage(tempCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
 
       const win = window.open('', '_blank');
       win.document.write(`
+        <!DOCTYPE html>
         <html>
           <head>
-            <title>PrintGoo HD Document Print</title>
+            <title>PrintGoo HD Document Print (${renderedPages.length} Pages)</title>
             <style>
-              @page { size: A4; margin: 8mm; }
-              body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #fff; }
-              img { max-width: 98%; max-height: 98%; object-fit: contain; }
+              @page { size: A4 portrait; margin: 6mm; }
+              html, body { margin: 0; padding: 0; background: #fff; }
+              .page-container { width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; page-break-after: always; break-after: page; box-sizing: border-box; }
+              .page-container:last-child { page-break-after: avoid; break-after: avoid; }
+              img { max-width: 98%; max-height: 98%; width: auto; height: auto; object-fit: contain; }
             </style>
           </head>
           <body>
-            <img src="${outCanvas.toDataURL('image/jpeg', 0.98)}" />
-            <script>window.onload = function() { window.print(); window.close(); }<\/script>
+            ${renderedPages.map(src => `
+              <div class="page-container">
+                <img src="${src}" />
+              </div>
+            `).join('')}
+            <script>window.onload = function() { window.focus(); window.print(); }<\/script>
           </body>
         </html>
       `);

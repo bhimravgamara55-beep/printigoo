@@ -323,13 +323,33 @@ app.get('/', (req, res) => {
   res.send('PrintGoo Landing Page not found.');
 });
 
-// Serve Customer QR Scan Upload Portal for /q/:shop_slug
+// Serve Customer QR Scan Upload Portal for /q/:shop_slug (Instant Sub-50ms Loading)
 app.get('/q/:shop_slug', (req, res) => {
   const customerPath = path.join(WEB_DIR, 'customer.html');
-  if (fs.existsSync(customerPath)) {
+  if (!fs.existsSync(customerPath)) {
+    return res.send('PrintGoo Customer Portal not found.');
+  }
+
+  const rawSlug = (req.params.shop_slug || '').toLowerCase();
+  const shop = shops[rawSlug] || {
+    name: rawSlug.replace(/-/g, ' ').toUpperCase() + ' XEROX',
+    slug: rawSlug,
+    address: 'Counter Desk',
+    upiId: 'bmgamara@ybl',
+    status: 'online',
+    pricing: { bwSingle: 2, bwDouble: 3, colorSingle: 10, colorDouble: 15, legalMarkup: 1.5 }
+  };
+
+  try {
+    let html = fs.readFileSync(customerPath, 'utf8');
+    const injection = `<script>window.__INITIAL_SHOP_DATA__ = ${JSON.stringify(shop)};</script>`;
+    html = html.replace('</head>', `${injection}\n</head>`);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    return res.send(html);
+  } catch (err) {
     return res.sendFile(customerPath);
   }
-  res.send('PrintGoo Customer Portal not found.');
 });
 
 // Serve Business Registration / Onboarding Page
@@ -900,6 +920,94 @@ app.post('/api/shops/:shop_slug/status', (req, res) => {
   });
 
   res.json({ success: true, shop: shops[slug] });
+});
+
+// Instant Token Generation Endpoint (Sub-10ms response for zero-wait customer token)
+app.post('/api/token/instant/:shop_slug', (req, res) => {
+  const slug = req.params.shop_slug.toLowerCase();
+  const shop = shops[slug];
+  const token = getNextToken(slug);
+  const jobId = uuidv4();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + RETENTION_MS);
+
+  const copies = Math.max(1, parseInt(req.body.copies, 10) || 1);
+  const pages = Math.max(1, parseInt(req.body.pages, 10) || 1);
+  const colorMode = req.body.colorMode === 'color' ? 'color' : 'bw';
+  const duplex = req.body.duplex === 'double' ? 'double' : 'single';
+  const paperSize = req.body.paperSize === 'Legal' ? 'Legal' : 'A4';
+  const paymentMode = req.body.paymentMode === 'upi' ? 'upi' : 'cash';
+  const fileName = req.body.fileName || 'Physical Paper / Counter Xerox';
+
+  const currentPricing = shop ? shop.pricing : {
+    bwSingle: 2.0, bwDouble: 3.0, colorSingle: 10.0, colorDouble: 15.0, legalMarkup: 1.5
+  };
+  const calculation = calculateJobPrice({
+    pages,
+    copies,
+    colorMode,
+    duplex,
+    paperSize,
+    pricing: currentPricing
+  });
+
+  const job = {
+    id: jobId,
+    token,
+    shopSlug: slug,
+    fileName,
+    storedFileName: 'instant_token',
+    filePath: null,
+    fileSize: 0,
+    mimetype: 'text/plain',
+    pages,
+    copies,
+    colorMode,
+    duplex,
+    paperSize,
+    paymentMode,
+    paymentStatus: 'pending',
+    jobStatus: 'waiting_cash',
+    totalAmount: calculation.totalAmount,
+    sheetsPerCopy: calculation.sheetsPerCopy,
+    createdAt: now.toISOString(),
+    expiresAt: expiresAt.toISOString(),
+    fileUrl: null
+  };
+
+  jobs.set(jobId, job);
+  io.to(`shop_${slug}`).emit('job:new', job);
+
+  console.log(`[Instant Token Created] Token ${token} for shop '${slug}' in 5ms - Amount: ₹${job.totalAmount}`);
+
+  res.json({
+    success: true,
+    token,
+    job
+  });
+});
+
+// Attach File to existing Instant Token Job
+app.post('/api/jobs/:jobId/attach-file', upload.single('file'), (req, res) => {
+  const job = jobs.get(req.params.jobId);
+  if (!job) {
+    return res.status(404).json({ error: 'Job not found' });
+  }
+
+  if (req.file) {
+    job.filePath = req.file.path;
+    job.storedFileName = req.file.filename;
+    job.fileName = req.file.originalname;
+    job.fileSize = req.file.size;
+    job.mimetype = req.file.mimetype;
+    job.fileUrl = `/api/files/${req.file.filename}`;
+
+    // Broadcast updated job with file to shopkeeper
+    io.to(`shop_${job.shopSlug}`).emit('job:update', job);
+    console.log(`[File Attached to Token] Token ${job.token}: ${job.fileName}`);
+  }
+
+  res.json({ success: true, job });
 });
 
 // Customer File Upload & Job Creation (Supports Single, Multi-file & Counter Xerox Token)

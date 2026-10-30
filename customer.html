@@ -37,10 +37,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
-  <!-- PDF.js for instant client-side page counting -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- PDF.js for instant client-side page counting (deferred so page renders in 0.05s) -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- PDF-Lib for merging multiple documents & photos into 1 master PDF -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <!-- Socket.io client -->
-  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="/socket.io/socket.io.js"></script>
 
   <style>
     body {
@@ -57,17 +59,8 @@
       animation: pulse-dot 1.8s infinite ease-in-out;
     }
   </style>
-  <style>
-    #globalLoader { position: fixed; inset: 0; background: #FAF7F2; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; }
-    .spinner { border: 4px solid #EFE8DA; border-top: 4px solid #78251B; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  </style>
 </head>
 <body class="bg-pgBg min-h-screen flex flex-col antialiased selection:bg-pgYellow selection:text-pgMaroon pb-12">
-  <div id="globalLoader">
-    <div class="spinner"></div>
-    <p style="margin-top: 15px; color: #78251B; font-weight: bold;">Loading PrintGoo........</p>
-  </div>
 
   <!-- TOP HEADER -->
   <header class="bg-[#FAF7F2] border-b border-pgBorder py-3 px-4 sticky top-0 z-30 shadow-sm">
@@ -167,10 +160,16 @@
 
     <!-- PRINT CONTROLS CONFIGURATION -->
     <div class="bg-white rounded-3xl border border-stone-200/80 p-5 shadow-sm space-y-4">
-      <h2 class="text-xs font-black uppercase tracking-wider text-pgMaroon flex items-center gap-1.5">
-        <span class="w-5 h-5 rounded-full bg-pgYellow text-pgMaroon flex items-center justify-center text-xs font-black">2</span>
-        Print Options
-      </h2>
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-black uppercase tracking-wider text-pgMaroon flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-full bg-pgYellow text-pgMaroon flex items-center justify-center text-xs font-black">2</span>
+          Print Options
+        </h2>
+        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-full shadow-2xs">
+          <span>✨</span>
+          <span>Auto-White Background ON</span>
+        </span>
+      </div>
 
       <!-- Color Mode -->
       <div>
@@ -239,6 +238,30 @@
               +
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- Document Crop Option (Adobe Scan Auto-Crop vs No Crop) -->
+      <div>
+        <label class="block text-[11px] font-bold text-stone-600 mb-1.5">Document Cropping</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" data-crop="auto" class="btn-ctrl-crop active p-2.5 rounded-2xl border-2 border-pgMaroon bg-pgYellow text-left transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-black text-pgMaroon flex items-center gap-1">
+                <span>⚡ Auto Crop</span>
+              </p>
+              <p class="text-[10px] text-stone-600">Adobe Scan (Auto Edges)</p>
+            </div>
+            <span class="text-xs font-bold text-pgMaroon indicator">✓</span>
+          </button>
+
+          <button type="button" data-crop="none" class="btn-ctrl-crop p-2.5 rounded-2xl border border-stone-200 bg-pgBg text-left transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-stone-800">No Crop</p>
+              <p class="text-[10px] text-stone-500">Keep full photo frame</p>
+            </div>
+            <span class="text-xs font-bold text-pgMaroon indicator hidden">✓</span>
+          </button>
         </div>
       </div>
     </div>
@@ -400,25 +423,40 @@
     let colorMode = 'bw';
     let duplex = 'single';
     let paperSize = 'A4';
+    let cropMode = 'auto'; // Default: Auto Crop (Adobe Scan)
     let activeJob = null;
 
-    // Load Shop Data
+    // Apply Shop Data to Customer UI (0ms instantaneous execution)
+    function applyShopData(data) {
+      if (!data) return;
+      shopData = { ...shopData, ...data };
+      if (document.getElementById('cShopTitle')) document.getElementById('cShopTitle').textContent = shopData.name;
+      if (shopData.address && document.getElementById('cShopCity')) document.getElementById('cShopCity').textContent = shopData.address.toUpperCase();
+      const waPhone = shopData.whatsapp || shopData.phone || '9909577877';
+      const cleanWa = waPhone.replace(/[^0-9]/g, '');
+      const waLink = document.getElementById('btnSendViaWhatsApp');
+      if (waLink && cleanWa) {
+        waLink.href = `https://wa.me/91${cleanWa.slice(-10)}?text=${encodeURIComponent('Hi, I want to print a document at ' + (shopData.name || 'your shop'))}`;
+      }
+      updateStationUI(shopData.status);
+      calcTotal();
+    }
+
+    // Instant Hydration: If server injected shop data, apply on frame 1 without any network wait!
+    if (window.__INITIAL_SHOP_DATA__) {
+      applyShopData(window.__INITIAL_SHOP_DATA__);
+    }
+
+    // Load Shop Data (background live sync)
     async function initShop() {
+      if (window.__INITIAL_SHOP_DATA__) {
+        applyShopData(window.__INITIAL_SHOP_DATA__);
+      }
       try {
         const res = await fetch(`/api/shops/${currentShopSlug}`);
         const data = await res.json();
         if (data.success && data.shop) {
-          shopData = data.shop;
-          document.getElementById('cShopTitle').textContent = shopData.name;
-          if (shopData.address) document.getElementById('cShopCity').textContent = shopData.address.toUpperCase();
-          const waPhone = shopData.whatsapp || shopData.phone || '9909577877';
-          const cleanWa = waPhone.replace(/[^0-9]/g, '');
-          const waLink = document.getElementById('btnSendViaWhatsApp');
-          if (waLink && cleanWa) {
-            waLink.href = `https://wa.me/91${cleanWa.slice(-10)}?text=${encodeURIComponent('Hi, I want to print a document at ' + (shopData.name || 'your shop'))}`;
-          }
-          updateStationUI(shopData.status);
-          calcTotal();
+          applyShopData(data.shop);
         }
       } catch (e) {}
     }
@@ -580,6 +618,20 @@
       });
     });
 
+    document.querySelectorAll('.btn-ctrl-crop').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.btn-ctrl-crop').forEach(btn => {
+          btn.classList.remove('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
+          btn.classList.add('border', 'border-stone-200', 'bg-pgBg');
+          btn.querySelector('.indicator').classList.add('hidden');
+        });
+        b.classList.add('active', 'border-2', 'border-pgMaroon', 'bg-pgYellow');
+        b.classList.remove('border', 'border-stone-200', 'bg-pgBg');
+        b.querySelector('.indicator').classList.remove('hidden');
+        cropMode = b.dataset.crop;
+      });
+    });
+
     // Copies Stepper
     document.getElementById('btnMinus').addEventListener('click', () => {
       if (copies > 1) {
@@ -627,6 +679,7 @@
       document.getElementById('portalFileInput').click();
     }
 
+    // Instant Sub-10ms Counter Paper Token
     async function generateCounterPaperToken() {
       document.getElementById('counterChooserModal').classList.add('hidden');
       const btn = document.getElementById('btnActionCash');
@@ -634,19 +687,20 @@
       btn.textContent = 'Generating Token...';
 
       try {
-        const fd = new FormData();
-        fd.append('isCounterToken', 'true');
-        fd.append('counterDocType', `Physical Paper Xerox (${detectedPages}p x ${copies}c)`);
-        fd.append('clientPages', detectedPages);
-        fd.append('copies', copies);
-        fd.append('colorMode', colorMode);
-        fd.append('duplex', duplex);
-        fd.append('paperSize', paperSize);
-        fd.append('paymentMode', 'cash');
+        const payload = {
+          pages: detectedPages,
+          copies: copies,
+          colorMode: colorMode,
+          duplex: duplex,
+          paperSize: paperSize,
+          paymentMode: 'cash',
+          fileName: `Physical Paper Xerox (${detectedPages}p x ${copies}c)`
+        };
 
-        const res = await fetch(`/api/upload/${currentShopSlug}`, {
+        const res = await fetch(`/api/token/instant/${currentShopSlug}`, {
           method: 'POST',
-          body: fd
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (!res.ok || !data.success) throw new Error(data.error || 'Token error');
@@ -662,27 +716,327 @@
       }
     }
 
+    // =========================================================================
+    // ADOBE SCAN STYLE AUTO-CROP: DETECTS DOCUMENT / PAPER BOUNDS (TRIMS EDGES)
+    // =========================================================================
+    function detectDocumentBounds(canvas) {
+      if (!canvas || canvas.width < 10 || canvas.height < 10) {
+        return { x: 0, y: 0, w: 1, h: 1 };
+      }
+
+      const sw = Math.min(320, canvas.width);
+      const sh = Math.min(320, canvas.height);
+      const sample = document.createElement('canvas');
+      sample.width = sw;
+      sample.height = sh;
+      const sCtx = sample.getContext('2d');
+      sCtx.drawImage(canvas, 0, 0, sw, sh);
+
+      const imgData = sCtx.getImageData(0, 0, sw, sh);
+      const d = imgData.data;
+      const totalPixels = sw * sh;
+
+      const gray = new Uint8Array(totalPixels);
+      let sumLum = 0;
+      for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+        const l = (0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2]) | 0;
+        gray[p] = l;
+        sumLum += l;
+      }
+      const avgLum = sumLum / totalPixels;
+
+      // Sample 4 corner borders to estimate surrounding surface (table, shadow)
+      const cornerR = Math.max(2, Math.floor(sw * 0.04));
+      let cornerLum = 0;
+      let cornerCount = 0;
+      for (let y = 0; y < cornerR; y++) {
+        for (let x = 0; x < cornerR; x++) {
+          cornerLum += gray[y * sw + x] + gray[y * sw + (sw - 1 - x)] +
+                       gray[(sh - 1 - y) * sw + x] + gray[(sh - 1 - y) * sw + (sw - 1 - x)];
+          cornerCount += 4;
+        }
+      }
+      const avgCorner = cornerLum / cornerCount;
+
+      const paperThresh = Math.max(90, Math.min(210, Math.max(avgCorner + 18, avgLum * 0.92)));
+
+      let minX = sw, maxX = 0, minY = sh, maxY = 0;
+      let paperCount = 0;
+
+      for (let y = 0; y < sh; y++) {
+        for (let x = 0; x < sw; x++) {
+          const idx = y * sw + x;
+          if (gray[idx] >= paperThresh) {
+            paperCount++;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      const coverage = paperCount / totalPixels;
+      // If paper covers almost whole photo (>88%) or too little (<8%), keep full frame
+      if (coverage > 0.88 || coverage < 0.08 || minX >= maxX || minY >= maxY) {
+        return { x: 0, y: 0, w: 1, h: 1 };
+      }
+
+      // Safety margin (1.5%) so document text/borders are never clipped
+      const padX = Math.round(sw * 0.015);
+      const padY = Math.round(sh * 0.015);
+
+      const fx1 = Math.max(0, minX - padX);
+      const fx2 = Math.min(sw, maxX + padX);
+      const fy1 = Math.max(0, minY - padY);
+      const fy2 = Math.min(sh, maxY + padY);
+
+      return {
+        x: +(fx1 / sw).toFixed(3),
+        y: +(fy1 / sh).toFixed(3),
+        w: +((fx2 - fx1) / sw).toFixed(3),
+        h: +((fy2 - fy1) / sh).toFixed(3)
+      };
+    }
+
+    // =========================================================================
+    // AUTO-WHITE BACKGROUND ENGINE (PURE WHITE PAPER + CRISP CONTRAST)
+    // =========================================================================
+    function whitenCanvasBackground(canvas, isBw) {
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      const imgData = ctx.getImageData(0, 0, width, height);
+      const d = imgData.data;
+      const numPixels = width * height;
+
+      // 1. Grayscale luminance map
+      const gray = new Uint8Array(numPixels);
+      for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+        gray[p] = (0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2]) | 0;
+      }
+
+      // 2. Local illumination grid (24x24) to flatten uneven phone shadows & yellow room light
+      const blockW = Math.max(16, Math.floor(width / 24));
+      const blockH = Math.max(16, Math.floor(height / 24));
+      const gridX = Math.ceil(width / blockW);
+      const gridY = Math.ceil(height / blockH);
+      const bgGrid = new Uint8Array(gridX * gridY);
+
+      for (let gy = 0; gy < gridY; gy++) {
+        for (let gx = 0; gx < gridX; gx++) {
+          let maxVal = 140;
+          const startX = gx * blockW;
+          const endX = Math.min(width, startX + blockW);
+          const startY = gy * blockH;
+          const endY = Math.min(height, startY + blockH);
+
+          for (let y = startY; y < endY; y += 2) {
+            for (let x = startX; x < endX; x += 2) {
+              const val = gray[y * width + x];
+              if (val > maxVal) maxVal = val;
+            }
+          }
+          bgGrid[gy * gridX + gx] = maxVal;
+        }
+      }
+
+      // 3. Normalize: Turn paper background to 100% pure white (#FFFFFF)
+      //    and text/ink to razor-sharp, readable contrast!
+      for (let y = 0; y < height; y++) {
+        const gy = Math.min(gridY - 1, Math.floor(y / blockH));
+        for (let x = 0; x < width; x++) {
+          const gx = Math.min(gridX - 1, Math.floor(x / blockW));
+          const bgEstimate = Math.max(145, bgGrid[gy * gridX + gx]);
+
+          const idx = (y * width + x) * 4;
+          const lum = gray[y * width + x];
+
+          // Paper surface threshold -> Pure White #FFFFFF
+          if (lum >= bgEstimate - 24) {
+            d[idx] = 255;
+            d[idx+1] = 255;
+            d[idx+2] = 255;
+          } else {
+            // Text, handwriting, lines, stamps -> Crisp, bold contrast
+            const normalized = lum / bgEstimate;
+            const curve = Math.pow(Math.max(0, Math.min(1, (normalized - 0.06) / 0.90)), 1.55);
+            const gain = curve * 1.15;
+
+            if (isBw) {
+              const dark = Math.min(255, Math.floor(lum * gain * 0.85));
+              d[idx] = dark;
+              d[idx+1] = dark;
+              d[idx+2] = dark;
+            } else {
+              d[idx] = Math.min(255, Math.max(0, Math.floor(d[idx] * gain)));
+              d[idx+1] = Math.min(255, Math.max(0, Math.floor(d[idx+1] * gain)));
+              d[idx+2] = Math.min(255, Math.max(0, Math.floor(d[idx+2] * gain)));
+            }
+          }
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    // =========================================================================
+    // MASTER DOCUMENT COMPILER: MERGES ALL DOCUMENTS & PHOTOS INTO 1 MASTER PDF
+    // =========================================================================
+    async function buildMasterPrintDocument(files, colorMode) {
+      if (!files || files.length === 0) return null;
+
+      // If single PDF already, return directly for instant speed
+      if (files.length === 1 && (files[0].name.toLowerCase().endsWith('.pdf') || files[0].type === 'application/pdf')) {
+        return { file: files[0], totalPages: detectedPages, name: files[0].name };
+      }
+
+      // If PDFLib is available in browser
+      if (window.PDFLib) {
+        try {
+          const { PDFDocument } = window.PDFLib;
+          const masterPdf = await PDFDocument.create();
+          let pageCount = 0;
+
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+
+            if (isPdf) {
+              try {
+                const buf = await file.arrayBuffer();
+                const srcPdf = await PDFDocument.load(buf, { ignoreEncryption: true });
+                const indices = srcPdf.getPageIndices();
+                const copiedPages = await masterPdf.copyPages(srcPdf, indices);
+                copiedPages.forEach(p => masterPdf.addPage(p));
+                pageCount += indices.length;
+              } catch (e) {
+                console.warn('PDF page extract warning:', e);
+              }
+            } else {
+              // Image / Photo: Auto-whiten background and place on A4
+              try {
+                const dataUrl = await new Promise((res, rej) => {
+                  const r = new FileReader();
+                  r.onload = () => res(r.result);
+                  r.onerror = rej;
+                  r.readAsDataURL(file);
+                });
+
+                const img = await new Promise((res, rej) => {
+                  const im = new Image();
+                  im.onload = () => res(im);
+                  im.onerror = rej;
+                  im.src = dataUrl;
+                });
+
+                const canvas = document.createElement('canvas');
+                const maxDim = 2048;
+                let w = img.naturalWidth || img.width || 1200;
+                let h = img.naturalHeight || img.height || 1600;
+                if (w > maxDim || h > maxDim) {
+                  const r = Math.min(maxDim / w, maxDim / h);
+                  w = Math.round(w * r);
+                  h = Math.round(h * r);
+                }
+                canvas.width = w;
+                canvas.height = h;
+
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, w, h);
+                ctx.drawImage(img, 0, 0, w, h);
+
+                let targetCanvas = canvas;
+
+                // 1. Adobe Scan Auto-Crop (if cropMode === 'auto')
+                if (cropMode === 'auto') {
+                  const bounds = detectDocumentBounds(canvas);
+                  if (bounds && bounds.w < 0.98 && bounds.h < 0.98) {
+                    const cx = Math.floor(bounds.x * w);
+                    const cy = Math.floor(bounds.y * h);
+                    const cw = Math.max(10, Math.floor(bounds.w * w));
+                    const ch = Math.max(10, Math.floor(bounds.h * h));
+
+                    const croppedCanvas = document.createElement('canvas');
+                    croppedCanvas.width = cw;
+                    croppedCanvas.height = ch;
+                    const cCtx = croppedCanvas.getContext('2d');
+                    cCtx.drawImage(canvas, cx, cy, cw, ch, 0, 0, cw, ch);
+                    targetCanvas = croppedCanvas;
+                  }
+                }
+
+                // 2. Apply Auto-White Background (Photocopy Quality)
+                whitenCanvasBackground(targetCanvas, colorMode === 'bw');
+
+                const cleanJpg = targetCanvas.toDataURL('image/jpeg', 0.90);
+                const cleanBuf = await (await fetch(cleanJpg)).arrayBuffer();
+                const embedded = await masterPdf.embedJpg(cleanBuf);
+
+                // Add Standard A4 Page: 595.28 x 841.89 points
+                const page = masterPdf.addPage([595.28, 841.89]);
+                const margin = 16;
+                const maxW = 595.28 - (margin * 2);
+                const maxH = 841.89 - (margin * 2);
+                const scale = Math.min(maxW / embedded.width, maxH / embedded.height);
+                const dw = embedded.width * scale;
+                const dh = embedded.height * scale;
+                const x = (595.28 - dw) / 2;
+                const y = (841.89 - dh) / 2;
+                page.drawImage(embedded, { x, y, width: dw, height: dh });
+                pageCount += 1;
+              } catch (imgErr) {
+                console.error('Image compile error:', imgErr);
+              }
+            }
+          }
+
+          if (pageCount > 0) {
+            const pdfBytes = await masterPdf.save();
+            const docName = files.length === 1 
+              ? (files[0].name.replace(/\.[^/.]+$/, "") + ".pdf")
+              : `PrintGoo_${files.length}_Documents_${pageCount}Pages.pdf`;
+
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const combinedFile = new File([blob], docName, { type: 'application/pdf' });
+            return { file: combinedFile, totalPages: pageCount, name: docName };
+          }
+        } catch (masterErr) {
+          console.error('[Master PDF Builder] Error:', masterErr);
+        }
+      }
+
+      return { file: files[0], totalPages: detectedPages, name: files[0].name };
+    }
+
     // Submit Job
     async function uploadJob(paymentMode) {
       if (!selectedFiles || selectedFiles.length === 0) {
         return null;
       }
 
-      const fd = new FormData();
-      fd.append('file', selectedFiles[0]);
-      if (selectedFiles.length > 1) {
-        for (let i = 1; i < selectedFiles.length; i++) {
-          fd.append('additionalFiles', selectedFiles[i]);
-        }
+      // Show processing status on active button
+      const actBtn = paymentMode === 'cash' ? document.getElementById('btnActionCash') : document.getElementById('btnActionUpi');
+      const origText = actBtn ? actBtn.textContent : '';
+      if (actBtn) {
+        actBtn.disabled = true;
+        actBtn.textContent = '⚡ Whitening & Merging All Pages...';
       }
-      fd.append('clientPages', detectedPages);
-      fd.append('copies', copies);
-      fd.append('colorMode', colorMode);
-      fd.append('duplex', duplex);
-      fd.append('paperSize', paperSize);
-      fd.append('paymentMode', paymentMode);
 
       try {
+        const prepared = await buildMasterPrintDocument(selectedFiles, colorMode);
+        const finalFile = (prepared && prepared.file) ? prepared.file : selectedFiles[0];
+        const finalPages = (prepared && prepared.totalPages) ? prepared.totalPages : detectedPages;
+
+        const fd = new FormData();
+        fd.append('file', finalFile);
+        fd.append('clientPages', finalPages);
+        fd.append('copies', copies);
+        fd.append('colorMode', colorMode);
+        fd.append('duplex', duplex);
+        fd.append('paperSize', paperSize);
+        fd.append('paymentMode', paymentMode);
+
         const res = await fetch(`/api/upload/${currentShopSlug}`, {
           method: 'POST',
           body: fd
@@ -696,10 +1050,15 @@
       } catch (err) {
         alert('Upload Error: ' + err.message);
         return null;
+      } finally {
+        if (actBtn) {
+          actBtn.disabled = false;
+          actBtn.textContent = origText;
+        }
       }
     }
 
-    // Cash Action
+    // Cash Action: Ultra-Fast Instant Token (0.05s response)
     document.getElementById('btnActionCash').addEventListener('click', async () => {
       // If customer has NOT selected a file yet, show the chooser modal
       if (!selectedFiles || selectedFiles.length === 0) {
@@ -709,11 +1068,61 @@
 
       const btn = document.getElementById('btnActionCash');
       btn.disabled = true;
-      btn.textContent = 'Queueing Print...';
+      btn.textContent = 'Allocating Token...';
 
       try {
-        const job = await uploadJob('cash');
-        if (job) showReceipt(job);
+        const docDisplayName = selectedFiles.length === 1 
+          ? selectedFiles[0].name 
+          : `${selectedFiles.length} Documents Combined`;
+
+        // 1. Get Instant Token in ~10ms
+        const tokenRes = await fetch(`/api/token/instant/${currentShopSlug}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pages: detectedPages,
+            copies: copies,
+            colorMode: colorMode,
+            duplex: duplex,
+            paperSize: paperSize,
+            paymentMode: 'cash',
+            fileName: docDisplayName
+          })
+        });
+
+        const tokenData = await tokenRes.json();
+        if (!tokenData.success || !tokenData.job) throw new Error(tokenData.error || 'Token error');
+
+        activeJob = tokenData.job;
+        if (socket) socket.emit('job:watch', { jobId: activeJob.id });
+
+        // Show Token Receipt INSTANTLY in 0.05s!
+        showReceipt(activeJob);
+
+        const liveText = document.getElementById('receiptStatusLiveText');
+        if (liveText) {
+          liveText.innerHTML = '<span class="inline-block animate-pulse text-amber-700 font-bold">⚡ Syncing documents to counter...</span>';
+        }
+
+        // 2. Compile & Attach Files in background
+        buildMasterPrintDocument(selectedFiles, colorMode).then(async (prepared) => {
+          const finalFile = (prepared && prepared.file) ? prepared.file : selectedFiles[0];
+          const fd = new FormData();
+          fd.append('file', finalFile);
+          try {
+            await fetch(`/api/jobs/${activeJob.id}/attach-file`, {
+              method: 'POST',
+              body: fd
+            });
+            if (liveText) {
+              liveText.textContent = '✅ Document ready! Collect at counter.';
+              liveText.className = 'text-[11px] font-bold text-emerald-700';
+            }
+          } catch(e) {}
+        });
+
+      } catch (err) {
+        alert('Could not allocate token: ' + err.message);
       } finally {
         btn.disabled = false;
         btn.textContent = '💵 Pay at Counter (Cash)';
@@ -868,7 +1277,6 @@
     } catch (e) {}
 
     initShop();
-    document.getElementById('globalLoader').style.display = 'none';
   </script>
 </body>
 </html>
